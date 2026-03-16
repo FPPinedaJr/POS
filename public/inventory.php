@@ -12,6 +12,8 @@ $items = [];
 $categories = [];
 $dbError = null;
 $pageData = null;
+$lowStockCount = 0;
+$lowStockItems = [];
 
 $itemsPerPage = 20;
 
@@ -29,6 +31,28 @@ try {
 
     $pageData = inv_fetch_dashboard_items($pdo, (int) $_SESSION['user_id'], $_GET, $itemsPerPage);
     $items = $pageData['items'];
+
+    // Build low-stock notifications: items where current_stock <= stock_threshold and threshold > 0
+    foreach ($items as $it) {
+        $current = (int) ($it['item_count'] ?? 0);
+        $threshold = (int) ($it['stock_threshold'] ?? 0);
+
+        if ($threshold > 0 && $current <= $threshold) {
+            $lowStockCount++;
+
+            if (count($lowStockItems) < 50) {
+                $thumbUrl = $it['image_thumb_path'] ?? null;
+                $previewUrl = $it['image_preview_path'] ?? null;
+                $imgSrc = $thumbUrl ?: $previewUrl ?: null;
+
+                $lowStockItems[] = [
+                    'name' => (string) ($it['item_name'] ?? ''),
+                    'current' => $current,
+                    'image' => $imgSrc ? (string) $imgSrc : null,
+                ];
+            }
+        }
+    }
 } catch (Throwable $e) {
     $dbError = 'Unable to load inventory items right now.';
     $host = (string) ($_SERVER['HTTP_HOST'] ?? '');
@@ -790,16 +814,26 @@ try {
                         class="absolute top-0 right-0 w-32 h-32 bg-indigo-600/5 rounded-full blur-2xl -translate-y-1/2 translate-x-1/2 pointer-events-none">
                     </div>
 
-                    <div class="relative z-10">
-                        <h2 class="text-xl font-black text-slate-900 tracking-tight">Edit item</h2>
-                        <p class="text-xs font-medium text-slate-500 mt-0.5">Update item details and stock levels.</p>
+                    <div class="relative z-10 flex items-center gap-3">
+                        <div>
+                            <h2 class="text-xl font-black text-slate-900 tracking-tight">Edit item</h2>
+                            <p class="text-xs font-medium text-slate-500 mt-0.5">Update item details and stock levels.</p>
+                        </div>
                     </div>
 
-                    <button type="button" id="delete-item-btn"
-                        class="relative z-10 h-8 w-8 inline-flex items-center justify-center rounded-full cursor-pointer bg-white shadow-sm border border-red-100 hover:bg-red-50 transition-all text-red-400 hover:text-red-600"
-                        title="Delete Item">
-                        <i class="fa-solid fa-trash-can text-sm"></i>
-                    </button>
+                    <div class="relative z-10 flex items-center gap-2">
+                        <button type="button" id="qr-item-btn"
+                            class="h-8 w-8 inline-flex items-center justify-center rounded-full cursor-pointer bg-white shadow-sm border border-indigo-100 hover:bg-indigo-50 transition-all text-indigo-500 hover:text-indigo-700"
+                            title="Show item QR code">
+                            <i class="fa-solid fa-qrcode text-sm"></i>
+                        </button>
+
+                        <button type="button" id="delete-item-btn"
+                            class="h-8 w-8 inline-flex items-center justify-center rounded-full cursor-pointer bg-white shadow-sm border border-red-100 hover:bg-red-50 transition-all text-red-400 hover:text-red-600"
+                            title="Delete Item">
+                            <i class="fa-solid fa-trash-can text-sm"></i>
+                        </button>
+                    </div>
                 </div>
 
                 <form id="edit-item-form" action="includes/update_item.php" method="POST" enctype="multipart/form-data"
@@ -986,6 +1020,40 @@ try {
         </div>
     </div>
 
+    <!-- ITEM QR MODAL -->
+    <div id="item-qr-modal"
+        class="fixed inset-0 z-[70] hidden items-center justify-center bg-slate-900/50 backdrop-blur-sm p-4 transition-all">
+        <div class="relative w-full max-w-xs mx-auto">
+            <div
+                class="bg-white/95 backdrop-blur-xl rounded-3xl shadow-2xl border border-white overflow-visible animate-in fade-in zoom-in duration-200 p-5 flex flex-col items-center gap-3">
+                <button type="button" id="close-item-qr-modal"
+                    class="absolute top-3 right-3 h-7 w-7 inline-flex items-center justify-center rounded-full cursor-pointer bg-white shadow-sm border border-slate-100 hover:bg-slate-50 transition-all text-slate-400 hover:text-slate-600">
+                    <i class="fa-solid fa-xmark text-sm"></i>
+                </button>
+
+                <p class="mt-2 text-[11px] font-black text-slate-500 uppercase tracking-widest text-center">
+                    Item QR Code
+                </p>
+
+                <canvas id="item-qr-canvas" class="w-40 h-40 border border-slate-100 rounded-2xl bg-white"></canvas>
+
+                <p id="item-qr-name"
+                    class="mt-2 text-xs font-semibold text-slate-700 text-center truncate max-w-full px-2">
+                </p>
+
+                <button type="button" id="download-item-qr"
+                    class="mt-2 inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-indigo-600 text-[11px] font-bold tracking-wide text-white shadow-md shadow-indigo-200 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500/30 transition-all cursor-pointer">
+                    <i class="fa-solid fa-download text-xs"></i>
+                    Download QR
+                </button>
+
+                <p class="text-[10px] text-slate-400 text-center mt-1">
+                    Scan with POS to instantly look up this item.
+                </p>
+            </div>
+        </div>
+    </div>
+
     <!-- DELETE MODAL -->
     <div id="delete-confirm-modal"
         class="fixed inset-0 z-[70] hidden items-center justify-center bg-slate-900/40 backdrop-blur-sm p-4 transition-all">
@@ -1084,6 +1152,7 @@ try {
 
     <script src="https://cdn.jsdelivr.net/npm/uuid@9.0.1/dist/umd/uuidv7.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/qrious@4.0.2/dist/qrious.min.js"></script>
     <script>
         $(document).ready(function () {
 
@@ -1094,6 +1163,8 @@ try {
             const $loaderText = $('#loader-description');
             const $profileBtn = $('#profileTrigger');
             const $profileMenu = $('#googleMenu');
+            const $stockNotifBtn = $('#stock-notif-btn');
+            const $stockNotifPanel = $('#stock-notif-panel');
             const $addItemModal = $('#add-item-modal');
             const $filterForm = $('#dashboard-filter-form');
             const $catToggle = $('#category-filter-toggle');
@@ -1120,7 +1191,18 @@ try {
             $('#close-legal-modal, #legal-modal-ok').on('click', closeLegalModal);
             $(document).on('click', function (e) {
                 if ($legalModal.length && $(e.target).is($legalModal)) closeLegalModal();
+                if ($stockNotifPanel.length && !$stockNotifPanel.is(e.target) && $stockNotifPanel.has(e.target).length === 0 && !$stockNotifBtn.is(e.target)) {
+                    $stockNotifPanel.addClass('hidden');
+                }
             });
+
+            if ($stockNotifBtn.length && $stockNotifPanel.length) {
+                $stockNotifBtn.on('click', function (e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    $stockNotifPanel.toggleClass('hidden');
+                });
+            }
 
             // Replace your existing .toggle-day-details listener with this:
             $(document).on('click', '.toggle-day-details', function () {
@@ -1433,6 +1515,104 @@ try {
             $('#edit-qty-btn-minus').on('click', () => { handleQtyCounter($editQtyInput, 'minus'); calculateDelta(); });
             $editQtyInput.on('input', () => { handleQtyCounter($editQtyInput, 'input'); calculateDelta(); });
 
+            const $itemQrModal = $('#item-qr-modal');
+            const $downloadItemQr = $('#download-item-qr');
+            const $itemQrName = $('#item-qr-name');
+            let itemQrInstance = null;
+
+            $('#qr-item-btn').on('click', function () {
+                const itemId = $('#edit_item_id').val();
+                const itemName = ($('#edit_item_name').val() || '').toString().trim();
+                if (!itemId) return;
+                const payload = `ITEM:${itemId}`;
+
+                const canvas = document.getElementById('item-qr-canvas');
+                if (window.QRious && canvas) {
+                    if (!itemQrInstance) {
+                        itemQrInstance = new QRious({
+                            element: canvas,
+                            size: 220,
+                            level: 'H',
+                            value: payload,
+                        });
+                    } else {
+                        itemQrInstance.set({
+                            value: payload,
+                        });
+                    }
+                }
+
+                // Set name label under QR
+                $itemQrName.text(itemName !== '' ? itemName : `Item #${itemId}`);
+
+                $itemQrModal.removeClass('hidden').addClass('flex');
+
+                // Prepare download link
+                if (canvas && canvas.toDataURL) {
+                    const dataUrl = canvas.toDataURL('image/png');
+                    $downloadItemQr.data('qrSrc', dataUrl);
+                }
+            });
+
+            $('#close-item-qr-modal').on('click', function () {
+                $itemQrModal.addClass('hidden').removeClass('flex');
+            });
+
+            $downloadItemQr.on('click', function () {
+                const baseSrc = $(this).data('qrSrc');
+                if (!baseSrc) return;
+
+                const qrCanvas = document.getElementById('item-qr-canvas');
+                if (!qrCanvas) return;
+
+                const itemId = $('#edit_item_id').val() || 'item';
+                const rawName = ($('#edit_item_name').val() || '').toString().trim();
+                const displayName = rawName !== '' ? rawName : `Item #${itemId}`;
+                const fileSafeName = displayName.replace(/[^\w\-]+/g, '_');
+
+                // Create a composite canvas with QR on top and item name text below
+                const size = qrCanvas.width || 220;
+                const textHeight = 34;
+                const outCanvas = document.createElement('canvas');
+                outCanvas.width = size;
+                outCanvas.height = size + textHeight;
+                const ctx = outCanvas.getContext('2d');
+
+                // Background
+                ctx.fillStyle = '#ffffff';
+                ctx.fillRect(0, 0, outCanvas.width, outCanvas.height);
+
+                // Draw existing QR image
+                ctx.drawImage(qrCanvas, 0, 0, size, size);
+
+                // Draw item name text underneath
+                ctx.fillStyle = '#111827'; // slate-900
+                ctx.font = 'bold 16px system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+
+                // Optionally truncate long names visually
+                const maxWidth = size - 16;
+                let text = displayName;
+                if (ctx.measureText(text).width > maxWidth) {
+                    while (text.length > 3 && ctx.measureText(text + '…').width > maxWidth) {
+                        text = text.slice(0, -1);
+                    }
+                    text += '…';
+                }
+
+                ctx.fillText(text, size / 2, size + textHeight / 2);
+
+                const finalSrc = outCanvas.toDataURL('image/png');
+
+                const a = document.createElement('a');
+                a.href = finalSrc;
+                a.download = `item-${itemId}-${fileSafeName}-qr.png`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+            });
+
             $('#edit_item_image').on('change', function () {
                 const file = this.files && this.files[0] ? this.files[0] : null;
                 const ok = validateImageFileOrReset(
@@ -1467,6 +1647,7 @@ try {
                 } else {
                     handleImagePreview(null, $('#edit-image-preview'), $('#edit-image-preview-icon'), $('#edit-image-preview-container'));
                 }
+
                 $editItemModal.removeClass('hidden').addClass('flex');
             };
 

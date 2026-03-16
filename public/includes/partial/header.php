@@ -13,7 +13,83 @@ $currentPage = basename($_SERVER['PHP_SELF']);
             </a>
         </div>
 
-        <div class="flex items-center gap-2 sm:gap-4">
+        <div class="flex items-center gap-1.5 sm:gap-3">
+            <?php
+            $notifCount = isset($lowStockCount) ? (int) $lowStockCount : 0;
+            ?>
+            <?php if ($currentPage === 'inventory.php'): ?>
+                <div class="relative">
+                    <button id="stock-notif-btn" type="button"
+                        class="flex items-center justify-center p-1 rounded-full hover:cursor-pointer hover:ring-4 hover:ring-indigo-500/10 transition-all focus:outline-none shadow-sm bg-white/50">
+                        <span
+                            class="h-9 w-9 rounded-full border-2 border-white flex items-center justify-center text-sky-500 bg-slate-900/90">
+                            <i class="fa-solid fa-bell text-sm"></i>
+                        </span>
+                        <?php if ($notifCount > 0): ?>
+                            <span
+                                class="absolute top-0 right-0 translate-x-1/3 -translate-y-1/3 h-4 w-4 rounded-full bg-red-500 text-[9px] font-bold text-white flex items-center justify-center shadow-md border border-white leading-none">
+                                <?php echo $notifCount; ?>
+                            </span>
+                        <?php endif; ?>
+                    </button>
+
+                    <div id="stock-notif-panel"
+                        class="hidden absolute right-0 mt-3 w-80 bg-white/95 backdrop-blur-2xl rounded-3xl shadow-2xl border border-white z-50 overflow-hidden">
+                        <div class="p-6 flex flex-col text-left relative">
+                            <div class="absolute inset-0 linear-gradient-to-br from-sky-500/5 to-indigo-500/5"></div>
+
+                            <div class="relative z-10 mb-3 flex items-center justify-between">
+                                <h3 class="text-base font-semibold text-slate-900">Low Stock Alert</h3>
+                            </div>
+
+                            <div class="relative z-10 max-h-80 overflow-y-auto -mx-2 px-1.5">
+                                <?php if (!empty($lowStockItems ?? []) && $notifCount > 0): ?>
+                                    <?php foreach ($lowStockItems as $idx => $ls): ?>
+                                        <?php
+                                        $name = (string) ($ls['name'] ?? '');
+                                        $current = (int) ($ls['current'] ?? 0);
+                                        $image = isset($ls['image']) ? (string) $ls['image'] : null;
+                                        $initial = mb_strtoupper(mb_substr(trim($name) !== '' ? trim($name) : 'I', 0, 1));
+                                        ?>
+                                        <button type="button"
+                                            class="stock-notif-item w-full text-left mb-2 last:mb-0 flex items-center gap-3 px-3 py-1.5">
+                                            <div class="h-9 w-9 rounded-full overflow-hidden flex-shrink-0 border border-slate-200 bg-slate-100 flex items-center justify-center">
+                                                <?php if ($image): ?>
+                                                    <img src="<?php echo htmlspecialchars($image); ?>"
+                                                        alt="<?php echo htmlspecialchars($name); ?>"
+                                                        class="h-full w-full object-cover">
+                                                <?php else: ?>
+                                                    <span class="text-xs font-bold text-sky-600">
+                                                        <?php echo htmlspecialchars($initial); ?>
+                                                    </span>
+                                                <?php endif; ?>
+                                            </div>
+                                            <div class="flex-1 min-w-0">
+                                                <p class="text-sm font-semibold text-slate-900 truncate">
+                                                    <?php echo htmlspecialchars($name); ?>
+                                                </p>
+                                                <p class="text-xs text-slate-600 mt-0.5">
+                                                    Remaining stock:
+                                                    <span class="font-semibold text-sky-600"><?php echo $current; ?></span>
+                                                </p>
+                                                <p class="text-[11px] text-red-500 mt-0.5 font-semibold">
+                                                    Stock is at or below its alert level.
+                                                </p>
+                                            </div>
+                                        </button>
+                                    <?php endforeach; ?>
+                                <?php else: ?>
+                                    <div class="px-4 py-6 text-center text-sm text-slate-500">
+                                        <p class="font-semibold mb-1">No stock alerts</p>
+                                        <p class="text-xs text-slate-400">You’re all caught up. Items are above their thresholds.</p>
+                                    </div>
+                                <?php endif; ?>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            <?php endif; ?>
+
             <div class="relative ml-2">
                 <button id="profileTrigger"
                     class="flex items-center justify-center p-1 rounded-full hover:cursor-pointer hover:ring-4 hover:ring-indigo-500/10 transition-all focus:outline-none shadow-sm bg-white/50">
