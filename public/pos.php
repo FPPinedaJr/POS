@@ -299,6 +299,7 @@ if (!isset($_SESSION['user_id'])) {
     </div>
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="assets/js/toast-helper.js"></script>
     <script>
         $(document).ready(function () {
 
@@ -425,7 +426,9 @@ if (!isset($_SESSION['user_id'])) {
                     },
                     error: function () {
                         $loader.addClass('hidden');
-                        alert('Error loading items. Please check your connection.');
+                        if (typeof showToast === 'function') {
+                            showToast('error', 'Error loading items. Please check your connection.');
+                        }
                     }
                 });
             }
@@ -622,7 +625,9 @@ if (!isset($_SESSION['user_id'])) {
                 const maxStock = parseInt($(this).data('stock'), 10);
 
                 if (!maxStock || maxStock <= 0) {
-                    alert('This item is out of stock.');
+                    if (typeof showToast === 'function') {
+                        showToast('error', 'This item is out of stock.');
+                    }
                     return;
                 }
 
@@ -708,7 +713,9 @@ if (!isset($_SESSION['user_id'])) {
                     : selectedItemForCart.retailPrice;
 
                 if (qty < 1 || qty > selectedItemForCart.maxStock) {
-                    alert('Invalid quantity.');
+                    if (typeof showToast === 'function') {
+                        showToast('error', 'Invalid quantity.');
+                    }
                     return;
                 }
 
@@ -716,7 +723,9 @@ if (!isset($_SESSION['user_id'])) {
 
                 if (existingItem) {
                     if (existingItem.qty + qty > selectedItemForCart.maxStock) {
-                        alert('Cannot add more. Out of stock!');
+                        if (typeof showToast === 'function') {
+                            showToast('error', 'Cannot add more. Out of stock!');
+                        }
                         return;
                     }
                     existingItem.qty += qty;
@@ -814,7 +823,9 @@ if (!isset($_SESSION['user_id'])) {
 
             function openCheckoutWizard() {
                 if (cart.length === 0) {
-                    alert('Cart is empty.');
+                    if (typeof showToast === 'function') {
+                        showToast('error', 'Cart is empty.');
+                    }
                     return;
                 }
 
@@ -914,14 +925,22 @@ if (!isset($_SESSION['user_id'])) {
                             cart = [];
                             renderCart();
                             loadPosItems();
+                            // Refresh today's transactions so the "Today's Transactions" view is up-to-date
+                            preloadTodayTransactions();
                             closeCheckoutWizard();
-                            alert('Transaction Successful! Receipt: ' + res.transaction_number);
+                            if (typeof showToast === 'function') {
+                                showToast('success', 'Transaction Successful! Receipt: ' + res.transaction_number);
+                            }
                         } else {
-                            alert('Checkout failed: ' + res.message);
+                            if (typeof showToast === 'function') {
+                                showToast('error', res.message || 'Checkout failed.');
+                            }
                         }
                     },
                     error: function () {
-                        alert('Server error during checkout.');
+                        if (typeof showToast === 'function') {
+                            showToast('error', 'Server error during checkout.');
+                        }
                     },
                     complete: function () {
                         $btn.prop('disabled', false).text('Confirm & Process');
@@ -1112,10 +1131,14 @@ if (!isset($_SESSION['user_id'])) {
                         data: JSON.stringify({ uuid }),
                         success: function (res) {
                             if (res.success) {
-                                alert('Receivable Paid!');
+                                if (typeof showToast === 'function') {
+                                    showToast('success', 'Receivable Paid!');
+                                }
                                 $('#open-receivables').click();
                             } else {
-                                alert('Error: ' + res.message);
+                                if (typeof showToast === 'function') {
+                                    showToast('error', res.message || 'Unable to pay receivable.');
+                                }
                             }
                         },
                         complete: closeConfirmModal
@@ -1128,7 +1151,9 @@ if (!isset($_SESSION['user_id'])) {
                         data: JSON.stringify({ uuid }),
                         success: function (res) {
                             if (res.success) {
-                                alert('Transaction Voided.');
+                                if (typeof showToast === 'function') {
+                                    showToast('success', 'Transaction Voided.');
+                                }
                                 const title = $('#sales-history-modal h2').text() || '';
                                 if (title.indexOf('Receivables') !== -1) {
                                     $('#open-receivables').click();
@@ -1137,7 +1162,9 @@ if (!isset($_SESSION['user_id'])) {
                                 }
                                 loadPosItems();
                             } else {
-                                alert('Error: ' + res.message);
+                                if (typeof showToast === 'function') {
+                                    showToast('error', res.message || 'Unable to void transaction.');
+                                }
                             }
                         },
                         complete: closeConfirmModal

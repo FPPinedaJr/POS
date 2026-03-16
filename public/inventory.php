@@ -1180,12 +1180,12 @@ try {
     <script src="https://cdn.jsdelivr.net/npm/uuid@9.0.1/dist/umd/uuidv7.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/qrious@4.0.2/dist/qrious.min.js"></script>
+    <script src="assets/js/toast-helper.js"></script>
     <script>
         $(document).ready(function () {
 
             // --- GLOBAL VARIABLES & TOAST ---
             const categoryCrudUrl = 'includes/category_crud.php';
-            const $toastContainer = $('#toast-container');
             const $loaderContainer = $('#loader-container');
             const $loaderText = $('#loader-description');
             const $profileBtn = $('#profileTrigger');
@@ -1353,25 +1353,6 @@ try {
                 e.stopPropagation();
                 $profileMenu.toggleClass('hidden');
             });
-
-            function showToast(type, message) {
-                const isError = type === 'error';
-                const base = 'pointer-events-auto w-80 max-w-[90vw] rounded-2xl border shadow-xl px-5 py-4 backdrop-blur-md';
-                const colors = isError ? 'bg-red-50/90 border-red-200 text-red-800' : 'bg-emerald-50/90 border-emerald-200 text-emerald-800';
-                const icon = isError ? 'fa-circle-exclamation' : 'fa-circle-check';
-
-                const $toast = $('<div></div>').addClass(`${base} ${colors}`).hide();
-                const $wrap = $('<div class="flex items-center"><div class="flex items-start gap-3"><i class="fa-solid ' + icon + ' mt-0.5 text-lg"></i><div class="text-sm font-bold leading-snug">' + message + '</div></div></div>');
-                const $close = $('<button type="button" class="ml-auto text-inherit/50 hover:text-inherit hover:bg-black/5 p-1 rounded-md transition-all"><i class="fa-solid fa-xmark"></i></button>');
-
-                $close.on('click', () => $toast.stop(true, true).fadeOut(150, function () { $(this).remove(); }));
-                $toast.append($wrap.append($close));
-                $toastContainer.append($toast);
-                $toast.fadeIn(150);
-
-                setTimeout(() => $toast.fadeOut(250, function () { $(this).remove(); }), 3000);
-            }
-
 
             // --- PASSWORD UPDATE ---
             $(document).on('click', '.toggle-pass', function () {

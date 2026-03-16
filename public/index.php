@@ -72,43 +72,9 @@ if (isset($_SESSION['user_id'])) {
     </div>
 
     <script src="assets/js/jquery-4.0.0.min.js"></script>
+    <script src="assets/js/toast-helper.js"></script>
     <script>
         $(document).ready(function () {
-
-            // Function to dynamically create and show the toast
-            function showToast(type, message) {
-                // Remove any existing toast to prevent stacking
-                $('#dynamic-toast').remove();
-
-                const bgColor = type === 'success' ? 'bg-teal-500' : 'bg-red-500';
-                const icon = type === 'success' ? 'fa-check-circle' : 'fa-circle-exclamation';
-
-                const toastHtml = `
-            <div id="dynamic-toast" class="fixed top-5 right-5 z-50 flex items-center w-full max-w-xs p-4 space-x-3 text-white ${bgColor} rounded-xl shadow-lg transition-opacity duration-500 opacity-0">
-                <i class="fa-solid ${icon} text-xl"></i>
-                <div class="text-sm font-semibold">${message}</div>
-                <button type="button" onclick="$('#dynamic-toast').remove()" class="ml-auto -mx-1.5 -my-1.5 bg-transparent text-white hover:text-gray-200 rounded-lg focus:ring-2 focus:ring-white p-1.5 inline-flex h-8 w-8">
-                    <i class="fa-solid fa-xmark"></i>
-                </button>
-            </div>
-        `;
-
-                $('body').append(toastHtml);
-
-                // Fade in
-                setTimeout(() => {
-                    $('#dynamic-toast').removeClass('opacity-0');
-                }, 10);
-
-                // Auto dismiss after 4 seconds
-                setTimeout(() => {
-                    const toast = $('#dynamic-toast');
-                    if (toast.length) {
-                        toast.addClass('opacity-0');
-                        setTimeout(() => toast.remove(), 500);
-                    }
-                }, 4000);
-            }
 
             // Intercept form submissions
             $('form').on('submit', function (e) {
