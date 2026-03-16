@@ -61,9 +61,8 @@ try {
     </div>
 
     <div class="fixed top-0 left-0 right-0 h-1 bg-gradient-to-r from-indigo-500 via-fuchsia-500 to-teal-400 z-[100]">
-    </div> 
-    
-    <!-- Loader -->
+    </div>
+
     <div id="loader-container"
         class="fixed inset-0 z-50 hidden flex flex-col items-center justify-center bg-slate-900/40 backdrop-blur-sm">
         <?php include "./includes/partial/loader.php" ?>
@@ -190,7 +189,7 @@ try {
                                     aria-expanded="true" aria-controls="category-filter-panel">
                                     <span>Categories</span>
                                     <div id="category-filter-chevron"
-                                        class="w-6 h-6 rounded-full flex items-center justify-center transition-transform duration-300">
+                                        class="w-6 h-6 rounded-full flex items-center justify-center transition-transform duration-300 rotate-180">
                                         <i class="fa-solid fa-chevron-up text-xs text-slate-400"></i>
                                     </div>
                                 </button>
@@ -256,7 +255,7 @@ try {
                     </aside>
 
                     <section class="lg:col-span-8 xl:col-span-9">
-                        <div
+                        <div id="dashboard-filter-card"
                             class="bg-white/70 backdrop-blur-xl border border-white rounded-xl p-5 lg:p-6 shadow-xl shadow-slate-200/40 mb-6">
                             <div class="flex flex-col sm:flex-row items-center gap-4">
                                 <div class="flex-1 relative w-full">
@@ -280,17 +279,42 @@ try {
                                     <div class="text-[10px] uppercase tracking-widest font-black text-slate-500">
                                         Sort By
                                     </div>
-                                    <div class="relative group">
-                                        <select name="sort" id="sort"
-                                            class="appearance-none h-10 rounded-xl border-white bg-white/60 backdrop-blur-sm text-sm font-bold text-slate-700 pl-4 pr-10 shadow-inner cursor-pointer transition-all hover:bg-white/90 hover:border-indigo-100 focus:outline-none focus:ring-0 focus:border-indigo-200 focus:bg-white">
-                                            <option value="name_asc" <?php echo ($selectedSort === 'name_asc') ? ' selected' : ''; ?>>Name (A–Z)</option>
-                                            <option value="name_desc" <?php echo ($selectedSort === 'name_desc') ? ' selected' : ''; ?>>Name (Z–A)</option>
-                                            <option value="count_asc" <?php echo ($selectedSort === 'count_asc') ? ' selected' : ''; ?>>Stocks (Low–High)</option>
-                                            <option value="count_desc" <?php echo ($selectedSort === 'count_desc') ? ' selected' : ''; ?>>Stocks (High–Low)</option>
-                                        </select>
-                                        <div
-                                            class="absolute inset-y-0 right-0 pr-3.5 flex items-center pointer-events-none text-slate-400 group-hover:text-indigo-600 transition-colors">
-                                            <i class="fa-solid fa-chevron-down text-[10px]"></i>
+                                    
+                                    <?php
+                                    // Define our options so we can easily loop through them and find the active label
+                                    $sortOptions = [
+                                        'name_asc' => 'Name (A–Z)',
+                                        'name_desc' => 'Name (Z–A)',
+                                        'count_asc' => 'Stocks (Low–High)',
+                                        'count_desc' => 'Stocks (High–Low)'
+                                    ];
+                                    $currentSortLabel = $sortOptions[$selectedSort] ?? 'Name (A–Z)';
+                                    ?>
+                                    <div id="custom-sort-dd" class="relative group">
+                                        <input type="hidden" name="sort" id="sort-input" value="<?php echo htmlspecialchars($selectedSort); ?>">
+
+                                        <button type="button" id="custom-sort-trigger"
+                                            class="w-44 inline-flex items-center justify-between h-10 rounded-xl border-white bg-white/60 backdrop-blur-sm text-sm font-bold text-slate-700 pl-4 pr-3.5 shadow-inner cursor-pointer transition-all hover:bg-white/90 hover:border-indigo-100 focus:outline-none focus:ring-0 focus:border-indigo-200 focus:bg-white">
+                                            <span id="custom-sort-label" class="truncate"><?php echo $currentSortLabel; ?></span>
+                                            <i id="custom-sort-chevron" class="fa-solid fa-chevron-up text-[10px] text-slate-400 group-hover:text-indigo-600 transition-transform duration-300"></i>
+                                        </button>
+
+                                        <div id="custom-sort-menu"
+                                            class="hidden absolute right-0 mt-2 w-48 rounded-2xl border border-white bg-white/95 backdrop-blur-xl shadow-2xl z-50 overflow-hidden origin-top-right transition-all animate-in fade-in slide-in-from-top-2 duration-200">
+                                            <ul class="p-2 space-y-1">
+                                                <?php foreach ($sortOptions as $val => $label): ?>
+                                                    <li class="sort-option group rounded-lg px-3 py-2 hover:bg-slate-50 cursor-pointer transition-colors <?php echo $selectedSort === $val ? 'bg-indigo-50' : ''; ?>"
+                                                        data-value="<?php echo $val; ?>"
+                                                        data-label="<?php echo $label; ?>">
+                                                        <button type="button" class="w-full text-left text-xs font-bold whitespace-nowrap text-black">
+                                                            <?php echo $label; ?>
+                                                            <?php if ($selectedSort === $val): ?>
+                                                                <i class="fa-solid fa-check float-right mt-0.5 text-black"></i>
+                                                            <?php endif; ?>
+                                                        </button>
+                                                    </li>
+                                                <?php endforeach; ?>
+                                            </ul>
                                         </div>
                                     </div>
                                 </div>
@@ -792,8 +816,6 @@ try {
         </div>
     </div>
 
-    <!-- EDIT MODAL -->
-
     <div id="edit-item-modal"
         class="fixed inset-0 z-[60] hidden items-center justify-center bg-slate-900/40 backdrop-blur-sm p-4 transition-all">
         <div class="relative w-full max-w-lg mx-auto">
@@ -903,6 +925,7 @@ try {
                                                         class="edit-category-select flex-1 text-left text-xs font-bold text-slate-700 whitespace-normal break-words leading-snug cursor-pointer">
                                                         <?php echo htmlspecialchars($cat['category_name']); ?>
                                                     </button>
+                                                </li>
                                             <?php endforeach; ?>
                                         </ul>
                                     </div>
@@ -980,7 +1003,6 @@ try {
         </div>
     </div>
 
-    <!-- DELETE MODAL -->
     <div id="delete-confirm-modal"
         class="fixed inset-0 z-[70] hidden items-center justify-center bg-slate-900/40 backdrop-blur-sm p-4 transition-all">
         <div class="relative w-full max-w-sm mx-auto">
@@ -1118,9 +1140,6 @@ try {
             }
             $('#open-legal-modal').on('click', openLegalModal);
             $('#close-legal-modal, #legal-modal-ok').on('click', closeLegalModal);
-            $(document).on('click', function (e) {
-                if ($legalModal.length && $(e.target).is($legalModal)) closeLegalModal();
-            });
 
             // Replace your existing .toggle-day-details listener with this:
             $(document).on('click', '.toggle-day-details', function () {
@@ -1185,6 +1204,48 @@ try {
                     }, 150);
                 });
             }
+
+            // --- CUSTOM SORT DROPDOWN ---
+            const $sortTrigger = $('#custom-sort-trigger');
+            const $sortMenu = $('#custom-sort-menu');
+            const $sortChevron = $('#custom-sort-chevron');
+            const $sortInput = $('#sort-input');
+            const $sortLabel = $('#custom-sort-label');
+
+            // Toggle menu and rotate chevron; raise card z-index when open so dropdown appears above item list
+            const $filterCard = $('#dashboard-filter-card');
+            $sortTrigger.on('click', function(e) {
+                e.stopPropagation();
+                $sortMenu.toggleClass('hidden');
+                $sortChevron.toggleClass('rotate-180');
+                $filterCard.toggleClass('relative z-40', !$sortMenu.hasClass('hidden'));
+            });
+
+            // Handle clicking an option
+            $('.sort-option').on('click', function(e) {
+                e.preventDefault();
+                const val = $(this).data('value');
+                const label = $(this).data('label');
+
+                // Only submit if they picked a different option
+                if ($sortInput.val() !== val) {
+                    $sortInput.val(val);
+                    $sortLabel.text(label);
+                    
+                    // Hide menu & reset chevron instantly so it looks clean before reload
+                    $sortMenu.addClass('hidden');
+                    $sortChevron.removeClass('rotate-180');
+                    $('#dashboard-filter-card').removeClass('relative z-40');
+                    
+                    // Trigger the form submit
+                    $('#dashboard-filter-form').submit();
+                } else {
+                    // Just close it if they clicked the currently active option
+                    $sortMenu.addClass('hidden');
+                    $sortChevron.removeClass('rotate-180');
+                    $('#dashboard-filter-card').removeClass('relative z-40');
+                }
+            });
 
             // 1. Re-query on Dropdown Change (Resets everything)
             $('#historyItemFilter').on('change', function () {
@@ -1858,6 +1919,13 @@ try {
                 if ($(e.target).is($deleteConfirmModal)) $deleteConfirmModal.removeClass('flex').addClass('hidden');
                 if ($('#category-dd').length && !$('#category-dd').is(e.target) && $('#category-dd').has(e.target).length === 0) closeDropdown();
                 if ($('#edit-category-dd').length && !$('#edit-category-dd').is(e.target) && $('#edit-category-dd').has(e.target).length === 0) closeEditDropdown();
+                
+                // Added for custom sort
+                if ($('#custom-sort-dd').length && !$('#custom-sort-dd').is(e.target) && $('#custom-sort-dd').has(e.target).length === 0) {
+                    $('#custom-sort-menu').addClass('hidden');
+                    $('#custom-sort-chevron').removeClass('rotate-180');
+                    $('#dashboard-filter-card').removeClass('relative z-40');
+                }
             });
 
             $(document).on('keydown', function (e) {
@@ -1867,20 +1935,31 @@ try {
                     hideEditModal();
                     $deleteConfirmModal.removeClass('flex').addClass('hidden');
                     closeLegalModal();
+                    $('#custom-sort-menu').addClass('hidden');
+                    $('#custom-sort-chevron').removeClass('rotate-180');
+                    $('#dashboard-filter-card').removeClass('relative z-40');
                 }
             });
 
-            if ($filterForm.length) $filterForm.on('change', 'input[name="category[]"], #sort', () => $filterForm.trigger('submit'));
+            if ($filterForm.length) $filterForm.on('change', 'input[name="category[]"]', () => $filterForm.trigger('submit'));
+            
             if ($catToggle.length && $catPanel.length) {
                 $catToggle.on('click', function () {
-                    const isOpen = !$catPanel.hasClass('hidden');
-                    $catPanel.toggleClass('hidden', isOpen);
-                    $catToggle.attr('aria-expanded', isOpen ? 'false' : 'true');
-                    if ($catChevron.length) $catChevron.toggleClass('rotate-180', !isOpen);
+                    // Panel is about to open if it's currently hidden
+                    const willOpen = $catPanel.hasClass('hidden');
+
+                    // Show/hide panel
+                    $catPanel.toggleClass('hidden', !willOpen);
+                    $catToggle.attr('aria-expanded', willOpen ? 'true' : 'false');
+
+                    // Match Sort By behavior:
+                    // - Up when hidden (no rotate-180)
+                    // - Down when shown (rotate-180)
+                    if ($catChevron.length) {
+                        $catChevron.toggleClass('rotate-180', willOpen);
+                    }
                 });
             }
-
-
 
             $('#openPassModal').on('click', function () {
                 $profileMenu.addClass('hidden');
