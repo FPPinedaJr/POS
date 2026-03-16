@@ -34,8 +34,12 @@ if (isset($_FILES['item_image']) && is_array($_FILES['item_image'])) {
 }
 
 $itemName = trim($_POST['item_name'] ?? '');
-$categoryId = isset($_POST['idcategory']) ? (int) $_POST['idcategory'] : null;
+$categoryId = isset($_POST['category_id']) ? (int) $_POST['category_id'] : null;
+$unit = trim($_POST['unit'] ?? '');
 $value = isset($_POST['value']) ? (float) $_POST['value'] : 0;
+$retailPrice = isset($_POST['retail_price']) ? (float) $_POST['retail_price'] : 0;
+$wholesalePrice = isset($_POST['wholesale_price']) ? (float) $_POST['wholesale_price'] : 0;
+$stockThreshold = isset($_POST['stock_threshold']) ? (int) $_POST['stock_threshold'] : 0;
 $itemCount = isset($_POST['item_count']) ? (int) $_POST['item_count'] : 0;
 
 if ($itemName === '' || !$categoryId) {
@@ -62,16 +66,47 @@ if (!empty($_FILES['item_image']['name'] ?? '')) {
 try {
     $pdo->beginTransaction();
 
-    $sql = "INSERT INTO item (idcategory, iduser, item_name, value, image_basename, image_thumb_path, image_preview_path)
-            VALUES (:idcategory, :iduser, :item_name, :value, :image_basename, :thumb, :preview)";
+    $sql = "INSERT INTO item (
+                category_id,
+                user_id,
+                item_name,
+                unit,
+                value,
+                retail_price,
+                wholesale_price,
+                stock_threshold,
+                current_stock,
+                image_basename,
+                image_thumb_path,
+                image_preview_path
+            )
+            VALUES (
+                :category_id,
+                :user_id,
+                :item_name,
+                :unit,
+                :value,
+                :retail_price,
+                :wholesale_price,
+                :stock_threshold,
+                :current_stock,
+                :image_basename,
+                :thumb,
+                :preview
+            )";
 
     $stmt = $pdo->prepare($sql);
 
     $stmt->execute([
-        'idcategory' => $categoryId,
-        'iduser' => (int) $_SESSION['user_id'],
+        'category_id' => $categoryId,
+        'user_id' => (int) $_SESSION['user_id'],
         'item_name' => $itemName,
+        'unit' => $unit,
         'value' => $value,
+        'retail_price' => $retailPrice,
+        'wholesale_price' => $wholesalePrice,
+        'stock_threshold' => $stockThreshold,
+        'current_stock' => max(0, (int) $itemCount),
         'image_basename' => $imageMeta['basename'] ?? null,
         'thumb' => $imageMeta['thumb']['url'] ?? null,
         'preview' => $imageMeta['preview']['url'] ?? null,
@@ -80,14 +115,30 @@ try {
     $itemId = (int) $pdo->lastInsertId();
 
     if ($itemId > 0 && $itemCount !== 0) {
+        $historyUuid = $_POST['history_uuid'] ?? null;
+        if (!$historyUuid) {
+            // Fallback: generate a random UUID-like string server-side
+            $bytes = bin2hex(random_bytes(16));
+            $historyUuid = sprintf(
+                '%s-%s-%s-%s-%s',
+                substr($bytes, 0, 8),
+                substr($bytes, 8, 4),
+                substr($bytes, 12, 4),
+                substr($bytes, 16, 4),
+                substr($bytes, 20)
+            );
+        }
+
         $histStmt = $pdo->prepare(
-            "INSERT INTO item_history (iditem, item_count, created_at)
-             VALUES (:iditem, :item_count, NOW())" 
+            "INSERT INTO item_history (history_uuid, item_id, item_count, description, created_at)
+             VALUES (:history_uuid, :item_id, :item_count, :description, NOW())"
         );
 
         $histStmt->execute([
-            'iditem' => $itemId,
+            'history_uuid' => $historyUuid,
+            'item_id' => $itemId,
             'item_count' => $itemCount,
+            'description' => 'ADD: ' . $itemName,
         ]);
     }
 

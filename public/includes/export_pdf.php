@@ -15,20 +15,14 @@ $sql = "SELECT
     i.item_name, 
     i.value AS price, 
     COALESCE(c.category_name, 'Uncategorized') AS category_name, 
-    COALESCE(h.item_count, 0) AS latest_stock
+    COALESCE(i.current_stock, 0) AS latest_stock
 FROM item i
-LEFT JOIN category c ON i.idcategory = c.idcategory
-LEFT JOIN (
-    SELECT ih.iditem, ih.item_count
-    FROM item_history ih
-    INNER JOIN (SELECT iditem, MAX(iditem_history) AS max_id FROM item_history GROUP BY iditem) latest 
-    ON ih.iditem_history = latest.max_id
-) h ON i.iditem = h.iditem
-WHERE i.iduser = :iduser AND (c.is_deleted = 0 OR c.is_deleted IS NULL)
+LEFT JOIN category c ON i.category_id = c.category_id
+WHERE i.user_id = :user_id AND (c.is_deleted = 0 OR c.is_deleted IS NULL)
 ORDER BY c.category_name ASC, i.item_name ASC;";
 
 $stmt = $pdo->prepare($sql);
-$stmt->execute(['iduser' => $_SESSION['user_id']]);
+$stmt->execute(['user_id' => $_SESSION['user_id']]);
 $items = $stmt->fetchAll();
 
 // Calculate Grand Totals for Header

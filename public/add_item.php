@@ -10,7 +10,7 @@ if (!isset($_SESSION['user_id'])) {
 // Load categories for the select dropdown
 $categories = [];
 try {
-    $stmt = $pdo->query("SELECT idcategory, category_name FROM category ORDER BY category_name ASC");
+    $stmt = $pdo->query("SELECT category_id, category_name FROM category ORDER BY category_name ASC");
     $categories = $stmt->fetchAll();
 } catch (Throwable $e) {
     $categories = [];
@@ -55,22 +55,22 @@ try {
                         placeholder="e.g. Wireless Mouse">
                 </div>
 
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div class="space-y-1">
-                        <label for="idcategory" class="block text-sm font-medium text-gray-700">Category</label>
-                        <select name="idcategory" id="idcategory" required
-                            class="mt-1 block w-full rounded-xl border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-sm bg-white">
-                            <option value="" disabled selected>Select category</option>
-                            <?php foreach ($categories as $cat): ?>
-                                <option value="<?php echo (int) $cat['idcategory']; ?>">
-                                    <?php echo htmlspecialchars($cat['category_name']); ?>
-                                </option>
-                            <?php endforeach; ?>
-                        </select>
-                    </div>
+                <div class="space-y-1">
+                    <label for="category_id" class="block text-sm font-medium text-gray-700">Category</label>
+                    <select name="category_id" id="category_id" required
+                        class="mt-1 block w-full rounded-xl border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-sm bg-white">
+                        <option value="" disabled selected>Select category</option>
+                        <?php foreach ($categories as $cat): ?>
+                            <option value="<?php echo (int) $cat['category_id']; ?>">
+                                <?php echo htmlspecialchars($cat['category_name']); ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
 
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div class="space-y-1">
-                        <label for="value" class="block text-sm font-medium text-gray-700">Value</label>
+                        <label for="value" class="block text-sm font-medium text-gray-700">Cost / Value</label>
                         <div class="relative mt-1 rounded-xl shadow-sm">
                             <span
                                 class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-400 text-sm select-none">₱</span>
@@ -78,6 +78,43 @@ try {
                                 class="block w-full rounded-xl border-gray-300 pl-7 focus:ring-indigo-500 focus:border-indigo-500 text-sm"
                                 placeholder="0.00">
                         </div>
+                    </div>
+
+                    <div class="space-y-1">
+                        <label for="retail_price" class="block text-sm font-medium text-gray-700">Retail price</label>
+                        <div class="relative mt-1 rounded-xl shadow-sm">
+                            <span
+                                class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-400 text-sm select-none">₱</span>
+                            <input type="number" step="0.01" min="0" name="retail_price" id="retail_price"
+                                class="block w-full rounded-xl border-gray-300 pl-7 focus:ring-indigo-500 focus:border-indigo-500 text-sm"
+                                placeholder="0.00">
+                        </div>
+                    </div>
+
+                    <div class="space-y-1">
+                        <label for="wholesale_price" class="block text-sm font-medium text-gray-700">Wholesale price</label>
+                        <div class="relative mt-1 rounded-xl shadow-sm">
+                            <span
+                                class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-400 text-sm select-none">₱</span>
+                            <input type="number" step="0.01" min="0" name="wholesale_price" id="wholesale_price"
+                                class="block w-full rounded-xl border-gray-300 pl-7 focus:ring-indigo-500 focus:border-indigo-500 text-sm"
+                                placeholder="0.00">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="space-y-1">
+                        <label for="unit" class="block text-sm font-medium text-gray-700">Unit</label>
+                        <input type="text" name="unit" id="unit"
+                            class="mt-1 block w-full rounded-xl border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-sm"
+                            placeholder="e.g. pcs, box, kg">
+                    </div>
+                    <div class="space-y-1">
+                        <label for="stock_threshold" class="block text-sm font-medium text-gray-700">Stock threshold</label>
+                        <input type="number" min="0" name="stock_threshold" id="stock_threshold"
+                            class="mt-1 block w-full rounded-xl border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-sm"
+                            placeholder="e.g. 10">
                     </div>
                 </div>
 
@@ -89,7 +126,7 @@ try {
                 </div>
 
                 <div class="flex items-center justify-end gap-3 pt-4 border-t border-gray-100">
-                    <a href="dashboard.php"
+                    <a href="inventory.php"
                         class="inline-flex items-center justify-center px-4 py-2 rounded-xl border border-gray-200 text-sm font-medium text-gray-700 hover:bg-gray-50">
                         Cancel
                     </a>
@@ -105,4 +142,3 @@ try {
 </body>
 
 </html>
-
