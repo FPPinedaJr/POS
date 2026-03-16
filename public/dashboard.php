@@ -717,8 +717,8 @@ try {
                                     <button type="button" id="category-dd-trigger"
                                         class="w-full inline-flex items-center justify-between rounded-xl border border-white bg-slate-50/80 shadow-inner px-4 py-2.5 text-sm font-medium hover:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all">
                                         <span id="category-dd-label" class="truncate text-slate-500">Select</span>
-                                        <i
-                                            class="fa-solid fa-chevron-down text-[10px] text-slate-400 bg-transparent"></i>
+                                        <i id="category-dd-chevron"
+                                            class="fa-solid fa-chevron-down text-[10px] text-slate-400 bg-transparent transition-transform duration-300 ease-out"></i>
                                     </button>
 
                                     <div id="category-dd-menu"
@@ -1319,6 +1319,7 @@ try {
                 handleImagePreview(null, $('#image-preview'), $('#image-preview-icon'), $('#image-preview-container'));
                 setSelectedCategory('', '');
                 $addQtyInput.val(0).css('width', '1ch');
+                closeDropdown();
             }
 
             $('#open-add-item-modal').on('click', () => $addItemModal.removeClass('hidden').addClass('flex'));
@@ -1531,8 +1532,13 @@ try {
                     .toggleClass('text-slate-900 font-bold', !!id);
             };
 
+            const $categoryDdChevron = $('#category-dd-chevron');
+            function setCategoryDdChevron(open) {
+                $categoryDdChevron.toggleClass('rotate-180', open);
+            }
             function closeDropdown() {
                 $ddMenu.addClass('hidden');
+                setCategoryDdChevron(false);
             }
 
             function closeEditDropdown() {
@@ -1541,6 +1547,7 @@ try {
 
             $('#category-dd-trigger').on('click', () => {
                 $ddMenu.toggleClass('hidden');
+                setCategoryDdChevron(!$ddMenu.hasClass('hidden'));
             });
 
             $('#edit-category-dd-trigger').on('click', () => {
