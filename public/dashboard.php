@@ -61,8 +61,8 @@ try {
     </div>
 
     <div class="fixed top-0 left-0 right-0 h-1 bg-gradient-to-r from-indigo-500 via-fuchsia-500 to-teal-400 z-[100]">
-    </div> 
-    
+    </div>
+
     <!-- Loader -->
     <div id="loader-container"
         class="fixed inset-0 z-50 hidden flex flex-col items-center justify-center bg-slate-900/40 backdrop-blur-sm">
@@ -72,15 +72,10 @@ try {
     <header class="bg-white/70 backdrop-blur-xl border-b border-white sticky top-0 z-40 shadow-sm shadow-slate-200/50">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between">
             <div class="flex items-center gap-3">
-                <div
-                    class="h-10 w-10 rounded-xl bg-indigo-600/90 backdrop-blur-sm flex items-center justify-center text-white shadow-md shadow-indigo-200 transition-transform hover:scale-105">
-                    <i class="fa-solid fa-boxes-stacked"></i>
-                </div>
-
-                <div class="flex flex-col sm:flex-row sm:items-baseline sm:gap-1">
-                    <h1 class="text-xl font-black text-indigo-700 tracking-tight drop-shadow-sm">Venda</h1>
-                    <span class="text-lg font-medium text-slate-600 tracking-wide">Track</span>
-                </div>
+                <a href="dashboard.php" class="flex items-center focus:outline-none" aria-label="Venda Track home">
+                    <img src="assets/images/logo.png" alt="Venda Track"
+                        class="h-10 w-auto max-w-[200px] sm:max-w-[240px] object-contain">
+                </a>
             </div>
 
             <div class="flex items-center gap-2 sm:gap-4">
@@ -903,7 +898,7 @@ try {
                                                         class="edit-category-select flex-1 text-left text-xs font-bold text-slate-700 whitespace-normal break-words leading-snug cursor-pointer">
                                                         <?php echo htmlspecialchars($cat['category_name']); ?>
                                                     </button>
-                                            <?php endforeach; ?>
+                                                <?php endforeach; ?>
                                         </ul>
                                     </div>
                                 </div>
