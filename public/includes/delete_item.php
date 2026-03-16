@@ -12,31 +12,31 @@ if (!isset($_SESSION['user_id'])) {
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $iditem = (int) ($_POST['iditem'] ?? 0);
+    $item_id = (int) ($_POST['item_id'] ?? 0);
     $userId = (int) $_SESSION['user_id'];
 
-    if ($iditem <= 0) {
+    if ($item_id <= 0) {
         echo json_encode(['success' => false, 'message' => 'Invalid item ID.']);
         exit;
     }
 
     try {
         // 1. Fetch the image data BEFORE we delete the row
-        $stmtFetch = $pdo->prepare("SELECT image_basename, image_thumb_path, image_preview_path FROM item WHERE iditem = :iditem AND iduser = :iduser");
-        $stmtFetch->execute(['iditem' => $iditem, 'iduser' => $userId]);
+        $stmtFetch = $pdo->prepare("SELECT image_basename, image_thumb_path, image_preview_path FROM item WHERE item_id = :item_id AND user_id = :user_id");
+        $stmtFetch->execute(['item_id' => $item_id, 'user_id' => $userId]);
         $itemData = $stmtFetch->fetch(PDO::FETCH_ASSOC);
 
         $pdo->beginTransaction();
 
         // 2. Delete history first
-        $stmtHist = $pdo->prepare("DELETE FROM item_history WHERE iditem = :iditem");
-        $stmtHist->execute(['iditem' => $iditem]);
+        $stmtHist = $pdo->prepare("DELETE FROM item_history WHERE item_id = :item_id");
+        $stmtHist->execute(['item_id' => $item_id]);
 
         // 3. Delete the item
-        $stmtItem = $pdo->prepare("DELETE FROM item WHERE iditem = :iditem AND iduser = :iduser");
+        $stmtItem = $pdo->prepare("DELETE FROM item WHERE item_id = :item_id AND user_id = :user_id");
         $stmtItem->execute([
-            'iditem' => $iditem,
-            'iduser' => $userId
+            'item_id' => $item_id,
+            'user_id' => $userId
         ]);
 
         if ($stmtItem->rowCount() > 0) {

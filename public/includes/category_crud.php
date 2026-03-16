@@ -15,7 +15,7 @@ if (!isset($_SESSION['user_id'])) {
     exit;
 }
 
-$iduser = (int) $_SESSION['user_id'];
+$user_id = (int) $_SESSION['user_id'];
 $action = trim($_POST['action'] ?? $_GET['action'] ?? '');
 
 if ($action === '') {
@@ -35,10 +35,10 @@ if ($action === 'add') {
     try {
         $check = $pdo->prepare(
             "SELECT 1 FROM category
-             WHERE iduser = :iduser AND LOWER(TRIM(category_name)) = LOWER(:category_name)
+             WHERE user_id = :user_id AND LOWER(TRIM(category_name)) = LOWER(:category_name)
              LIMIT 1"
         );
-        $check->execute(['iduser' => $iduser, 'category_name' => $categoryName]);
+        $check->execute(['user_id' => $user_id, 'category_name' => $categoryName]);
         if ($check->fetchColumn()) {
             http_response_code(400);
             echo json_encode(['ok' => false, 'message' => 'A category with this name already exists.']);
@@ -46,17 +46,17 @@ if ($action === 'add') {
         }
 
         $stmt = $pdo->prepare(
-            "INSERT INTO category (iduser, category_name, is_deleted)
-             VALUES (:iduser, :category_name, 0)"
+            "INSERT INTO category (user_id, category_name, is_deleted)
+             VALUES (:user_id, :category_name, 0)"
         );
         $stmt->execute([
-            'iduser' => $iduser,
+            'user_id' => $user_id,
             'category_name' => $categoryName,
         ]);
 
         echo json_encode([
             'ok' => true,
-            'idcategory' => (int) $pdo->lastInsertId(),
+            'category_id' => (int) $pdo->lastInsertId(),
             'category_name' => $categoryName,
         ]);
     } catch (PDOException $e) {
@@ -67,10 +67,10 @@ if ($action === 'add') {
 }
 
 if ($action === 'update') {
-    $idcategory = isset($_POST['idcategory']) ? (int) $_POST['idcategory'] : 0;
+    $category_id = isset($_POST['category_id']) ? (int) $_POST['category_id'] : 0;
     $categoryName = trim($_POST['category_name'] ?? '');
 
-    if ($idcategory <= 0) {
+    if ($category_id <= 0) {
         http_response_code(400);
         echo json_encode(['ok' => false, 'message' => 'Invalid category']);
         exit;
@@ -87,15 +87,15 @@ if ($action === 'update') {
         $check = $pdo->prepare(
             "SELECT 1
              FROM category
-             WHERE iduser = :iduser
-               AND idcategory <> :idcategory
+             WHERE user_id = :user_id
+               AND category_id <> :category_id
                AND LOWER(TRIM(category_name)) = LOWER(:category_name)
                AND is_deleted = 0
              LIMIT 1"
         );
         $check->execute([
-            'iduser' => $iduser,
-            'idcategory' => $idcategory,
+            'user_id' => $user_id,
+            'category_id' => $category_id,
             'category_name' => $categoryName,
         ]);
 
@@ -108,14 +108,14 @@ if ($action === 'update') {
         $stmt = $pdo->prepare(
             "UPDATE category
              SET category_name = :category_name
-             WHERE idcategory = :idcategory
-               AND iduser = :iduser
+             WHERE category_id = :category_id
+               AND user_id = :user_id
                AND is_deleted = 0"
         );
         $stmt->execute([
             'category_name' => $categoryName,
-            'idcategory' => $idcategory,
-            'iduser' => $iduser,
+            'category_id' => $category_id,
+            'user_id' => $user_id,
         ]);
 
         if ($stmt->rowCount() === 0) {
@@ -126,7 +126,7 @@ if ($action === 'update') {
 
         echo json_encode([
             'ok' => true,
-            'idcategory' => $idcategory,
+            'category_id' => $category_id,
             'category_name' => $categoryName,
         ]);
     } catch (PDOException $e) {
@@ -137,8 +137,8 @@ if ($action === 'update') {
 }
 
 if ($action === 'delete') {
-    $idcategory = isset($_POST['idcategory']) ? (int) $_POST['idcategory'] : 0;
-    if ($idcategory <= 0) {
+    $category_id = isset($_POST['category_id']) ? (int) $_POST['category_id'] : 0;
+    if ($category_id <= 0) {
         http_response_code(400);
         echo json_encode(['ok' => false, 'message' => 'Invalid category']);
         exit;
@@ -148,9 +148,9 @@ if ($action === 'delete') {
         $stmt = $pdo->prepare(
             "UPDATE category
              SET is_deleted = 1
-             WHERE idcategory = :idcategory AND iduser = :iduser"
+             WHERE category_id = :category_id AND user_id = :user_id"
         );
-        $stmt->execute(['idcategory' => $idcategory, 'iduser' => $iduser]);
+        $stmt->execute(['category_id' => $category_id, 'user_id' => $user_id]);
 
         if ($stmt->rowCount() === 0) {
             http_response_code(404);
@@ -158,7 +158,7 @@ if ($action === 'delete') {
             exit;
         }
 
-        echo json_encode(['ok' => true, 'idcategory' => $idcategory]);
+        echo json_encode(['ok' => true, 'category_id' => $category_id]);
     } catch (PDOException $e) {
         http_response_code(500);
         echo json_encode(['ok' => false, 'message' => 'Failed to delete category']);
