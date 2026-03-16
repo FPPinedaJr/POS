@@ -53,7 +53,7 @@ if ($hour < 12) {
         </div>
 
         <div class="grid gap-4 w-full max-w-sm mx-auto md:hidden">
-            <a href="sell.php"
+            <a href="pos.php"
                 class="flex items-center justify-center bg-teal-600 text-white font-semibold text-lg py-4 px-6 rounded-xl transition duration-200 ease-in-out hover:bg-teal-700 hover:-translate-y-1 shadow-md">
                 <i class="fa-solid fa-cart-shopping text-xl mr-3"></i> Start selling
             </a>
@@ -77,7 +77,7 @@ if ($hour < 12) {
                 <h2 class="text-2xl font-bold text-slate-950 mb-3">Start selling</h2>
                 <p class="text-slate-600 mb-8 flex-grow">Set up a new sale transaction and manage customer purchases.
                 </p>
-                <a href="sell.php"
+                <a href="pos.php"
                     class="w-full text-center bg-teal-600 text-white font-semibold py-4 px-6 rounded-xl transition duration-200 ease-in-out hover:bg-teal-700 shadow-md">
                     Launch Register
                 </a>
