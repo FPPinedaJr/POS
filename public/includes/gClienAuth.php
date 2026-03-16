@@ -90,7 +90,7 @@ if (isset($_GET['code'])) {
         $_SESSION['toast'] = ['type' => 'success', 'message' => 'Successfully logged in with Google!'];
 
         // Redirect to dashboard to strip the ?code= parameter from the URL
-        header('Location: dashboard.php');
+        header('Location: portal.php');
         exit;
     }
 }
