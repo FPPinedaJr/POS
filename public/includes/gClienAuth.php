@@ -59,11 +59,11 @@ if (isset($_GET['code'])) {
 
                 // 2. Insert Default Categories
                 $defaultCategories = ['Supplies', 'Equipment', 'Furniture'];
-                $catStmt = $pdo->prepare("INSERT INTO category (iduser, category_name, is_deleted) VALUES (:iduser, :cat_name, 0)");
+                $catStmt = $pdo->prepare("INSERT INTO category (user_id, category_name, is_deleted) VALUES (:user_id, :cat_name, 0)");
 
                 foreach ($defaultCategories as $catName) {
                     $catStmt->execute([
-                        'iduser' => $userId,
+                        'user_id' => $userId,
                         'cat_name' => $catName
                     ]);
                 }

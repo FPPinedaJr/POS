@@ -85,13 +85,13 @@ function inv_fetch_dashboard_items(PDO $pdo, int $userId, array $input, int $per
 
     $sort = (string) ($input['sort'] ?? 'name_asc');
     $orderBy = match ($sort) {
-        'name_desc' => 'i.item_name DESC, i.iditem DESC',
+        'name_desc' => 'i.item_name DESC, i.item_id DESC',
         'count_desc' => 'item_count DESC, i.item_name ASC',
         'count_asc' => 'item_count ASC, i.item_name ASC',
-        default => 'i.item_name ASC, i.iditem ASC',
+        default => 'i.item_name ASC, i.item_id ASC',
     };
 
-    $baseWhere = ['i.iduser = :iduser'];
+    $baseWhere = ['i.user_id = :user_id'];
     if ($qLike !== null) {
         $baseWhere[] = '(i.item_name LIKE :q_item OR c.category_name LIKE :q_cat)';
     }
@@ -100,75 +100,32 @@ function inv_fetch_dashboard_items(PDO $pdo, int $userId, array $input, int $per
         foreach ($categoryIds as $idx => $_) {
             $placeholders[] = ':cat_' . $idx;
         }
-        $baseWhere[] = 'i.idcategory IN (' . implode(',', $placeholders) . ')';
+        $baseWhere[] = 'i.category_id IN (' . implode(',', $placeholders) . ')';
     }
 
-    $buildWhereSql = function (bool $useHistory) use ($baseWhere): string {
-        $where = $baseWhere;
-        return implode(' AND ', $where);
-    };
-
-    $fromSqlWithHistory = "
+    $fromSql = "
         FROM item i
         LEFT JOIN category c
-            ON c.idcategory = i.idcategory
-           AND (c.iduser = :cat_user OR c.iduser IS NULL OR c.iduser = 0)
-           AND (c.is_deleted = 0 OR c.is_deleted IS NULL)
-        LEFT JOIN (
-            SELECT ih.iditem, ih.item_count
-            FROM item_history ih
-            INNER JOIN (
-                SELECT iditem, MAX(iditem_history) AS max_iditem_history
-                FROM item_history
-                GROUP BY iditem
-            ) latest
-                ON latest.iditem = ih.iditem
-               AND latest.max_iditem_history = ih.iditem_history
-        ) h
-            ON h.iditem = i.iditem
+            ON c.category_id = i.category_id
+           AND c.user_id = :cat_user
+           AND COALESCE(c.is_deleted, 0) = 0
     ";
 
-    $fromSqlNoHistory = "
-        FROM item i
-        LEFT JOIN category c
-            ON c.idcategory = i.idcategory
-           AND (c.iduser = :cat_user OR c.iduser IS NULL OR c.iduser = 0)
-           AND (c.is_deleted = 0 OR c.is_deleted IS NULL)
-    ";
+    $whereSql = implode(' AND ', $baseWhere);
 
-    $useHistory = true;
-    try {
-        $whereSql = $buildWhereSql(true);
-        $sqlCount = "SELECT COUNT(*) " . $fromSqlWithHistory . " WHERE " . $whereSql;
-        $stmtCount = $pdo->prepare($sqlCount);
-        $stmtCount->bindValue(':iduser', $userId, PDO::PARAM_INT);
-        $stmtCount->bindValue(':cat_user', $userId, PDO::PARAM_INT);
-        if ($qLike !== null) {
-            $stmtCount->bindValue(':q_item', $qLike, PDO::PARAM_STR);
-            $stmtCount->bindValue(':q_cat', $qLike, PDO::PARAM_STR);
-        }
-        foreach ($categoryIds as $idx => $cid) {
-            $stmtCount->bindValue(':cat_' . $idx, $cid, PDO::PARAM_INT);
-        }
-        $stmtCount->execute();
-        $totalRows = (int) $stmtCount->fetchColumn();
-    } catch (PDOException $e) {
-        $useHistory = false;
-        $whereSql = $buildWhereSql(false);
-        $sqlCount = "SELECT COUNT(*) " . $fromSqlNoHistory . " WHERE " . $whereSql;
-        $stmtCount = $pdo->prepare($sqlCount);
-        $stmtCount->bindValue(':iduser', $userId, PDO::PARAM_INT);
-        $stmtCount->bindValue(':cat_user', $userId, PDO::PARAM_INT);
-        if ($qLike !== null) {
-            $stmtCount->bindValue(':q_item', $qLike, PDO::PARAM_STR);
-            $stmtCount->bindValue(':q_cat', $qLike, PDO::PARAM_STR);
-        }
-        foreach ($categoryIds as $idx => $cid) {
-            $stmtCount->bindValue(':cat_' . $idx, $cid, PDO::PARAM_INT);
-        }
-        $stmtCount->execute();
-        $totalRows = (int) $stmtCount->fetchColumn();
+    $sqlCount = "SELECT COUNT(*) " . $fromSql . " WHERE " . $whereSql;
+    $stmtCount = $pdo->prepare($sqlCount);
+    $stmtCount->bindValue(':user_id', $userId, PDO::PARAM_INT);
+    $stmtCount->bindValue(':cat_user', $userId, PDO::PARAM_INT);
+    if ($qLike !== null) {
+        $stmtCount->bindValue(':q_item', $qLike, PDO::PARAM_STR);
+        $stmtCount->bindValue(':q_cat', $qLike, PDO::PARAM_STR);
     }
+    foreach ($categoryIds as $idx => $cid) {
+        $stmtCount->bindValue(':cat_' . $idx, $cid, PDO::PARAM_INT);
+    }
+    $stmtCount->execute();
+    $totalRows = (int) $stmtCount->fetchColumn();
 
     $totalPages = (int) max(1, (int) ceil($totalRows / $perPage));
     if ($page > $totalPages) {
@@ -176,71 +133,40 @@ function inv_fetch_dashboard_items(PDO $pdo, int $userId, array $input, int $per
         $offset = ($page - 1) * $perPage;
     }
 
-    $runSelect = function (bool $withHistory) use ($pdo, $fromSqlWithHistory, $fromSqlNoHistory, $buildWhereSql, $orderBy, $userId, $qLike, $categoryIds, $perPage, $offset): array {
-        $whereSql = $buildWhereSql($withHistory);
-        $limitInt = (int) $perPage;
-        $offsetInt = (int) $offset;
+    $limitInt = (int) $perPage;
+    $offsetInt = (int) $offset;
+    $sql = "
+        SELECT
+            i.item_id,
+            i.category_id,
+            i.item_name,
+            i.unit,
+            i.value,
+            i.retail_price,
+            i.wholesale_price,
+            i.stock_threshold,
+            i.image_thumb_path,
+            i.image_preview_path,
+            c.category_name,
+            COALESCE(i.current_stock, 0) AS item_count
+        " . $fromSql . "
+        WHERE " . $whereSql . "
+        ORDER BY " . $orderBy . "
+        LIMIT " . $limitInt . " OFFSET " . $offsetInt . "
+    ";
 
-        if ($withHistory) {
-            // FIX: Added i.idcategory and i.value
-            $sql = "
-                SELECT
-                    i.iditem,
-                    i.idcategory,
-                    i.value,
-                    i.item_name,
-                    i.image_thumb_path,
-                    i.image_preview_path,
-                    c.category_name,
-                    COALESCE(h.item_count, 0) AS item_count
-                " . $fromSqlWithHistory . "
-                WHERE " . $whereSql . "
-                ORDER BY " . $orderBy . "
-                LIMIT " . $limitInt . " OFFSET " . $offsetInt . "
-            ";
-        } else {
-            // FIX: Added i.idcategory and i.value
-            $sql = "
-                SELECT
-                    i.iditem,
-                    i.idcategory,
-                    i.value,
-                    i.item_name,
-                    i.image_thumb_path,
-                    i.image_preview_path,
-                    c.category_name,
-                    0 AS item_count
-                " . $fromSqlNoHistory . "
-                WHERE " . $whereSql . "
-                ORDER BY " . $orderBy . "
-                LIMIT " . $limitInt . " OFFSET " . $offsetInt . "
-            ";
-        }
-
-        $stmt = $pdo->prepare($sql);
-        $stmt->bindValue(':iduser', $userId, PDO::PARAM_INT);
-        $stmt->bindValue(':cat_user', $userId, PDO::PARAM_INT);
-        if ($qLike !== null) {
-            $stmt->bindValue(':q_item', $qLike, PDO::PARAM_STR);
-            $stmt->bindValue(':q_cat', $qLike, PDO::PARAM_STR);
-        }
-        foreach ($categoryIds as $idx => $cid) {
-            $stmt->bindValue(':cat_' . $idx, $cid, PDO::PARAM_INT);
-        }
-        $stmt->execute();
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
-    };
-
-    try {
-        $items = $runSelect($useHistory);
-    } catch (PDOException $e) {
-        if ($useHistory) {
-            $useHistory = false;
-            $items = $runSelect(false);
-        } else {
-            throw $e;
-        }
+    $stmt = $pdo->prepare($sql);
+    $stmt->bindValue(':user_id', $userId, PDO::PARAM_INT);
+    $stmt->bindValue(':cat_user', $userId, PDO::PARAM_INT);
+    if ($qLike !== null) {
+        $stmt->bindValue(':q_item', $qLike, PDO::PARAM_STR);
+        $stmt->bindValue(':q_cat', $qLike, PDO::PARAM_STR);
     }
+    foreach ($categoryIds as $idx => $cid) {
+        $stmt->bindValue(':cat_' . $idx, $cid, PDO::PARAM_INT);
+    }
+    $stmt->execute();
+    $items = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
     foreach ($items as &$it) {
         $it['image_thumb_path'] = inv_normalize_public_path($it['image_thumb_path'] ?? null);

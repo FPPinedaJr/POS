@@ -18,13 +18,13 @@ $itemsPerPage = 20;
 try {
     // Load categories for the add-item form.
     $catStmt = $pdo->prepare(
-        "SELECT idcategory, category_name
+        "SELECT category_id, category_name
          FROM category
          WHERE COALESCE(is_deleted, 0) = 0
-           AND (iduser = :iduser OR iduser IS NULL OR iduser = 0)
+           AND user_id = :user_id
          ORDER BY category_name ASC"
     );
-    $catStmt->execute(['iduser' => (int) $_SESSION['user_id']]);
+    $catStmt->execute(['user_id' => (int) $_SESSION['user_id']]);
     $categories = $catStmt->fetchAll();
 
     $pageData = inv_fetch_dashboard_items($pdo, (int) $_SESSION['user_id'], $_GET, $itemsPerPage);
@@ -209,7 +209,7 @@ try {
 
                                     <?php foreach ($categories as $cat): ?>
                                         <?php
-                                        $cid = (int) ($cat['idcategory'] ?? 0);
+                                        $cid = (int) ($cat['category_id'] ?? 0);
                                         $cname = (string) ($cat['category_name'] ?? '');
                                         $checked = in_array($cid, $selectedCategories, true);
                                         ?>
@@ -350,11 +350,16 @@ try {
                                         $initial = mb_strtoupper(mb_substr(trim($name) !== '' ? trim($name) : 'I', 0, 1));
                                         ?>
                                         <div onclick="openEditModal({
-                                                    id: '<?php echo $item['iditem']; ?>',
+                                                    id: '<?php echo $item['item_id']; ?>',
                                                     name: '<?php echo addslashes($name); ?>',
+                                                    unit: '<?php echo addslashes($item['unit'] ?? ''); ?>',
                                                     value: '<?php echo $item['value']; ?>',
+                                                    retailPrice: '<?php echo $item['retail_price'] ?? 0; ?>',
+                                                    wholesalePrice: '<?php echo $item['wholesale_price'] ?? 0; ?>',
+                                                    stockThreshold: '<?php echo $item['stock_threshold'] ?? 0; ?>',
+                                                    description: '',
                                                     count: '<?php echo $count; ?>',
-                                                    categoryId: '<?php echo $item['idcategory'] ?? ''; ?>',
+                                                    categoryId: '<?php echo $item['category_id'] ?? ''; ?>',
                                                     categoryName: '<?php echo addslashes($categoryName); ?>',
                                                     imageSrc: '<?php echo $imgSrc ? addslashes($imgSrc) : ''; ?>'
                                                 })" role="button" tabindex="0"
@@ -597,7 +602,7 @@ try {
                     class="w-full pl-3 pr-8 py-2 rounded-md border border-gray-300 bg-white hover:bg-gray-50 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 text-sm font-medium transition-all appearance-none cursor-pointer">
                     <option value="all">All items</option>
                     <?php foreach ($items as $item): ?>
-                        <option value="<?php echo (int) $item['iditem']; ?>">
+                        <option value="<?php echo (int) $item['item_id']; ?>">
                             <?php echo htmlspecialchars($item['item_name']); ?>
                         </option>
                     <?php endforeach; ?>
@@ -671,13 +676,13 @@ try {
                 </div>
 
                 <form id="add-item-form" action="includes/save_item.php" method="POST" enctype="multipart/form-data"
-                    class="px-6 py-5 space-y-6">
+                    class="px-6 py-4 space-y-4">
 
                     <div class="flex items-start gap-5">
-                        <div class="shrink-0 flex flex-col items-center">
+                        <div class="shrink-0 flex flex-col items-center space-y-1.5">
                             <label for="item_image" class="cursor-pointer group relative block">
                                 <div id="image-preview-container"
-                                    class="w-40 h-40 rounded-[1.5rem] border-2 border-dashed border-slate-300 bg-slate-50/80 flex items-center justify-center overflow-hidden transition-all group-hover:bg-slate-100 group-hover:border-indigo-300 shadow-inner relative">
+                                    class="w-32 h-28 md:w-36 md:h-32 rounded-[1.25rem] border-2 border-dashed border-slate-300 bg-slate-50/80 flex items-center justify-center overflow-hidden transition-all group-hover:bg-slate-100 group-hover:border-indigo-300 shadow-inner relative">
                                     <i id="image-preview-icon"
                                         class="fa-solid fa-camera text-slate-300 text-4xl group-hover:text-indigo-400 transition-colors"></i>
                                     <img id="image-preview"
@@ -693,8 +698,8 @@ try {
                             <p class="text-[10px] font-bold text-slate-400 mt-2">Max 5MB (JPEG/PNG)</p>
                         </div>
 
-                        <div class="flex-1 flex flex-col space-y-3.5">
-                            <div class="space-y-1">
+                        <div class="flex-1 flex flex-col space-y-2.5">
+                            <div class="space-y-0.5">
                                 <label for="item_name"
                                     class="block text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Item
                                     name</label>
@@ -703,11 +708,11 @@ try {
                                     placeholder="e.g. Wireless Mouse">
                             </div>
 
-                            <div class="space-y-1">
-                                <label for="idcategory"
+                            <div class="space-y-0.5">
+                                <label for="category_id"
                                     class="block text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Category</label>
                                 <div id="category-dd" class="relative">
-                                    <input type="hidden" name="idcategory" id="idcategory" value="">
+                                    <input type="hidden" name="category_id" id="category_id" value="">
 
                                     <button type="button" id="category-dd-trigger"
                                         class="w-full inline-flex items-center justify-between rounded-xl border border-white bg-slate-50/80 shadow-inner px-4 py-2.5 text-sm font-medium hover:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all">
@@ -721,7 +726,7 @@ try {
                                         <ul id="category-dd-options" class="max-h-48 overflow-y-auto p-2 space-y-1">
                                             <?php foreach ($categories as $cat): ?>
                                                 <li class="category-opt group flex items-center justify-between gap-2 rounded-lg px-3 py-2 hover:bg-slate-50 cursor-pointer transition-colors"
-                                                    data-id="<?php echo (int) $cat['idcategory']; ?>"
+                                                    data-id="<?php echo (int) $cat['category_id']; ?>"
                                                     data-name="<?php echo htmlspecialchars($cat['category_name'], ENT_QUOTES); ?>">
                                                     <button type="button"
                                                         class="category-select flex-1 text-left text-xs font-bold text-slate-700 whitespace-normal break-words leading-snug">
@@ -733,18 +738,66 @@ try {
                                     </div>
                                 </div>
                             </div>
+                        </div>
+                    </div>
 
-                            <div class="space-y-1">
-                                <label for="value"
-                                    class="block text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Value</label>
-                                <div class="relative rounded-xl shadow-inner bg-slate-50/80 border border-white">
-                                    <span
-                                        class="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-400 text-sm font-bold select-none z-10 pointer-events-none">₱</span>
-                                    <input type="number" step="0.01" min="0" name="value" id="value"
-                                        class="block w-full rounded-xl border-transparent bg-transparent pl-7 pr-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:bg-white text-sm font-medium transition-all"
-                                        placeholder="0.00">
-                                </div>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-2.5 mt-2">
+                        <div class="space-y-0.5">
+                            <label for="value"
+                                class="block text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Cost
+                                / Value</label>
+                            <div class="relative rounded-xl shadow-inner bg-slate-50/80 border border-white">
+                                <span
+                                    class="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-400 text-sm font-bold select-none z-10 pointer-events-none">₱</span>
+                                <input type="number" step="0.01" min="0" name="value" id="value"
+                                    class="block w-full rounded-xl border-transparent bg-transparent pl-7 pr-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:bg-white text-sm font-medium transition-all"
+                                    placeholder="0.00">
                             </div>
+                        </div>
+
+                        <div class="space-y-0.5">
+                            <label for="retail_price"
+                                class="block text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Retail
+                                price</label>
+                            <div class="relative rounded-xl shadow-inner bg-slate-50/80 border border-white">
+                                <span
+                                    class="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-400 text-sm font-bold select-none z-10 pointer-events-none">₱</span>
+                                <input type="number" step="0.01" min="0" name="retail_price" id="retail_price"
+                                    class="block w-full rounded-xl border-transparent bg-transparent pl-7 pr-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:bg-white text-sm font-medium transition-all"
+                                    placeholder="0.00">
+                            </div>
+                        </div>
+
+                        <div class="space-y-0.5">
+                            <label for="wholesale_price"
+                                class="block text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Wholesale
+                                price</label>
+                            <div class="relative rounded-xl shadow-inner bg-slate-50/80 border border-white">
+                                <span
+                                    class="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-400 text-sm font-bold select-none z-10 pointer-events-none">₱</span>
+                                <input type="number" step="0.01" min="0" name="wholesale_price" id="wholesale_price"
+                                    class="block w-full rounded-xl border-transparent bg-transparent pl-7 pr-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:bg-white text-sm font-medium transition-all"
+                                    placeholder="0.00">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-2.5 mt-1">
+                        <div class="space-y-0.5">
+                            <label for="unit"
+                                class="block text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Unit</label>
+                            <input type="text" name="unit" id="unit"
+                                class="block w-full rounded-xl border-white bg-slate-50/80 shadow-inner px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:bg-white text-sm font-medium transition-all"
+                                placeholder="e.g. pcs, box, kg">
+                        </div>
+
+                        <div class="space-y-0.5">
+                            <label for="stock_threshold"
+                                class="block text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Stock
+                                threshold</label>
+                            <input type="number" min="0" name="stock_threshold" id="stock_threshold"
+                                class="block w-full rounded-xl border-white bg-slate-50/80 shadow-inner px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:bg-white text-sm font-medium transition-all"
+                                placeholder="e.g. 10">
                         </div>
                     </div>
 
@@ -806,12 +859,12 @@ try {
                 <div
                     class="px-6 py-4 border-b border-slate-100 flex items-center justify-between relative overflow-hidden rounded-t-[2rem]">
                     <div
-                        class="absolute top-0 right-0 w-32 h-32 bg-amber-500/10 rounded-full blur-2xl -translate-y-1/2 translate-x-1/2 pointer-events-none">
+                        class="absolute top-0 right-0 w-32 h-32 bg-indigo-600/5 rounded-full blur-2xl -translate-y-1/2 translate-x-1/2 pointer-events-none">
                     </div>
 
                     <div class="relative z-10">
                         <h2 class="text-xl font-black text-slate-900 tracking-tight">Edit item</h2>
-                        <p class="text-xs font-medium text-slate-500 mt-0.5">Update item details and stock.</p>
+                        <p class="text-xs font-medium text-slate-500 mt-0.5">Update item details and stock levels.</p>
                     </div>
 
                     <button type="button" id="delete-item-btn"
@@ -822,19 +875,19 @@ try {
                 </div>
 
                 <form id="edit-item-form" action="includes/update_item.php" method="POST" enctype="multipart/form-data"
-                    class="px-6 py-5 space-y-6">
+                    class="px-6 py-4 space-y-4">
 
-                    <input type="hidden" name="iditem" id="edit_iditem" value="">
+                    <input type="hidden" name="item_id" id="edit_item_id" value="">
 
                     <div class="flex items-start gap-5">
-                        <div class="shrink-0 flex flex-col items-center">
+                        <div class="shrink-0 flex flex-col items-center space-y-1.5">
                             <label for="edit_item_image" class="cursor-pointer group relative block">
                                 <div id="edit-image-preview-container"
-                                    class="w-40 h-40 rounded-[1.5rem] border-2 border-solid border-indigo-200 bg-slate-50/80 flex items-center justify-center overflow-hidden transition-all group-hover:bg-slate-100 group-hover:border-indigo-300 shadow-inner relative">
+                                    class="w-32 h-28 md:w-36 md:h-32 rounded-[1.25rem] border-2 border-dashed border-slate-300 bg-slate-50/80 flex items-center justify-center overflow-hidden transition-all group-hover:bg-slate-100 group-hover:border-indigo-300 shadow-inner relative">
                                     <i id="edit-image-preview-icon"
-                                        class="fa-solid fa-camera text-slate-300 text-4xl hidden group-hover:text-indigo-400 transition-colors"></i>
+                                        class="fa-solid fa-camera text-slate-300 text-4xl group-hover:text-indigo-400 transition-colors"></i>
                                     <img id="edit-image-preview"
-                                        class="absolute inset-0 w-full h-full object-cover z-10" alt="Preview">
+                                        class="absolute inset-0 w-full h-full object-cover hidden z-10" alt="Preview">
                                     <div
                                         class="absolute inset-0 bg-slate-900/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity z-20">
                                         <i class="fa-solid fa-pen text-white text-2xl"></i>
@@ -846,8 +899,8 @@ try {
                             <p class="text-[10px] font-bold text-slate-400 mt-2">Max 5MB (JPEG/PNG)</p>
                         </div>
 
-                        <div class="flex-1 flex flex-col space-y-3.5">
-                            <div class="space-y-1">
+                        <div class="flex-1 flex flex-col space-y-2.5">
+                            <div class="space-y-0.5">
                                 <label for="edit_item_name"
                                     class="block text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Item
                                     name</label>
@@ -856,73 +909,106 @@ try {
                                     placeholder="e.g. Wireless Mouse">
                             </div>
 
-                            <div class="space-y-1">
-                                <label for="edit_idcategory"
+                            <div class="space-y-0.5">
+                                <label for="edit_category_id"
                                     class="block text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Category</label>
                                 <div id="edit-category-dd" class="relative">
-                                    <input type="hidden" name="idcategory" id="edit_idcategory" value="">
+                                    <input type="hidden" name="category_id" id="edit_category_id" value="">
 
                                     <button type="button" id="edit-category-dd-trigger"
                                         class="w-full inline-flex items-center justify-between rounded-xl border border-white bg-slate-50/80 shadow-inner px-4 py-2.5 text-sm font-medium hover:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all cursor-pointer">
-                                        <span id="edit-category-dd-label"
-                                            class="truncate text-slate-900 font-bold">Select</span>
+                                        <span id="edit-category-dd-label" class="truncate text-slate-500">Select</span>
                                         <i
                                             class="fa-solid fa-chevron-down text-[10px] text-slate-400 bg-transparent"></i>
                                     </button>
 
                                     <div id="edit-category-dd-menu"
                                         class="hidden absolute left-0 mt-2 min-w-full sm:min-w-[16rem] max-w-[calc(100vw-4rem)] rounded-2xl border border-white bg-white/95 backdrop-blur-xl shadow-2xl z-[80] overflow-hidden">
-                                        <div class="p-3 border-b border-slate-100 bg-slate-50/80">
-                                            <button type="button" id="edit-category-dd-add-toggle"
-                                                class="w-full inline-flex items-center justify-center gap-2 rounded-lg bg-white border border-slate-200 px-3 py-2 text-xs font-bold text-indigo-600 shadow-sm hover:shadow hover:-translate-y-0.5 transition-all">
-                                                <i class="fa-solid fa-plus text-[10px]"></i> Add new category
-                                            </button>
-
-                                            <div id="edit-category-dd-add-row" class="hidden mt-3 flex gap-2">
-                                                <input type="text" id="edit-category-dd-add-input" placeholder="Name..."
-                                                    class="flex-1 rounded-lg border-white bg-white shadow-inner px-3 py-1.5 text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500/20 font-medium" />
-                                                <button type="button" id="edit-category-dd-add-btn"
-                                                    class="inline-flex items-center justify-center px-3 py-1.5 rounded-lg bg-indigo-600 text-xs font-bold text-white hover:bg-indigo-700 shadow-md">
-                                                    Add
-                                                </button>
-                                            </div>
-                                        </div>
-
                                         <ul id="edit-category-dd-options"
                                             class="max-h-48 overflow-y-auto p-2 space-y-1">
                                             <?php foreach ($categories as $cat): ?>
                                                 <li class="edit-category-opt group flex items-center justify-between gap-2 rounded-lg px-3 py-2 hover:bg-slate-50 cursor-pointer transition-colors"
-                                                    data-id="<?php echo (int) $cat['idcategory']; ?>"
+                                                    data-id="<?php echo (int) $cat['category_id']; ?>"
                                                     data-name="<?php echo htmlspecialchars($cat['category_name'], ENT_QUOTES); ?>">
                                                     <button type="button"
-                                                        class="edit-category-select flex-1 text-left text-xs font-bold text-slate-700 whitespace-normal break-words leading-snug cursor-pointer">
+                                                        class="edit-category-select flex-1 text-left text-xs font-bold text-slate-700 whitespace-normal break-words leading-snug">
                                                         <?php echo htmlspecialchars($cat['category_name']); ?>
                                                     </button>
-                                                <?php endforeach; ?>
+                                                </li>
+                                            <?php endforeach; ?>
                                         </ul>
                                     </div>
-                                </div>
-                            </div>
-
-                            <div class="space-y-1">
-                                <label for="edit_value"
-                                    class="block text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Value</label>
-                                <div class="relative rounded-xl shadow-inner bg-slate-50/80 border border-white">
-                                    <span
-                                        class="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-400 text-sm font-bold select-none z-10 pointer-events-none">₱</span>
-                                    <input type="number" step="0.01" min="0" name="value" id="edit_value"
-                                        class="block w-full rounded-xl border-transparent bg-transparent pl-7 pr-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:bg-white text-sm font-medium transition-all"
-                                        placeholder="0.00">
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <div
-                        class="relative flex flex-col items-center justify-center bg-slate-50/80 pt-10 pb-5 rounded-2xl border border-white shadow-inner">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-2.5 mt-2">
+                        <div class="space-y-0.5">
+                            <label for="edit_value"
+                                class="block text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Cost
+                                / Value</label>
+                            <div class="relative rounded-xl shadow-inner bg-slate-50/80 border border-white">
+                                <span
+                                    class="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-400 text-sm font-bold select-none z-10 pointer-events-none">₱</span>
+                                <input type="number" step="0.01" min="0" name="value" id="edit_value"
+                                    class="block w-full rounded-xl border-transparent bg-transparent pl-7 pr-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:bg-white text-sm font-medium transition-all"
+                                    placeholder="0.00">
+                            </div>
+                        </div>
 
-                        <div class="absolute top-3 left-3 inline-flex items-center gap-1.5 bg-teal-50 px-2 py-1 rounded-lg shadow-sm border border-teal-100/50"
-                            title="Original Stock">
+                        <div class="space-y-0.5">
+                            <label for="edit_retail_price"
+                                class="block text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Retail
+                                price</label>
+                            <div class="relative rounded-xl shadow-inner bg-slate-50/80 border border-white">
+                                <span
+                                    class="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-400 text-sm font-bold select-none z-10 pointer-events-none">₱</span>
+                                <input type="number" step="0.01" min="0" name="retail_price" id="edit_retail_price"
+                                    class="block w-full rounded-xl border-transparent bg-transparent pl-7 pr-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:bg-white text-sm font-medium transition-all"
+                                    placeholder="0.00">
+                            </div>
+                        </div>
+
+                        <div class="space-y-0.5">
+                            <label for="edit_wholesale_price"
+                                class="block text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Wholesale
+                                price</label>
+                            <div class="relative rounded-xl shadow-inner bg-slate-50/80 border border-white">
+                                <span
+                                    class="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-400 text-sm font-bold select-none z-10 pointer-events-none">₱</span>
+                                <input type="number" step="0.01" min="0" name="wholesale_price"
+                                    id="edit_wholesale_price"
+                                    class="block w-full rounded-xl border-transparent bg-transparent pl-7 pr-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:bg-white text-sm font-medium transition-all"
+                                    placeholder="0.00">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-2.5 mt-1">
+                        <div class="space-y-0.5">
+                            <label for="edit_unit"
+                                class="block text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Unit</label>
+                            <input type="text" name="unit" id="edit_unit"
+                                class="block w-full rounded-xl border-white bg-slate-50/80 shadow-inner px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:bg-white text-sm font-medium transition-all"
+                                placeholder="e.g. pcs, box, kg">
+                        </div>
+
+                        <div class="space-y-0.5">
+                            <label for="edit_stock_threshold"
+                                class="block text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Stock
+                                threshold</label>
+                            <input type="number" min="0" name="stock_threshold" id="edit_stock_threshold"
+                                class="block w-full rounded-xl border-white bg-slate-50/80 shadow-inner px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:bg-white text-sm font-medium transition-all"
+                                placeholder="e.g. 10">
+                        </div>
+                    </div>
+
+                    <div
+                        class="relative flex flex-col items-center justify-center bg-slate-50/80 pt-10 pb-4 rounded-2xl border border-white shadow-inner">
+
+                        <div
+                            class="absolute top-3 left-3 inline-flex items-center gap-1.5 bg-teal-50 px-2 py-1 rounded-lg shadow-sm border border-teal-100/50">
                             <i class="fa-solid fa-cubes text-teal-500 text-[11px]"></i>
                             <span class="text-[9px] font-black uppercase tracking-widest text-teal-700">
                                 Current Stock: <span id="edit_original_count" class="text-teal-900 text-[11px]">0</span>
@@ -936,7 +1022,7 @@ try {
                         </div>
 
                         <label
-                            class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Quantity</label>
+                            class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2.5">Quantity</label>
                         <div class="flex items-center justify-center gap-6">
                             <button type="button" id="edit-qty-btn-minus"
                                 class="text-indigo-400 hover:text-indigo-600 hover:bg-white w-10 h-10 rounded-full flex items-center justify-center transition-all outline-none shadow-sm border border-slate-100 bg-slate-50 cursor-pointer">
@@ -957,18 +1043,15 @@ try {
                         </div>
                     </div>
 
-                    <div class="flex items-center justify-end gap-3 pt-3 border-t border-slate-100">
-
+                    <div class="flex items-center justify-end gap-3 pt-2">
                         <button type="button" id="cancel-edit-item-modal"
-                            class="text-center font-bold tracking-wide w-24 py-2.5 rounded-xl text-sm text-slate-500 bg-white border border-slate-200 shadow-sm hover:bg-slate-50 transition-all focus:outline-none cursor-pointer">
+                            class="px-5 py-2.5 rounded-xl bg-white border border-slate-200 shadow-sm text-sm font-bold cursor-pointer text-slate-600 hover:bg-slate-50 transition-all">
                             Cancel
                         </button>
-
                         <button type="submit"
-                            class="text-center w-28 py-2.5 rounded-xl bg-indigo-600 text-sm font-black tracking-wide text-white shadow-md shadow-indigo-200 hover:bg-indigo-700 focus:outline-none cursor-pointer focus:ring-2 focus:ring-indigo-500/30 transition-all hover:-translate-y-0.5">
-                            Save
+                            class="px-6 py-2.5 rounded-xl bg-indigo-600 text-sm font-black tracking-wide text-white shadow-md shadow-indigo-200 hover:bg-indigo-700 focus:outline-none cursor-pointer focus:ring-2 focus:ring-indigo-500/30 transition-all hover:-translate-y-0.5">
+                            Update
                         </button>
-
                     </div>
                 </form>
             </div>
@@ -1078,6 +1161,7 @@ try {
         </div>
     </footer>
 
+    <script src="https://cdn.jsdelivr.net/npm/uuid@9.0.1/dist/umd/uuidv7.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
         $(document).ready(function () {
@@ -1151,7 +1235,7 @@ try {
                 $.get('includes/fetch_history.php', {
                     offset: hOffset,
                     limit: hLimit,
-                    iditem: itemId // This ensures only items of that name are fetched
+                    item_id: itemId // This ensures only items of that name are fetched
                 }, function (data) {
                     // Subtle delay for the skeleton pulse effect
                     setTimeout(() => {
@@ -1337,13 +1421,16 @@ try {
 
             $('#add-item-form').on('submit', function (e) {
                 e.preventDefault();
-                if (!String($('#idcategory').val() || '').trim()) {
+                if (!String($('#category_id').val() || '').trim()) {
                     showToast('error', 'Please select a category.');
                     $('#category-dd-menu').removeClass('hidden');
                     return;
                 }
                 // Capture the form payload BEFORE resetting the form.
                 const formData = new FormData(this);
+                if (typeof uuidv7 === 'function') {
+                    formData.append('history_uuid', uuidv7());
+                }
                 // Close + reset immediately (even before request finishes)
                 hideAddModal();
                 if ($loaderText.length) $loaderText.text('SAVING...');
@@ -1440,9 +1527,13 @@ try {
 
             window.openEditModal = function (itemData) {
                 $('#edit_original_count').text(itemData.count);
-                $('#edit_iditem').val(itemData.id);
+                $('#edit_item_id').val(itemData.id);
                 $('#edit_item_name').val(itemData.name);
+                $('#edit_unit').val(itemData.unit || '');
                 $('#edit_value').val(itemData.value);
+                $('#edit_retail_price').val(itemData.retailPrice || '');
+                $('#edit_wholesale_price').val(itemData.wholesalePrice || '');
+                $('#edit_stock_threshold').val(itemData.stockThreshold || '');
                 $editQtyInput.val(itemData.count).css('width', Math.max(1, String(itemData.count).length) + 'ch');
                 setEditSelectedCategory(itemData.categoryId, itemData.categoryName);
                 resetEditDeltaBadge();
@@ -1459,7 +1550,7 @@ try {
 
             $('#edit-item-form').on('submit', function (e) {
                 e.preventDefault();
-                if (!String($('#edit_idcategory').val() || '').trim()) {
+                if (!String($('#edit_category_id').val() || '').trim()) {
                     showToast('error', 'Please select a category.');
                     $('#edit-category-dd-menu').removeClass('hidden');
                     return;
@@ -1467,9 +1558,13 @@ try {
                 $editItemModal.addClass('hidden').removeClass('flex');
                 if ($loaderText.length) $loaderText.text('UPDATING...');
                 $loaderContainer.removeClass('hidden').addClass('flex');
+                const editFormData = new FormData(this);
+                if (typeof uuidv7 === 'function') {
+                    editFormData.append('history_uuid', uuidv7());
+                }
 
                 $.ajax({
-                    url: $(this).attr('action'), type: 'POST', data: new FormData(this), contentType: false, processData: false, dataType: 'json',
+                    url: $(this).attr('action'), type: 'POST', data: editFormData, contentType: false, processData: false, dataType: 'json',
                     success: res => res.success ? window.location.reload() : ($loaderContainer.removeClass('flex').addClass('hidden'), showToast('error', res.message || 'Failed to update item.')),
                     error: () => { $loaderContainer.removeClass('flex').addClass('hidden'); showToast('error', 'A server error occurred while updating.'); }
                 });
@@ -1477,18 +1572,18 @@ try {
 
             // --- DELETE ITEM MODAL ---
             const $deleteConfirmModal = $('#delete-confirm-modal');
-            $('#delete-item-btn').on('click', () => { if ($('#edit_iditem').val()) $deleteConfirmModal.removeClass('hidden').addClass('flex'); });
+            $('#delete-item-btn').on('click', () => { if ($('#edit_item_id').val()) $deleteConfirmModal.removeClass('hidden').addClass('flex'); });
             $('#cancel-delete-btn').on('click', () => $deleteConfirmModal.removeClass('flex').addClass('hidden'));
 
             $('#confirm-delete-btn').on('click', function () {
-                const iditem = $('#edit_iditem').val();
+                const item_id = $('#edit_item_id').val();
                 $deleteConfirmModal.removeClass('flex').addClass('hidden');
                 hideEditModal();
 
                 if ($loaderText.length) $loaderText.text('DELETING...');
                 $loaderContainer.removeClass('hidden').addClass('flex');
 
-                $.post('includes/delete_item.php', { iditem: iditem }, res => {
+                $.post('includes/delete_item.php', { item_id: item_id }, res => {
                     if (res.success) window.location.reload();
                     else {
                         $loaderContainer.removeClass('flex').addClass('hidden');
@@ -1502,25 +1597,25 @@ try {
             });
 
             // --- CATEGORY SELECT (ADD & EDIT ITEM MODALS) ---
-            const $idCategory = $('#idcategory'),
+            const $category_id = $('#category_id'),
                 $ddMenu = $('#category-dd-menu'),
                 $ddLabel = $('#category-dd-label'),
                 $ddOptions = $('#category-dd-options');
 
-            const $editIdCategory = $('#edit_idcategory'),
+            const $editcategory_id = $('#edit_category_id'),
                 $editDdMenu = $('#edit-category-dd-menu'),
                 $editDdLabel = $('#edit-category-dd-label'),
                 $editDdOptions = $('#edit-category-dd-options');
 
             window.setSelectedCategory = function (id, name) {
-                $idCategory.val(String(id || ''));
+                $category_id.val(String(id || ''));
                 $ddLabel.text(name || 'Select category')
                     .toggleClass('text-slate-500 font-medium', !id)
                     .toggleClass('text-slate-900 font-bold', !!id);
             };
 
             window.setEditSelectedCategory = function (id, name) {
-                $editIdCategory.val(String(id || ''));
+                $editcategory_id.val(String(id || ''));
                 $editDdLabel.text(name || 'Select')
                     .toggleClass('text-slate-500 font-medium', !id)
                     .toggleClass('text-slate-900 font-bold', !!id);
@@ -1623,7 +1718,7 @@ try {
 
                     if (isEditing) {
                         const id = String(filterEditingId);
-                        $.post(categoryCrudUrl, { action: 'update', idcategory: id, category_name: name }).done(res => {
+                        $.post(categoryCrudUrl, { action: 'update', category_id: id, category_name: name }).done(res => {
                             if (!res.ok) return showToast('error', res.message || 'Could not rename category.');
 
                             const updated = String(res.category_name || name).trim();
@@ -1641,8 +1736,8 @@ try {
                             $editLi.attr('data-name', updated);
                             $editLi.find('.edit-category-select').text(updated);
 
-                            if ($idCategory.val() === idStr) setSelectedCategory(idStr, updated);
-                            if ($editIdCategory.val() === idStr) setEditSelectedCategory(idStr, updated);
+                            if ($category_id.val() === idStr) setSelectedCategory(idStr, updated);
+                            if ($editcategory_id.val() === idStr) setEditSelectedCategory(idStr, updated);
 
                             showToast('success', 'Category renamed.');
                             resetFilterCategoryRow();
@@ -1656,10 +1751,10 @@ try {
                         // Add to sidebar (before the checkboxes are auto-submitted)
                         const escaped = $('<div/>').text(res.category_name).html();
                         const rowHtml = `
-                            <div class="filter-category-row flex items-center gap-2 group" data-id="${res.idcategory}" data-name="${escaped}" data-confirming="0">
+                            <div class="filter-category-row flex items-center gap-2 group" data-id="${res.category_id}" data-name="${escaped}" data-confirming="0">
                                 <label class="flex items-center gap-3 text-sm font-medium text-slate-600 select-none cursor-pointer group-hover:text-slate-900 transition-colors flex-1">
                                     <div class="relative flex items-center justify-center">
-                                        <input type="checkbox" name="category[]" value="${res.idcategory}"
+                                        <input type="checkbox" name="category[]" value="${res.category_id}"
                                             class="peer h-5 w-5 cursor-pointer appearance-none rounded-md border-2 border-slate-300 bg-white/50 checked:border-indigo-600 checked:bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-1 transition-all">
                                         <i class="fa-solid fa-check absolute text-white text-[10px] opacity-0 peer-checked:opacity-100 pointer-events-none transition-opacity"></i>
                                     </div>
@@ -1677,8 +1772,8 @@ try {
                         $filterCatPanel.append(rowHtml);
 
                         // Add to dropdowns
-                        addCategoryOption(res.idcategory, res.category_name, $ddOptions, 'category');
-                        addCategoryOption(res.idcategory, res.category_name, $editDdOptions, 'edit-category');
+                        addCategoryOption(res.category_id, res.category_name, $ddOptions, 'category');
+                        addCategoryOption(res.category_id, res.category_name, $editDdOptions, 'edit-category');
 
                         resetFilterCategoryRow();
                         showToast('success', 'Category added.');
@@ -1714,8 +1809,8 @@ try {
                     $editLi.attr('data-name', updated);
                     $editLi.find('.edit-category-select').text(updated);
 
-                    if ($idCategory.val() === idStr) setSelectedCategory(idStr, updated);
-                    if ($editIdCategory.val() === idStr) setEditSelectedCategory(idStr, updated);
+                    if ($category_id.val() === idStr) setSelectedCategory(idStr, updated);
+                    if ($editcategory_id.val() === idStr) setEditSelectedCategory(idStr, updated);
                 }
 
                 $filterCatPanel.on('click', '.filter-category-rename', function (e) {
@@ -1773,7 +1868,7 @@ try {
                         return showToast('error', 'A category with this name already exists.');
                     }
 
-                    $.post(categoryCrudUrl, { action: 'update', idcategory: idStr, category_name: nextName }).done(res => {
+                    $.post(categoryCrudUrl, { action: 'update', category_id: idStr, category_name: nextName }).done(res => {
                         if (!res.ok) return showToast('error', res.message || 'Could not rename category.');
                         const updated = String(res.category_name || nextName).trim();
                         applyCategoryRenameEverywhere(idStr, updated);
@@ -1818,7 +1913,7 @@ try {
                     e.stopPropagation();
                     const $row = $(this).closest('.filter-category-row');
                     const id = String($row.attr('data-id'));
-                    $.post(categoryCrudUrl, { action: 'delete', idcategory: id }).done(res => {
+                    $.post(categoryCrudUrl, { action: 'delete', category_id: id }).done(res => {
                         if (!res.ok) {
                             showToast('error', res.message || 'Could not remove category.');
                             $row.find('.filter-category-cancel').click();
@@ -1829,8 +1924,8 @@ try {
                         $ddOptions.find(`li[data-id="${id}"]`).remove();
                         $editDdOptions.find(`li[data-id="${id}"]`).remove();
 
-                        if ($idCategory.val() === id) setSelectedCategory('', '');
-                        if ($editIdCategory.val() === id) setEditSelectedCategory('', '');
+                        if ($category_id.val() === id) setSelectedCategory('', '');
+                        if ($editcategory_id.val() === id) setEditSelectedCategory('', '');
 
                         // Uncheck and refresh results
                         if ($filterForm.length) {
