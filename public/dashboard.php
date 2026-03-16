@@ -69,79 +69,7 @@ try {
         <?php include "./includes/partial/loader.php" ?>
     </div>
 
-    <header class="bg-white/70 backdrop-blur-xl border-b border-white sticky top-0 z-40 shadow-sm shadow-slate-200/50">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between">
-            <div class="flex items-center gap-3">
-                <a href="dashboard.php" class="flex items-center focus:outline-none" aria-label="Venda Track home">
-                    <img src="assets/images/logo.png" alt="Venda Track"
-                        class="h-10 w-auto max-w-[200px] sm:max-w-[240px] object-contain">
-                </a>
-            </div>
-
-            <div class="flex items-center gap-2 sm:gap-4">
-                <a href="includes/export_pdf.php" target="_blank"
-                    class="flex items-center gap-2 bg-white/80 backdrop-blur-md border border-white hover:bg-white hover:shadow-md text-slate-700 px-4 py-2 rounded-xl text-sm font-semibold transition-all shadow-sm">
-                    <i class="fa-solid fa-download text-indigo-500"></i>
-                    <span class="hidden sm:inline">Export</span>
-                </a>
-
-                <div class="relative ml-2">
-                    <button id="profileTrigger"
-                        class="flex items-center justify-center p-1 rounded-full hover:cursor-pointer hover:ring-4 hover:ring-indigo-500/10 transition-all focus:outline-none shadow-sm bg-white/50">
-                        <img class="h-9 w-9 rounded-full object-cover border-2 border-white"
-                            src="<?php echo htmlspecialchars($_SESSION['user_picture']); ?>" alt="User">
-                    </button>
-
-                    <div id="googleMenu"
-                        class="hidden absolute right-0 mt-3 w-80 bg-white/95 backdrop-blur-2xl rounded-3xl shadow-2xl border border-white z-50 overflow-hidden">
-                        <div class="p-6 flex flex-col items-center text-center relative">
-                            <div class="absolute inset-0 linear-gradient-to-br from-indigo-500/5 to-purple-500/5"></div>
-
-                            <div class="relative mb-3 z-10">
-                                <img class="h-24 w-24 rounded-full object-cover border-4 border-white shadow-lg"
-                                    src="<?php echo htmlspecialchars($_SESSION['user_picture']); ?>" alt="User">
-                            </div>
-
-                            <h2 class="text-xl text-slate-900 font-bold z-10">Hi,
-                                <?php echo htmlspecialchars($_SESSION['user_name']); ?>!
-                            </h2>
-                            <p class="text-sm font-medium text-slate-500 mb-4 z-10">
-                                <?php echo htmlspecialchars($_SESSION['user_email']); ?>
-                            </p>
-
-                            <?php if (empty($_SESSION['google_id'])): ?>
-                                <button id="openPassModal"
-                                    class="mt-4 px-6 py-2 border hover:cursor-pointer border-slate-200 bg-white/80 rounded-full text-sm font-semibold text-slate-700 hover:text-indigo-600 hover:bg-white hover:border-indigo-200 hover:shadow-md transition-all z-10">
-                                    Change password
-                                </button>
-                            <?php endif; ?>
-                        </div>
-
-                        <div class="bg-slate-50/80 p-2 border-t border-slate-100">
-                            <button id="openHistorySidebar"
-                                class="w-full hover:cursor-pointer flex items-center gap-3 px-4 py-3 text-sm font-bold text-slate-700 hover:bg-white hover:text-indigo-600 hover:shadow-sm rounded-2xl transition-all">
-                                <i class="fa-solid fa-clock-rotate-left text-indigo-400"></i>
-                                <span>Inventory History</span>
-                            </button>
-
-                            <a href="includes/logout.php"
-                                class="flex items-center gap-3 px-4 py-3 text-sm font-bold text-red-600 hover:bg-red-50 hover:shadow-sm rounded-2xl transition-all mt-1">
-                                <i class="fa-solid fa-right-from-bracket text-red-400"></i>
-                                <span>Sign out</span>
-                            </a>
-                        </div>
-
-                        <div class="p-3 text-center border-t border-slate-100 bg-white">
-                            <button type="button" id="open-legal-modal"
-                                class="text-[10px] font-bold text-slate-400 uppercase tracking-widest hover:text-indigo-600 transition-colors cursor-pointer">
-                                About Us
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </header>
+    <?php include_once("includes/partial/header.php"); ?>
 
     <main class="flex-1 relative z-10">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 py-8">
@@ -1152,14 +1080,7 @@ try {
         </div>
     </div>
 
-    <footer class="border-t border-slate-200/60 bg-white/40 backdrop-blur-md relative z-10 mt-auto">
-        <div
-            class="max-w-7xl mx-auto px-6 py-5 flex items-center justify-between text-xs font-bold uppercase tracking-widest text-slate-400">
-            <div>&copy; <?php echo date('Y'); ?> Inventory</div>
-            <div class="hidden sm:block">Signed in as <span
-                    class="text-indigo-500"><?php echo htmlspecialchars($_SESSION['user_name']); ?></span></div>
-        </div>
-    </footer>
+    <?php include_once("includes/partial/footer.php"); ?>
 
     <script src="https://cdn.jsdelivr.net/npm/uuid@9.0.1/dist/umd/uuidv7.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>

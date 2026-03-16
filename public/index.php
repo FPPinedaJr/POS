@@ -2,7 +2,7 @@
 require_once 'includes/gClienAuth.php';
 
 if (isset($_SESSION['user_id'])) {
-    header('Location: dashboard.php');
+    header('Location: portal.php');
     exit;
 }
 ?>
@@ -137,8 +137,7 @@ if (isset($_SESSION['user_id'])) {
                                 // Wait 1.5 seconds for the user to read the toast, then redirect
                                 setTimeout(() => {
                                     if (actionUrl.includes('./includes/login.php')) {
-                                        console.log('exist');
-                                        window.location.href = 'dashboard.php';
+                                        window.location.href = 'portal.php';
                                     } else {
                                         // If registration is successful, redirect to login page (adjust path if needed)
                                         window.location.href = 'index.php';
