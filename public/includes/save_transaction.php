@@ -8,6 +8,8 @@ if (!isset($_SESSION['user_id'])) {
     exit;
 }
 
+$userId = (int) $_SESSION['user_id'];
+
 // Helper to generate standard UUIDv4 for our database tables
 function generate_uuid() {
     return sprintf( '%04x%04x-%04x-%04x-%04x-%04x%04x%04x',
@@ -56,15 +58,16 @@ try {
 
     // 2. Insert into transaction_header
     $stmtHeader = $pdo->prepare("
-        INSERT INTO transaction_header (transaction_uuid, transaction_number, customer, total_amount, is_unpaid)
-        VALUES (:uuid, :num, :customer, :total, :unpaid)
+        INSERT INTO transaction_header (transaction_uuid, transaction_number, customer, total_amount, is_unpaid, user_id)
+        VALUES (:uuid, :num, :customer, :total, :unpaid, :user_id)
     ");
     $stmtHeader->execute([
         'uuid' => $transactionUuid,
         'num' => $transactionNumber,
         'customer' => $customer,
         'total' => $totalAmount,
-        'unpaid' => $isUnpaid
+        'unpaid' => $isUnpaid,
+        'user_id' => $userId
     ]);
 
     // Prepare statements for the loop

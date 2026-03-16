@@ -8,6 +8,8 @@ if (!isset($_SESSION['user_id'])) {
     exit;
 }
 
+$userId = (int) $_SESSION['user_id'];
+
 try {
     if (isset($_GET['uuid'])) {
         // --- 1. FETCH SPECIFIC RECEIPT DETAILS ---
@@ -19,8 +21,12 @@ try {
             LEFT JOIN transaction_item ti ON th.transaction_uuid = ti.transaction_uuid
             LEFT JOIN item i ON ti.item_id = i.item_id
             WHERE th.transaction_uuid = :uuid
+              AND th.user_id = :user_id
         ");
-        $stmt->execute(['uuid' => $_GET['uuid']]);
+        $stmt->execute([
+            'uuid' => $_GET['uuid'],
+            'user_id' => $userId
+        ]);
         $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
         if (!$results) {
@@ -52,7 +58,7 @@ try {
 
     } else {
         // --- 2. FETCH TODAY'S LIST WITH ITEM SUMMARIES ---
-        $stmt = $pdo->query("
+        $stmt = $pdo->prepare("
             SELECT 
                 th.transaction_uuid,
                 th.transaction_number,
@@ -65,9 +71,11 @@ try {
             LEFT JOIN transaction_item ti ON th.transaction_uuid = ti.transaction_uuid
             LEFT JOIN item i ON ti.item_id = i.item_id
             WHERE DATE(th.created_at) = CURDATE()
+              AND th.user_id = :user_id
             GROUP BY th.transaction_uuid, th.transaction_number, th.customer, th.total_amount, th.is_unpaid, th.created_at
             ORDER BY th.created_at DESC
         ");
+        $stmt->execute(['user_id' => $userId]);
         $transactions = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
         echo json_encode([
