@@ -233,7 +233,7 @@ try {
                                                 class="text-slate-800 font-bold"><?php echo (int) $from; ?>–<?php echo (int) $to; ?></span>
                                             of <span class="text-slate-800 font-bold"><?php echo (int) $total; ?></span>
                                         </div>
-                                        <a href="dashboard.php"
+                                        <a href="inventory.php"
                                             class="text-xs font-bold text-red-500 hover:text-red-700 bg-white/80 px-3 py-1.5 rounded-lg shadow-sm hover:shadow hover:bg-white transition-all border border-red-100 ml-2">
                                             Clear filters
                                         </a>
@@ -381,13 +381,13 @@ try {
                                         <nav class="inline-flex flex-wrap items-center justify-center gap-2 rounded-[2rem] bg-white/70 backdrop-blur-xl border border-white px-3 py-3 shadow-xl shadow-slate-200/40"
                                             aria-label="Pagination">
                                             <a class="px-4 py-2 rounded-xl text-sm font-bold border transition-all <?php echo $prev ? 'bg-white text-slate-700 border-white shadow-sm hover:shadow-md hover:-translate-y-0.5' : 'bg-slate-100/50 text-slate-400 border-transparent pointer-events-none'; ?>"
-                                                href="<?php echo $prev ? ('dashboard.php' . inv_build_query_string($baseParams + ['page' => $prev])) : '#'; ?>">
+                                                href="<?php echo $prev ? ('inventory.php' . inv_build_query_string($baseParams + ['page' => $prev])) : '#'; ?>">
                                                 <i class="fa-solid fa-chevron-left mr-2 text-xs"></i> Prev
                                             </a>
 
                                             <?php if ($start > 1): ?>
                                                 <a class="w-10 h-10 flex items-center justify-center rounded-xl text-sm font-bold border bg-white text-slate-700 border-white shadow-sm hover:shadow-md transition-all hover:-translate-y-0.5"
-                                                    href="<?php echo 'dashboard.php' . inv_build_query_string($baseParams + ['page' => 1]); ?>">1</a>
+                                                    href="<?php echo 'inventory.php' . inv_build_query_string($baseParams + ['page' => 1]); ?>">1</a>
                                                 <?php if ($start > 2): ?>
                                                     <span class="w-8 text-center text-slate-400 font-bold">…</span>
                                                 <?php endif; ?>
@@ -395,7 +395,7 @@ try {
 
                                             <?php for ($p = $start; $p <= $end; $p++): ?>
                                                 <a class="w-10 h-10 flex items-center justify-center rounded-xl text-sm font-bold border transition-all hover:-translate-y-0.5 <?php echo $p === $cur ? 'bg-indigo-600 text-white border-indigo-600 shadow-md shadow-indigo-200' : 'bg-white text-slate-700 border-white shadow-sm hover:shadow-md hover:text-indigo-600'; ?>"
-                                                    href="<?php echo 'dashboard.php' . inv_build_query_string($baseParams + ['page' => $p]); ?>">
+                                                    href="<?php echo 'inventory.php' . inv_build_query_string($baseParams + ['page' => $p]); ?>">
                                                     <?php echo (int) $p; ?>
                                                 </a>
                                             <?php endfor; ?>
@@ -405,13 +405,13 @@ try {
                                                     <span class="w-8 text-center text-slate-400 font-bold">…</span>
                                                 <?php endif; ?>
                                                 <a class="w-10 h-10 flex items-center justify-center rounded-xl text-sm font-bold border bg-white text-slate-700 border-white shadow-sm hover:shadow-md transition-all hover:-translate-y-0.5 hover:text-indigo-600"
-                                                    href="<?php echo 'dashboard.php' . inv_build_query_string($baseParams + ['page' => $totalPages]); ?>">
+                                                    href="<?php echo 'inventory.php' . inv_build_query_string($baseParams + ['page' => $totalPages]); ?>">
                                                     <?php echo $totalPages; ?>
                                                 </a>
                                             <?php endif; ?>
 
                                             <a class="px-4 py-2 rounded-xl text-sm font-bold border transition-all <?php echo $next ? 'bg-white text-slate-700 border-white shadow-sm hover:shadow-md hover:-translate-y-0.5' : 'bg-slate-100/50 text-slate-400 border-transparent pointer-events-none'; ?>"
-                                                href="<?php echo $next ? ('dashboard.php' . inv_build_query_string($baseParams + ['page' => $next])) : '#'; ?>">
+                                                href="<?php echo $next ? ('inventory.php' . inv_build_query_string($baseParams + ['page' => $next])) : '#'; ?>">
                                                 Next <i class="fa-solid fa-chevron-right ml-2 text-xs"></i>
                                             </a>
                                         </nav>

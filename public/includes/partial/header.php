@@ -1,3 +1,8 @@
+<?php
+// Get the name of the current file (e.g., 'portal.php' or 'inventory.php')
+$currentPage = basename($_SERVER['PHP_SELF']);
+?>
+
 <header class="bg-white/70 backdrop-blur-xl border-b border-white sticky top-0 z-40 shadow-sm shadow-slate-200/50">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between">
         <div class="flex items-center gap-3">
@@ -42,17 +47,22 @@
                     </div>
 
                     <div class="bg-slate-50/80 p-2 border-t border-slate-100">
-                        <a href="portal.php"
-                            class="w-full flex items-center gap-3 px-4 py-3 text-sm font-bold text-slate-700 hover:bg-white hover:text-indigo-600 hover:shadow-sm rounded-2xl transition-all mb-1">
-                            <i class="fa-solid fa-house text-indigo-400"></i>
-                            <span>Home</span>
-                        </a>
 
-                        <button id="openHistorySidebar"
-                            class="w-full hover:cursor-pointer flex items-center gap-3 px-4 py-3 text-sm font-bold text-slate-700 hover:bg-white hover:text-indigo-600 hover:shadow-sm rounded-2xl transition-all">
-                            <i class="fa-solid fa-clock-rotate-left text-indigo-400"></i>
-                            <span>Inventory History</span>
-                        </button>
+                        <?php if ($currentPage !== 'portal.php'): ?>
+                            <a href="portal.php"
+                                class="w-full flex items-center gap-3 px-4 py-3 text-sm font-bold text-slate-700 hover:bg-white hover:text-indigo-600 hover:shadow-sm rounded-2xl transition-all mb-1">
+                                <i class="fa-solid fa-house text-indigo-400"></i>
+                                <span>Home</span>
+                            </a>
+                        <?php endif; ?>
+
+                        <?php if ($currentPage === 'inventory.php'): ?>
+                            <button id="openHistorySidebar"
+                                class="w-full hover:cursor-pointer flex items-center gap-3 px-4 py-3 text-sm font-bold text-slate-700 hover:bg-white hover:text-indigo-600 hover:shadow-sm rounded-2xl transition-all">
+                                <i class="fa-solid fa-clock-rotate-left text-indigo-400"></i>
+                                <span>Inventory History</span>
+                            </button>
+                        <?php endif; ?>
 
                         <a href="includes/logout.php"
                             class="flex items-center gap-3 px-4 py-3 text-sm font-bold text-red-600 hover:bg-red-50 hover:shadow-sm rounded-2xl transition-all mt-1">
