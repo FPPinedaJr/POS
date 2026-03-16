@@ -1,0 +1,18 @@
+{
+    "require": {
+        "google/apiclient": "^2.19",
+        "intervention/image": "^3.11",
+        "dompdf/dompdf": "^3.1"
+    },
+    "scripts": {
+        "pre-autoload-dump": "Google\\Task\\Composer::cleanup"
+    },
+    "extra": {
+        "google/apiclient-services": [
+            "Oauth2"
+        ]
+    },
+    "config": {
+        "vendor-dir": "public/vendor"
+    }
+}

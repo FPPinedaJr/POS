@@ -1,0 +1,27 @@
+{
+  "dependencies": {
+    "@tailwindcss/cli": "^4.2.1"
+  },
+  "scripts": {
+    "dev": "tailwindcss -i ./public/assets/css/input.css -o ./public/assets/css/output.css --watch"
+  },
+  "name": "inventory",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "devDependencies": {
+    "tailwindcss": "^4.2.1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/23jammy/inventory.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/23jammy/inventory/issues"
+  },
+  "homepage": "https://github.com/23jammy/inventory#readme"
+}
