@@ -4,16 +4,23 @@ $currentPage = basename($_SERVER['PHP_SELF']);
 ?>
 
 <header class="bg-white/70 backdrop-blur-xl border-b border-white sticky top-0 z-40 shadow-sm shadow-slate-200/50">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between">
-        <div class="flex items-center gap-3">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between gap-4">
+        
+        <div class="flex items-center gap-3 shrink-0">
+            <?php if ($currentPage === 'pos.php'): ?>
+            <a href="portal.php" class="flex items-center focus:outline-none"
+                aria-label="Go to portal">
+            <?php else: ?>
             <a href="#" onclick="window.location.reload(); return false;" class="flex items-center focus:outline-none"
                 aria-label="Refresh page">
+            <?php endif; ?>
                 <img src="assets/images/logo.png" alt="Venda Track"
                     class="h-10 w-auto max-w-[200px] sm:max-w-[240px] object-contain">
             </a>
         </div>
 
-        <div class="flex items-center gap-2 sm:gap-4">
+        <div class="flex items-center gap-2 sm:gap-4 shrink-0">
+
             <div class="relative ml-2">
                 <button id="profileTrigger"
                     class="flex items-center justify-center p-1 rounded-full hover:cursor-pointer hover:ring-4 hover:ring-indigo-500/10 transition-all focus:outline-none shadow-sm bg-white/50">
@@ -29,7 +36,7 @@ $currentPage = basename($_SERVER['PHP_SELF']);
                         <div class="relative mb-3 z-10">
                             <img class="h-24 w-24 rounded-full object-cover border-4 border-white shadow-lg"
                                 src="<?php echo htmlspecialchars($_SESSION['user_picture']); ?>" alt="User">
-                        </div>
+                        </div>  
 
                         <h2 class="text-xl text-slate-900 font-bold z-10">Hi,
                             <?php echo htmlspecialchars($_SESSION['user_name']); ?>!
@@ -61,6 +68,19 @@ $currentPage = basename($_SERVER['PHP_SELF']);
                                 class="w-full hover:cursor-pointer flex items-center gap-3 px-4 py-3 text-sm font-bold text-slate-700 hover:bg-white hover:text-indigo-600 hover:shadow-sm rounded-2xl transition-all">
                                 <i class="fa-solid fa-clock-rotate-left text-indigo-400"></i>
                                 <span>Inventory History</span>
+                            </button>
+                        <?php endif; ?>
+
+                        <?php if ($currentPage === 'pos.php'): ?>
+                            <button id="open-sales-history"
+                                class="w-full hover:cursor-pointer flex items-center gap-3 px-4 py-3 text-sm font-bold text-slate-700 hover:bg-white hover:text-indigo-600 hover:shadow-sm rounded-2xl transition-all mb-1">
+                                <i class="fa-solid fa-receipt text-indigo-400"></i>
+                                <span>Today's Transaction</span>
+                            </button>
+                            <button id="open-receivables"
+                                class="w-full hover:cursor-pointer flex items-center gap-3 px-4 py-3 text-sm font-bold text-slate-700 hover:bg-white hover:text-amber-600 hover:shadow-sm rounded-2xl transition-all mb-1">
+                                <i class="fa-solid fa-hand-holding-dollar text-indigo-400"></i>
+                                <span>Receivables</span>.
                             </button>
                         <?php endif; ?>
 
