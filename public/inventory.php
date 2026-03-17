@@ -77,14 +77,14 @@ try {
 <body class="min-h-screen flex flex-col relative font-sans text-slate-800 bg-slate-50">
 
     <div
-        class="fixed inset-0 z-[-2] bg-gradient-to-br from-indigo-500/5 via-fuchsia-500/5 to-teal-500/5 pointer-events-none">
+        class="fixed inset-0 z-[-2] bg-linear-to-br from-indigo-500/5 via-fuchsia-500/5 to-teal-500/5 pointer-events-none">
     </div>
 
     <div
         class="fixed inset-0 z-[-1] bg-[linear-gradient(to_right,#cbd5e1_1px,transparent_1px),linear-gradient(to_bottom,#cbd5e1_1px,transparent_1px)] bg-[size:32px_32px] opacity-40 pointer-events-none [mask-image:linear-gradient(to_bottom,black_40%,transparent_100%)]">
     </div>
 
-    <div class="fixed top-0 left-0 right-0 h-1 bg-gradient-to-r from-indigo-500 via-fuchsia-500 to-teal-400 z-[100]">
+    <div class="fixed top-0 left-0 right-0 h-1 bg-linear-to-r from-indigo-500 via-fuchsia-500 to-teal-400 z-[100]">
     </div>
 
     <!-- Loader -->
