@@ -89,10 +89,10 @@ if (!isset($_SESSION['user_id'])) {
                 class="tab-btn px-5 py-3 text-sm font-bold border-b-2 border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300 transition-all whitespace-nowrap">
                 <i class="fa-solid fa-clipboard-list mr-1.5"></i> Inventory
             </button>
-            <button data-target="#tab-audit"
+            <!-- <button data-target="#tab-audit"
                 class="tab-btn px-5 py-3 text-sm font-bold border-b-2 border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300 transition-all whitespace-nowrap">
                 <i class="fa-solid fa-clock-rotate-left mr-1.5"></i> Audit Trail
-            </button>
+            </button> -->
         </div>
 
         <div
@@ -131,12 +131,12 @@ if (!isset($_SESSION['user_id'])) {
                 </div>
             </div>
 
-            <!-- <div id="tab-inventory" class="tab-content hidden">
+            <div id="tab-inventory" class="tab-content hidden">
                 <div id="inventory-report-container">
                 </div>
             </div>
 
-            <div id="tab-trail" class="tab-content hidden">
+            <!-- <div id="tab-trail" class="tab-content hidden">
                 <div id="trail-report-container">
                 </div>
             </div> -->
@@ -207,7 +207,6 @@ if (!isset($_SESSION['user_id'])) {
                             <div class="flex items-center gap-1.5 text-xs font-bold text-slate-600">
                                 <i class="fa-solid fa-user text-slate-400"></i>
                                 <span class="truncate">${txn.customer}</span>
-                                <span class="text-rose-500 ml-0.5">(Credit)</span>
                             </div>`;
                             statusHtml = `
                             <div class="inline-flex items-center border border-rose-100 rounded-md overflow-hidden shadow-sm">
@@ -562,18 +561,125 @@ if (!isset($_SESSION['user_id'])) {
             });
         }
 
+        function loadInventoryReport() {
+            const $container = $('#inventory-report-container');
+            $container.html('<div class="p-8 text-center animate-pulse text-fuchsia-400 font-bold"><i class="fa-solid fa-boxes-stacked mr-2"></i> Analyzing stock levels...</div>');
+
+            $.getJSON('includes/fetch_inventory.php', function (res) {
+                if (!res.success) {
+                    $container.html(`<div class="p-4 bg-red-50 text-red-600 rounded-xl">${res.message}</div>`);
+                    return;
+                }
+
+                $container.empty();
+                const m = res.metrics;
+
+                // 1. Summary Card
+                let summaryHtml = `
+        <div class="bg-fuchsia-50 border border-fuchsia-100 rounded-[1.5rem] p-6 mb-8 flex flex-col sm:flex-row justify-between items-center gap-4">
+            <div class="flex items-center gap-4">
+                <div class="h-12 w-12 rounded-full bg-white border border-fuchsia-100 flex items-center justify-center text-fuchsia-500 shadow-sm">
+                    <i class="fa-solid fa-warehouse text-xl"></i>
+                </div>
+                <div>
+                    <h3 class="text-xs font-black text-fuchsia-500 uppercase tracking-widest">Stock Overview</h3>
+                    <p class="text-base font-bold text-slate-700">${m.total_units.toLocaleString()} Total Units</p>
+                </div>
+            </div>
+            <div class="text-right">
+                <h3 class="text-xs font-black text-fuchsia-500 uppercase tracking-widest mb-0.5">Inventory Valuation</h3>
+                <p class="text-4xl font-black text-fuchsia-600">${formatMoney(m.overall_value)}</p>
+            </div>
+        </div>
+        `;
+                $container.append(summaryHtml);
+
+                // 2. Loop through Categories
+                for (const [category, items] of Object.entries(res.data)) {
+                    let categoryValue = 0;
+                    let itemsHtml = '';
+
+                    items.forEach(item => {
+                        categoryValue += parseFloat(item.total_value);
+
+                        // Logic for Restock Warning
+                        const isLow = parseFloat(item.current_stock) <= parseFloat(item.stock_threshold);
+                        const restockBadge = isLow
+                            ? `<span class="ml-2 px-1.5 py-0.5 bg-rose-400 text-white text-[.5em] font-medium rounded-sm uppercase tracking-tighter shadow-sm">Low Stock</span>`
+                            : '';
+
+                        // Color the number red if low
+                        const stockColorClass = 'text-slate-700';
+
+                        itemsHtml += `
+                <div class="flex items-center py-4 border-b border-slate-50 last:border-0 hover:bg-slate-50/50 transition-colors px-6">
+                    <div class="w-2/5 pr-4 flex items-center">
+                        <p class="text-sm font-bold text-slate-800 truncate">${item.item_name}</p>
+                        ${restockBadge}
+                    </div>
+                    
+                    <div class="w-1/5 text-center">
+                        <span class="text-sm font-black ${stockColorClass}">${item.current_stock}</span>
+                        <span class="text-[10px] font-bold text-slate-400 uppercase ml-0.5">${item.unit}</span>
+                    </div>
+
+                    <div class="w-1/5 flex justify-center">
+                        <span class="bg-slate-100 text-slate-600 text-xs font-bold px-3 py-1 rounded border border-slate-200">
+                           ${formatMoney(item.unit_cost)}
+                        </span>
+                    </div>
+
+                    <div class="w-1/5 text-right font-black text-base text-slate-900">
+                        ${formatMoney(item.total_value)}
+                    </div>
+                </div>`;
+                    });
+
+                    // Build Category Section
+                    let catHtml = `
+            <div class="max-w-5xl mx-auto mb-10 overflow-hidden bg-white border border-slate-200 rounded-[1.25rem] shadow-sm">
+                <div class="bg-slate-100/80 px-6 py-3 border-b border-slate-200 flex justify-between items-center">
+                    <h4 class="text-xs font-black text-slate-600 uppercase tracking-widest flex items-center gap-2">
+                        <i class="fa-solid fa-folder-open text-fuchsia-500"></i> ${category}
+                    </h4>
+                    <span class="text-xs font-bold text-slate-500 bg-white px-3 py-1 rounded-full border border-slate-200 shadow-sm">
+                       Subtotal: <span class="text-fuchsia-600 font-black ml-1">${formatMoney(categoryValue)}</span>
+                    </span>
+                </div>
+
+                <div class="flex px-6 py-2.5 bg-slate-50/30 border-b border-slate-100 text-[10px] font-black text-slate-500 uppercase tracking-widest">
+                    <div class="w-2/5">Product Name</div>
+                    <div class="w-1/5 text-center">Available Stock</div>
+                    <div class="w-1/5 text-center">Unit Cost</div>
+                    <div class="w-1/5 text-right">Total Value</div>
+                </div>
+
+                <div class="divide-y divide-slate-50">
+                    ${itemsHtml}
+                </div>
+            </div>
+            `;
+                    $container.append(catHtml);
+                }
+            });
+        }
+
+
         // 3. EVENT LISTENERS
 
         // Initial fetch on page load
         loadSalesReport();
         loadIncomeReport();
         loadReceivablesReport();
+        loadInventoryReport();
 
         // Global Filter Click
         $('#btn_apply_filters').on('click', function () {
             loadSalesReport();
             loadIncomeReport();
             loadReceivablesReport();
+            loadInventoryReport();
+
         });
 
         // Accordion toggles
