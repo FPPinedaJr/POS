@@ -57,31 +57,70 @@ try {
         echo json_encode(['success' => true, 'data' => $receipt]);
 
     } else {
-        // --- 2. FETCH TODAY'S LIST WITH ITEM SUMMARIES ---
-        $stmt = $pdo->prepare("
-            SELECT 
-                th.transaction_uuid,
-                th.transaction_number,
-                th.customer,
-                th.total_amount,
-                th.is_unpaid,
-                th.created_at,
-                GROUP_CONCAT(CONCAT(ti.quantity, 'x ', i.item_name) SEPARATOR ', ') AS items_summary
-            FROM transaction_header th
-            LEFT JOIN transaction_item ti ON th.transaction_uuid = ti.transaction_uuid
-            LEFT JOIN item i ON ti.item_id = i.item_id
-            WHERE DATE(th.created_at) = CURDATE()
-              AND th.user_id = :user_id
-            GROUP BY th.transaction_uuid, th.transaction_number, th.customer, th.total_amount, th.is_unpaid, th.created_at
-            ORDER BY th.created_at DESC
-        ");
-        $stmt->execute(['user_id' => $userId]);
-        $transactions = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        // Modes:
+        // - default: today's transactions (created today OR settled today), with item summaries
+        // - ?mode=receivables_all : all unpaid receivables (any date), with item summaries
+        $mode = $_GET['mode'] ?? '';
 
-        echo json_encode([
-            'success' => true,
-            'transactions' => $transactions
-        ]);
+        if ($mode === 'receivables_all') {
+            $stmt = $pdo->prepare("
+                SELECT 
+                    th.transaction_uuid,
+                    th.transaction_number,
+                    th.customer,
+                    th.total_amount,
+                    th.is_unpaid,
+                    th.void_date,
+                    th.settle_date,
+                    th.created_at,
+                    GROUP_CONCAT(CONCAT(ti.quantity, 'x ', i.item_name) SEPARATOR ', ') AS items_summary
+                FROM transaction_header th
+                LEFT JOIN transaction_item ti ON th.transaction_uuid = ti.transaction_uuid
+                LEFT JOIN item i ON ti.item_id = i.item_id
+                WHERE th.user_id = :user_id
+                  AND th.is_unpaid = 1
+                  AND th.void_date IS NULL
+                GROUP BY th.transaction_uuid, th.transaction_number, th.customer, th.total_amount, th.is_unpaid, th.void_date, th.settle_date, th.created_at
+                ORDER BY th.created_at DESC
+            ");
+            $stmt->execute(['user_id' => $userId]);
+            $transactions = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+            echo json_encode([
+                'success' => true,
+                'transactions' => $transactions
+            ]);
+        } else {
+            $stmt = $pdo->prepare("
+                SELECT 
+                    th.transaction_uuid,
+                    th.transaction_number,
+                    th.customer,
+                    th.total_amount,
+                    th.is_unpaid,
+                    th.void_date,
+                    th.settle_date,
+                    th.created_at,
+                    GROUP_CONCAT(CONCAT(ti.quantity, 'x ', i.item_name) SEPARATOR ', ') AS items_summary
+                FROM transaction_header th
+                LEFT JOIN transaction_item ti ON th.transaction_uuid = ti.transaction_uuid
+                LEFT JOIN item i ON ti.item_id = i.item_id
+                WHERE th.user_id = :user_id
+                  AND (
+                        DATE(th.created_at) = CURDATE()
+                        OR th.settle_date = CURDATE()
+                      )
+                GROUP BY th.transaction_uuid, th.transaction_number, th.customer, th.total_amount, th.is_unpaid, th.void_date, th.settle_date, th.created_at
+                ORDER BY th.created_at DESC
+            ");
+            $stmt->execute(['user_id' => $userId]);
+            $transactions = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+            echo json_encode([
+                'success' => true,
+                'transactions' => $transactions
+            ]);
+        }
     }
 } catch (Throwable $e) {
     echo json_encode(['success' => false, 'message' => 'Database error: ' . $e->getMessage()]);

@@ -8,6 +8,8 @@ if (!isset($_SESSION['user_id'])) {
     exit;
 }
 
+$userId = (int) $_SESSION['user_id'];
+
 function generate_uuid() {
     return sprintf( '%04x%04x-%04x-%04x-%04x-%04x%04x%04x',
         mt_rand( 0, 0xffff ), mt_rand( 0, 0xffff ), mt_rand( 0, 0xffff ),
@@ -31,17 +33,17 @@ try {
     $stmtVoid = $pdo->prepare("
         UPDATE transaction_header 
         SET void_date = CURDATE() 
-        WHERE transaction_uuid = :uuid AND void_date IS NULL
+        WHERE transaction_uuid = :uuid AND void_date IS NULL AND user_id = :user_id
     ");
-    $stmtVoid->execute(['uuid' => $uuid]);
+    $stmtVoid->execute(['uuid' => $uuid, 'user_id' => $userId]);
 
     if ($stmtVoid->rowCount() === 0) {
         throw new Exception("Transaction already voided or not found.");
     }
 
     // Get the transaction number for the history description
-    $stmtGetNum = $pdo->prepare("SELECT transaction_number FROM transaction_header WHERE transaction_uuid = :uuid");
-    $stmtGetNum->execute(['uuid' => $uuid]);
+    $stmtGetNum = $pdo->prepare("SELECT transaction_number FROM transaction_header WHERE transaction_uuid = :uuid AND user_id = :user_id");
+    $stmtGetNum->execute(['uuid' => $uuid, 'user_id' => $userId]);
     $trxNumber = $stmtGetNum->fetchColumn() ?: 'Unknown';
 
     // 2. Fetch all items from this transaction
@@ -50,6 +52,7 @@ try {
     $items = $stmtGetItems->fetchAll();
 
     // Prepare statements for the loop
+    $stmtGetStock = $pdo->prepare("SELECT current_stock FROM item WHERE item_id = :id FOR UPDATE");
     $stmtRestoreStock = $pdo->prepare("UPDATE item SET current_stock = current_stock + :qty WHERE item_id = :id");
     $stmtHistoryLog = $pdo->prepare("
         INSERT INTO item_history (history_uuid, transaction_uuid, item_id, item_count, description)
@@ -59,17 +62,23 @@ try {
     // 3. Loop items to restore stock and log history
     foreach ($items as $item) {
         $qty = (int)$item['quantity'];
+        $itemId = (int) $item['item_id'];
         
-        // Add voided qty back to current_stock
-        $stmtRestoreStock->execute(['qty' => $qty, 'id' => $item['item_id']]);
+        // Lock stock row and compute absolute new stock
+        $stmtGetStock->execute(['id' => $itemId]);
+        $before = (int) ($stmtGetStock->fetchColumn() ?? 0);
+        $after = $before + $qty;
 
-        // Insert positive count in history
+        // Add voided qty back to current_stock
+        $stmtRestoreStock->execute(['qty' => $qty, 'id' => $itemId]);
+
+        // Insert absolute stock after change in history (matches fetch_history.php expectations)
         $stmtHistoryLog->execute([
             'huuid' => generate_uuid(),
             'tuuid' => $uuid,
-            'item_id' => $item['item_id'],
-            'qty' => $qty, // Positive to show it came back
-            'desc' => "Voided sale (Receipt: {$trxNumber}). Restored {$qty} unit(s)."
+            'item_id' => $itemId,
+            'qty' => $after,
+            'desc' => "VOID: Restored {$qty} unit(s) (Receipt: {$trxNumber})"
         ]);
     }
 

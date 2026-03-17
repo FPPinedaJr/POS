@@ -449,6 +449,15 @@ if (!isset($_SESSION['user_id'])) {
                 });
             }
 
+            function refreshTodayTransactions(done) {
+                $.get('includes/ajax_transactions.php', function (res) {
+                    if (res && res.success) {
+                        todaysTransactions = res;
+                    }
+                    if (typeof done === 'function') done(res);
+                });
+            }
+
             loadPosItems();
             preloadTodayTransactions();
 
@@ -1008,6 +1017,8 @@ if (!isset($_SESSION['user_id'])) {
                 } else {
                     transactions.forEach(t => {
                         const isUnpaid = parseInt(t.is_unpaid) === 1;
+                        const isVoided = !!t.void_date;
+                        const isSettledReceivable = !!t.settle_date;
                         const customer = t.customer || 'Walk-in';
                         const primaryLabel = isUnpaid
                             ? (customer || 'Walk-in')
@@ -1018,21 +1029,32 @@ if (!isset($_SESSION['user_id'])) {
                         const btnColorClasses = isUnpaid
                             ? 'text-emerald-700 bg-emerald-50 hover:bg-emerald-100'
                             : 'text-red-600 bg-red-50 hover:bg-red-100';
+                        const statusBadge = isVoided
+                            ? `<span class="bg-slate-200 text-slate-700 text-[10px] px-2 py-0.5 rounded font-black uppercase tracking-widest">Voided</span>`
+                            : (isSettledReceivable
+                                ? `<span class="bg-emerald-100 text-emerald-700 text-[10px] px-2 py-0.5 rounded font-black uppercase tracking-widest">From Receivable</span>`
+                                : '');
 
                         listHtml += `
                             <div class="flex justify-between items-start p-4 bg-white border border-slate-200 rounded-xl hover:border-indigo-300 hover:shadow-md transition-all">
                                 <div class="pr-4">
-                                    <p class="text-sm font-bold text-slate-800 mb-1">${primaryLabel}</p>
+                                    <div class="flex items-center gap-2 mb-1">
+                                        <p class="text-sm font-bold text-slate-800">${primaryLabel}</p>
+                                        ${statusBadge}
+                                    </div>
                                     ${itemsSummary ? `<p class="text-xs text-slate-500 leading-snug">${itemsSummary}</p>` : ''}
                                 </div>
                                 <div class="flex flex-col items-end gap-2">
                                     <p class="text-lg font-black text-slate-900">₱${parseFloat(t.total_amount).toFixed(2)}</p>
-                                    <button 
-                                        class="inline-void-transaction text-[11px] font-black uppercase tracking-widest px-3 py-1.5 rounded-full cursor-pointer shadow-sm ${btnColorClasses}"
-                                        data-uuid="${t.transaction_uuid}"
-                                        data-is-unpaid="${isUnpaid ? '1' : '0'}">
-                                        ${btnLabel}
-                                    </button>
+                                    ${isVoided
+                                        ? ''
+                                        : `<button 
+                                            class="inline-void-transaction text-[11px] font-black uppercase tracking-widest px-3 py-1.5 rounded-full cursor-pointer shadow-sm ${btnColorClasses}"
+                                            data-uuid="${t.transaction_uuid}"
+                                            data-is-unpaid="${isUnpaid ? '1' : '0'}">
+                                            ${btnLabel}
+                                        </button>`
+                                    }
                                 </div>
                             </div>
                         `;
@@ -1066,19 +1088,11 @@ if (!isset($_SESSION['user_id'])) {
                 $('#ui-transaction-list').html('<div class="text-center py-4"><i class="fa-solid fa-spinner fa-spin text-slate-400"></i></div>');
                 $salesModal.removeClass('hidden').addClass('flex');
 
-                const useData = todaysTransactions;
-                if (useData && useData.success) {
-                    const onlyReceivables = (useData.transactions || []).filter(t => parseInt(t.is_unpaid) === 1);
-                    renderTransactionsList(onlyReceivables, 'No receivables for today.');
-                } else {
-                    $.get('includes/ajax_transactions.php', function (res) {
-                        if (res.success) {
-                            todaysTransactions = res;
-                            const onlyReceivables = (res.transactions || []).filter(t => parseInt(t.is_unpaid) === 1);
-                            renderTransactionsList(onlyReceivables, 'No receivables for today.');
-                        }
-                    });
-                }
+                $.get('includes/ajax_transactions.php', { mode: 'receivables_all' }, function (res) {
+                    if (res.success) {
+                        renderTransactionsList(res.transactions || [], 'No receivables found.');
+                    }
+                });
             });
 
             $(document).on('click', '.inline-void-transaction', function () {
@@ -1109,6 +1123,15 @@ if (!isset($_SESSION['user_id'])) {
             function closeConfirmModal() {
                 $confirmModal.addClass('hidden').removeClass('flex');
                 pendingAction = null;
+                $('#confirm-action-confirm').prop('disabled', false);
+                $('#confirm-action-cancel').prop('disabled', false);
+                $('#confirm-action-close').prop('disabled', false);
+                const $confirmBtn = $('#confirm-action-confirm');
+                const originalText = $confirmBtn.data('original-text');
+                if (originalText) {
+                    $confirmBtn.text(originalText);
+                    $confirmBtn.removeData('original-text');
+                }
             }
 
             $('#confirm-action-close, #confirm-action-cancel').on('click', function () {
@@ -1120,6 +1143,18 @@ if (!isset($_SESSION['user_id'])) {
                     closeConfirmModal();
                     return;
                 }
+
+                const $confirmBtn = $('#confirm-action-confirm');
+                const $cancelBtn = $('#confirm-action-cancel');
+                const $closeBtn = $('#confirm-action-close');
+
+                // Loader / prevent double-submit
+                $confirmBtn.prop('disabled', true);
+                $cancelBtn.prop('disabled', true);
+                $closeBtn.prop('disabled', true);
+                const originalText = $confirmBtn.text();
+                $confirmBtn.data('original-text', originalText);
+                $confirmBtn.html('<i class="fa-solid fa-spinner fa-spin mr-2"></i>Processing...');
 
                 const { isUnpaid, uuid } = pendingAction;
 
@@ -1134,7 +1169,9 @@ if (!isset($_SESSION['user_id'])) {
                                 if (typeof showToast === 'function') {
                                     showToast('success', 'Receivable Paid!');
                                 }
-                                $('#open-receivables').click();
+                                refreshTodayTransactions(() => {
+                                    $('#open-receivables').click();
+                                });
                             } else {
                                 if (typeof showToast === 'function') {
                                     showToast('error', res.message || 'Unable to pay receivable.');
@@ -1154,12 +1191,14 @@ if (!isset($_SESSION['user_id'])) {
                                 if (typeof showToast === 'function') {
                                     showToast('success', 'Transaction Voided.');
                                 }
-                                const title = $('#sales-history-modal h2').text() || '';
-                                if (title.indexOf('Receivables') !== -1) {
-                                    $('#open-receivables').click();
-                                } else {
-                                    $('#open-sales-history').click();
-                                }
+                                refreshTodayTransactions(() => {
+                                    const title = $('#sales-history-modal h2').text() || '';
+                                    if (title.indexOf('Receivables') !== -1) {
+                                        $('#open-receivables').click();
+                                    } else {
+                                        $('#open-sales-history').click();
+                                    }
+                                });
                                 loadPosItems();
                             } else {
                                 if (typeof showToast === 'function') {

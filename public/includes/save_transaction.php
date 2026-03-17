@@ -36,6 +36,9 @@ $transactionNumber = 'TRX-' . strtoupper(substr(uniqid(), -6)); // E.g., TRX-9A2
 try {
     $pdo->beginTransaction();
 
+    // Track locked stock per item so history can store absolute new stock.
+    $lockedStock = [];
+
     // 1. Calculate true total and verify stock first
     foreach ($data['cart'] as $item) {
         $itemId = (int)$item['id'];
@@ -53,6 +56,7 @@ try {
             throw new Exception("Not enough stock for {$dbItem['item_name']}. Only {$dbItem['current_stock']} left.");
         }
 
+        $lockedStock[$itemId] = (int) $dbItem['current_stock'];
         $totalAmount += ($dbItem['retail_price'] * $qty);
     }
 
@@ -105,13 +109,22 @@ try {
         ]);
 
         // Audit Trail
+        $prevStock = $lockedStock[$itemId] ?? null;
+        $newStock = ($prevStock !== null) ? max(0, $prevStock - $qty) : null;
+
         $stmtHistoryInsert->execute([
             'huuid' => generate_uuid(),
             'tuuid' => $transactionUuid,
             'item_id' => $itemId,
-            'qty' => -$qty, // Negative because stock left the system
-            'desc' => "Sold {$qty} unit(s) via POS (Receipt: {$transactionNumber})"
+            // Store absolute stock after change (matches fetch_history.php expectations)
+            'qty' => ($newStock !== null ? $newStock : 0),
+            'desc' => "SOLD: {$qty} unit(s) via POS (Receipt: {$transactionNumber})"
         ]);
+
+        // If the same item appears again (shouldn't), keep stock consistent.
+        if ($prevStock !== null) {
+            $lockedStock[$itemId] = max(0, $prevStock - $qty);
+        }
     }
 
     $pdo->commit();
