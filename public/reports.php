@@ -81,7 +81,7 @@ if (!isset($_SESSION['user_id'])) {
                         class="bg-slate-100 hover:bg-slate-200 text-slate-700 px-4 py-2 rounded-xl text-sm font-bold transition-colors cursor-pointer">Filter</button>
                 </div>
 
-                <button type="button"
+                <button type="button" id="export-btn"
                     class="ml-auto bg-fuchsia-50 text-fuchsia-600 hover:bg-fuchsia-100 px-4 py-2 rounded-xl text-sm font-bold transition-colors flex items-center gap-2 cursor-pointer">
                     <i class="fa-solid fa-download"></i> Export Data
                 </button>
@@ -765,6 +765,31 @@ if (!isset($_SESSION['user_id'])) {
                 $container.html('<div class="p-8 text-center text-sm font-bold text-red-500 bg-red-50 rounded-2xl border border-red-100">Network or Server Error fetching Overview.</div>');
             });
         }
+
+        $('#export-btn').on('click', function () {
+            // 1. Figure out which tab is currently active based on the fuchsia border
+            const activeTabTarget = $('.tab-btn.border-fuchsia-600').data('target');
+
+            let reportType = 'sales'; // Default fallback
+            if (activeTabTarget === '#tab-receivables') reportType = 'receivables';
+            if (activeTabTarget === '#tab-inventory') reportType = 'inventory';
+            if (activeTabTarget === '#tab-income') reportType = 'income';
+
+            // 2. Grab the dates
+            const startDate = $('#filter_start').val();
+            const endDate = $('#filter_end').val();
+
+            // 3. Construct the Export URL
+            let exportUrl = `includes/export_pdf.php?report=${reportType}`;
+
+            // Only attach dates if it's NOT the inventory report
+            if (reportType !== 'inventory') {
+                exportUrl += `&start_date=${startDate}&end_date=${endDate}`;
+            }
+
+            // 4. Open the PDF generation script in a new tab
+            window.open(exportUrl, '_blank');
+        });
 
 
         // 3. EVENT LISTENERS
