@@ -5,6 +5,7 @@ if (!isset($_SESSION['user_id'])) {
     exit;
 }
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -39,37 +40,7 @@ if (!isset($_SESSION['user_id'])) {
             <p class="text-sm text-slate-500 font-medium mt-1">Track your business performance and inventory health.</p>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-            <div
-                class="bg-white/80 backdrop-blur-xl border border-white p-5 rounded-2xl shadow-sm hover:shadow-md transition-shadow">
-                <div class="flex items-center justify-between mb-3">
-                    <h3 class="text-xs font-black text-slate-400 uppercase tracking-widest">Total Sales (30 Days)</h3>
-                    <div class="h-8 w-8 rounded-full bg-emerald-50 flex items-center justify-center text-emerald-500"><i
-                            class="fa-solid fa-arrow-trend-up"></i></div>
-                </div>
-                <p class="text-3xl font-black text-slate-800">₱0.00</p>
-            </div>
-
-            <div
-                class="bg-white/80 backdrop-blur-xl border border-white p-5 rounded-2xl shadow-sm hover:shadow-md transition-shadow">
-                <div class="flex items-center justify-between mb-3">
-                    <h3 class="text-xs font-black text-slate-400 uppercase tracking-widest">Unpaid Receivables</h3>
-                    <div class="h-8 w-8 rounded-full bg-rose-50 flex items-center justify-center text-rose-500"><i
-                            class="fa-solid fa-hand-holding-dollar"></i></div>
-                </div>
-                <p class="text-3xl font-black text-slate-800">₱0.00</p>
-            </div>
-
-            <div
-                class="bg-white/80 backdrop-blur-xl border border-white p-5 rounded-2xl shadow-sm hover:shadow-md transition-shadow">
-                <div class="flex items-center justify-between mb-3">
-                    <h3 class="text-xs font-black text-slate-400 uppercase tracking-widest">Est. Inventory Value</h3>
-                    <div class="h-8 w-8 rounded-full bg-fuchsia-50 flex items-center justify-center text-fuchsia-500"><i
-                            class="fa-solid fa-boxes-stacked"></i></div>
-                </div>
-                <p class="text-3xl font-black text-slate-800">₱0.00</p>
-            </div>
-        </div>
+        <div id="dashboard-overview-container"></div>
 
         <div class="flex items-center gap-1 border-b border-slate-200 mb-6 overflow-x-auto hide-scrollbar">
             <button data-target="#tab-sales"
@@ -185,16 +156,39 @@ if (!isset($_SESSION['user_id'])) {
                         return;
                     }
 
-                    // Add the table header for context
-                    $container.append(`
-                    <div class="hidden sm:flex items-center px-4 pb-2 mb-2 text-[10px] font-black text-slate-400 uppercase tracking-widest border-b border-slate-100">
-                        <div class="w-1/4">Transaction</div>
-                        <div class="w-1/4">Customer</div>
-                        <div class="w-1/4">Status</div>
-                        <div class="w-1/4 text-right pr-12">Total</div>
-                    </div>
-                `);
+                    let grandTotal = res.data.reduce((sum, txn) => sum + parseFloat(txn.total), 0);
+                    let totalTransactions = res.data.length;
 
+                    let summaryHtml = `
+            <div class="bg-emerald-50/50 border border-emerald-100 rounded-[1.5rem] p-6 mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-sm">
+                <div class="flex items-center gap-4">
+                    <div class="h-12 w-12 rounded-full bg-white border border-emerald-100 flex items-center justify-center text-emerald-500 shadow-sm">
+                        <i class="fa-solid fa-chart-line text-xl"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-[10px] font-black text-emerald-500 uppercase tracking-widest">Period Summary</h3>
+                        <p class="text-sm font-bold text-slate-700">${totalTransactions} Transaction${totalTransactions !== 1 ? 's' : ''}</p>
+                    </div>
+                </div>
+                <div class="text-right">
+                    <h3 class="text-[10px] font-black text-emerald-500 uppercase tracking-widest mb-0.5">Total Sales</h3>
+                    <p class="text-3xl font-black text-emerald-600">${formatMoney(grandTotal)}</p>
+                </div>
+            </div>
+            `;
+                    $container.append(summaryHtml);
+
+                    // 3. Add the table header for context
+                    $container.append(`
+            <div class="hidden sm:flex items-center px-4 pb-2 mb-2 text-[10px] font-black text-slate-400 uppercase tracking-widest border-b border-slate-100">
+                <div class="w-1/4">Transaction</div>
+                <div class="w-1/4">Customer</div>
+                <div class="w-1/4 pl-4">Status</div>
+                <div class="w-1/4 text-right pr-12">Total Amount</div>
+            </div>
+            `);
+
+                    // 4. Loop through the transactions
                     res.data.forEach(txn => {
                         let borderLeft = '';
                         let customerHtml = '';
@@ -204,81 +198,81 @@ if (!isset($_SESSION['user_id'])) {
                         if (txn.is_unpaid) {
                             borderLeft = 'border-l-rose-400';
                             customerHtml = `
-                            <div class="flex items-center gap-1.5 text-xs font-bold text-slate-600">
-                                <i class="fa-solid fa-user text-slate-400"></i>
-                                <span class="truncate">${txn.customer}</span>
-                            </div>`;
+                    <div class="flex items-center gap-1.5 text-xs font-bold text-slate-600">
+                        <i class="fa-solid fa-user text-slate-400"></i>
+                        <span class="truncate">${txn.customer}</span>
+                    </div>`;
                             statusHtml = `
-                            <div class="inline-flex items-center border border-rose-100 rounded-md overflow-hidden shadow-sm">
-                                <div class="bg-rose-50 text-rose-600 px-2 py-1 text-[10px] font-bold flex items-center gap-1.5"><i class="fa-solid fa-clock"></i> Unpaid</div>
-                                <div class="bg-white text-rose-400 px-2 py-1 text-[9px] font-bold border-l border-rose-100 uppercase tracking-wider">Pending</div>
-                            </div>`;
+                    <div class="inline-flex items-center border border-rose-100 rounded-md overflow-hidden shadow-sm">
+                        <div class="bg-rose-50 text-rose-600 px-2 py-1 text-[10px] font-bold flex items-center gap-1.5"><i class="fa-solid fa-clock"></i> Unpaid</div>
+                        <div class="bg-white text-rose-400 px-2 py-1 text-[9px] font-bold border-l border-rose-100 uppercase tracking-wider">Pending</div>
+                    </div>`;
                         }
                         // PAID CREDIT SALE
                         else if (!txn.is_unpaid && txn.settle_date) {
                             borderLeft = 'border-l-emerald-400';
                             customerHtml = `
-                            <div class="flex items-center gap-1.5 text-xs font-bold text-slate-600">
-                                <i class="fa-solid fa-user text-slate-400"></i>
-                                <span class="truncate">${txn.customer}</span>
-                            </div>`;
+                    <div class="flex items-center gap-1.5 text-xs font-bold text-slate-600">
+                        <i class="fa-solid fa-user text-slate-400"></i>
+                        <span class="truncate">${txn.customer}</span>
+                    </div>`;
                             statusHtml = `
-                            <div class="inline-flex items-center border border-emerald-100 rounded-md overflow-hidden shadow-sm">
-                                <div class="bg-emerald-50 text-emerald-600 px-2 py-1 text-[10px] font-bold flex items-center gap-1.5"><i class="fa-solid fa-check"></i> Paid</div>
-                                <div class="bg-slate-50 text-slate-500 px-2 py-1 text-[10px] font-semibold border-l border-emerald-100">${txn.settle_date}</div>
-                            </div>`;
+                    <div class="inline-flex items-center border border-emerald-100 rounded-md overflow-hidden shadow-sm">
+                        <div class="bg-emerald-50 text-emerald-600 px-2 py-1 text-[10px] font-bold flex items-center gap-1.5"><i class="fa-solid fa-check"></i> Paid</div>
+                        <div class="bg-slate-50 text-slate-500 px-2 py-1 text-[10px] font-semibold border-l border-emerald-100">${txn.settle_date}</div>
+                    </div>`;
                         }
                         // CASH SALE
                         else {
                             borderLeft = 'border-l-emerald-400';
                             customerHtml = `
-                            <div class="flex items-center gap-1.5 text-xs font-bold text-emerald-600">
-                                <i class="fa-solid fa-money-bill-wave text-emerald-400"></i> Cash Sale
-                            </div>`;
+                    <div class="flex items-center gap-1.5 text-xs font-bold text-emerald-600">
+                        <i class="fa-solid fa-money-bill-wave text-emerald-400"></i> Cash Sale
+                    </div>`;
                             statusHtml = `
-                            <div class="inline-flex items-center border border-emerald-100 rounded-md overflow-hidden shadow-sm">
-                                <div class="bg-emerald-50 text-emerald-600 px-2 py-1 text-[10px] font-bold flex items-center gap-1.5"><i class="fa-solid fa-check-double"></i> Paid</div>
-                                <div class="bg-emerald-50/40 text-emerald-500 px-2 py-1 text-[10px] font-semibold border-l border-emerald-100">Cash</div>
-                            </div>`;
+                    <div class="inline-flex items-center border border-emerald-100 rounded-md overflow-hidden shadow-sm">
+                        <div class="bg-emerald-50 text-emerald-600 px-2 py-1 text-[10px] font-bold flex items-center gap-1.5"><i class="fa-solid fa-check-double"></i> Paid</div>
+                        <div class="bg-emerald-50/40 text-emerald-500 px-2 py-1 text-[10px] font-semibold border-l border-emerald-100">Cash</div>
+                    </div>`;
                         }
 
                         let itemsHtml = '';
                         txn.items.forEach(item => {
                             itemsHtml += `
-                            <li class="flex items-center justify-between py-1.5 border-b border-slate-100/50 last:border-0">
-                                <div class="flex items-center gap-2 overflow-hidden pr-2">
-                                    <span class="text-fuchsia-600 font-bold shrink-0">${item.qty}x</span>
-                                    <span class="text-slate-700 font-medium truncate">${item.name}</span>
-                                </div>
-                                <div class="flex items-center gap-2 shrink-0 text-right text-[10px]">
-                                    <span class="text-slate-400 font-medium">@ ${formatMoney(item.price)}</span>
-                                    <span class="text-slate-200 font-light mx-0.5">|</span>
-                                    <span class="font-bold text-slate-700 min-w-[3.5rem]">${formatMoney(item.subtotal)}</span>
-                                </div>
-                            </li>`;
+                    <li class="flex items-center justify-between py-1.5 border-b border-slate-100/50 last:border-0">
+                        <div class="flex items-center gap-2 overflow-hidden pr-2">
+                            <span class="text-fuchsia-600 font-bold shrink-0">${item.qty}x</span>
+                            <span class="text-slate-700 font-medium truncate">${item.name}</span>
+                        </div>
+                        <div class="flex items-center gap-2 shrink-0 text-right text-[10px]">
+                            <span class="text-slate-400 font-medium">@ ${formatMoney(item.price)}</span>
+                            <span class="text-slate-200 font-light mx-0.5">|</span>
+                            <span class="font-bold text-slate-700 min-w-[3.5rem]">${formatMoney(item.subtotal)}</span>
+                        </div>
+                    </li>`;
                         });
 
                         let tileHtml = `
-                        <div class="bg-white border border-slate-200 rounded-[1rem] shadow-sm mb-3 overflow-hidden transition-all duration-200 border-l-4 ${borderLeft}">
-                            <div class="sales-row-trigger flex flex-col sm:flex-row sm:items-center justify-between p-3.5 cursor-pointer hover:bg-slate-50 transition-colors group">
-                                <div class="w-full sm:w-1/4 mb-2 sm:mb-0 flex items-center justify-between sm:block">
-                                    <h4 class="text-sm font-black text-slate-800 tracking-wide">${txn.number}</h4>
-                                    <span class="text-[10px] font-bold text-slate-400">${txn.created_at}</span>
-                                </div>
-                                <div class="w-full sm:w-1/4 mb-2 sm:mb-0">${customerHtml}</div>
-                                <div class="w-full sm:w-1/4 mb-2 sm:mb-0 flex items-center justify-start sm:justify-start pl-0 sm:pl-4">${statusHtml}</div>
-                                <div class="w-full sm:w-1/4 flex items-center justify-between sm:justify-end gap-4">
-                                    <span class="text-sm sm:text-base font-black text-slate-900">${formatMoney(txn.total)}</span>
-                                    <div class="h-8 w-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-400 group-hover:bg-fuchsia-50 group-hover:text-fuchsia-600 transition-colors">
-                                        <i class="fa-solid fa-chevron-down transition-transform duration-200 toggle-icon text-xs"></i>
-                                    </div>
-                                </div>
+                <div class="bg-white border border-slate-200 rounded-[1rem] shadow-sm mb-3 overflow-hidden transition-all duration-200 border-l-4 ${borderLeft}">
+                    <div class="sales-row-trigger flex flex-col sm:flex-row sm:items-center justify-between p-3.5 cursor-pointer hover:bg-slate-50 transition-colors group">
+                        <div class="w-full sm:w-1/4 mb-2 sm:mb-0 flex items-center justify-between sm:block">
+                            <h4 class="text-sm font-black text-slate-800 tracking-wide">${txn.number}</h4>
+                            <span class="text-[10px] font-bold text-slate-400">${txn.created_at}</span>
+                        </div>
+                        <div class="w-full sm:w-1/4 mb-2 sm:mb-0">${customerHtml}</div>
+                        <div class="w-full sm:w-1/4 mb-2 sm:mb-0 flex items-center justify-start sm:justify-start pl-0 sm:pl-4">${statusHtml}</div>
+                        <div class="w-full sm:w-1/4 flex items-center justify-between sm:justify-end gap-4">
+                            <span class="text-sm sm:text-base font-black text-slate-900">${formatMoney(txn.total)}</span>
+                            <div class="h-8 w-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-400 group-hover:bg-fuchsia-50 group-hover:text-fuchsia-600 transition-colors">
+                                <i class="fa-solid fa-chevron-down transition-transform duration-200 toggle-icon text-xs"></i>
                             </div>
-                            <div class="sales-row-details hidden bg-slate-50/50 px-5 py-4 border-t border-slate-100">
-                                <h5 class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-2.5 flex items-center gap-1.5"><i class="fa-solid fa-list-ul"></i> Transaction Details</h5>
-                                <ul class="text-[11px] flex flex-col w-full sm:w-2/3">${itemsHtml}</ul>
-                            </div>
-                        </div>`;
+                        </div>
+                    </div>
+                    <div class="sales-row-details hidden bg-slate-50/50 px-5 py-4 border-t border-slate-100">
+                        <h5 class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-2.5 flex items-center gap-1.5"><i class="fa-solid fa-list-ul"></i> Transaction Details</h5>
+                        <ul class="text-[11px] flex flex-col w-full sm:w-2/3">${itemsHtml}</ul>
+                    </div>
+                </div>`;
 
                         $container.append(tileHtml);
                     });
@@ -664,10 +658,119 @@ if (!isset($_SESSION['user_id'])) {
             });
         }
 
+        function loadDashboardOverview() {
+            const $container = $('#dashboard-overview-container');
+
+            $container.html('<div class="p-8 text-center text-sm font-bold text-violet-400 animate-pulse"><i class="fa-solid fa-circle-notch fa-spin mr-2"></i> Loading overview...</div>');
+
+            $.getJSON('includes/fetch_dashboard_overview.php', function (res) {
+                if (!res.success) {
+                    $container.html(`<div class="p-8 text-center text-sm font-bold text-red-500 bg-red-50 rounded-2xl border border-red-100">Error: ${res.message}</div>`);
+                    return;
+                }
+
+                const data = res.data;
+
+                // 1. Build Best Sellers List (With Rank Badges)
+                let bestSellersHtml = '';
+                if (data.best_sellers && data.best_sellers.length > 0) {
+                    data.best_sellers.forEach((item, index) => {
+                        bestSellersHtml += `
+                <li class="flex items-center gap-3 p-2 rounded-lg hover:bg-slate-50 transition-colors">
+                    <div class="w-6 h-6 rounded bg-emerald-100 text-emerald-600 flex items-center justify-center text-[10px] font-black shrink-0">${index + 1}</div>
+                    <span class="font-bold text-slate-700 truncate flex-1 text-sm">${item.item_name}</span>
+                    <span class="font-black text-emerald-600 bg-emerald-50 border border-emerald-100 px-2 py-0.5 rounded text-[10px] uppercase tracking-wider shrink-0">${item.total_sold} sold</span>
+                </li>`;
+                    });
+                } else {
+                    bestSellersHtml = '<li class="text-sm text-slate-400 font-medium italic p-2">No sales recorded yet.</li>';
+                }
+
+                // 2. Build Top Unpaid Accounts List (With User Icons)
+                let topDebtorsHtml = '';
+                if (data.top_debtors && data.top_debtors.length > 0) {
+                    data.top_debtors.forEach((debtor, index) => {
+                        topDebtorsHtml += `
+                <li class="flex items-center gap-3 p-2 rounded-lg hover:bg-slate-50 transition-colors">
+                    <div class="w-7 h-7 rounded-full bg-rose-50 text-rose-400 flex items-center justify-center text-xs shrink-0 border border-rose-100">
+                        <i class="fa-solid fa-user"></i>
+                    </div>
+                    <span class="font-bold text-slate-700 truncate flex-1 text-sm">${debtor.customer || 'Unknown'}</span>
+                    <span class="font-black text-rose-600 shrink-0 text-sm">${formatMoney(debtor.total_owed)}</span>
+                </li>`;
+                    });
+                } else {
+                    topDebtorsHtml = '<li class="text-sm text-slate-400 font-medium italic p-2">No unpaid accounts!</li>';
+                }
+
+                // 3. Assemble the 3 Cards
+                let dashboardHtml = `
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            
+            <div class="bg-white/95 backdrop-blur-xl border border-slate-100 p-6 rounded-[1.5rem] shadow-sm hover:shadow-md transition-shadow">
+                <div class="flex items-start justify-between mb-5">
+                    <div>
+                        <h3 class="text-[10px] font-black text-slate-700 uppercase tracking-widest mb-0.5">Best Sellers</h3>
+                        <p class="text-xs font-bold text-emerald-500/70">Last 30 Days</p>
+                    </div>
+                    <div class="h-10 w-10 rounded-xl bg-emerald-50 flex items-center justify-center text-emerald-500 border border-emerald-100 shadow-sm shrink-0">
+                        <i class="fa-solid fa-ranking-star"></i>
+                    </div>
+                </div>
+                <ul class="space-y-1">${bestSellersHtml}</ul>
+            </div>
+
+            <div class="bg-white/95 backdrop-blur-xl border border-slate-100 p-6 rounded-[1.5rem] shadow-sm hover:shadow-md transition-shadow">
+                <div class="flex items-start justify-between mb-4">
+                    <div>
+                        <h3 class="text-[10px] font-black text-slate-700 uppercase tracking-widest mb-0.5">Today's Inflow</h3>
+                        <p class="text-xs font-bold text-violet-500/70">Daily Revenue</p>
+                    </div>
+                    <div class="h-10 w-10 rounded-xl bg-violet-50 flex items-center justify-center text-violet-500 border border-violet-100 shadow-sm shrink-0">
+                        <i class="fa-solid fa-bolt"></i>
+                    </div>
+                </div>
+                
+                <p class="text-4xl font-black text-violet-600 mb-5 tracking-tight">${formatMoney(data.inflow.total)}</p>
+                
+                <div class="space-y-2">
+                    <div class="bg-slate-50/80 rounded-lg p-2.5 border border-slate-700 flex justify-between items-center">
+                        <span class="text-[11px] font-bold text-slate-500 uppercase tracking-wider"><i class="fa-solid fa-money-bill-wave text-slate-400 mr-1.5"></i> Cash Sales</span>
+                        <span class="font-black text-slate-700 text-sm">${formatMoney(data.inflow.cash_sales)}</span>
+                    </div>
+                    <div class="bg-slate-50/80 rounded-lg p-2.5 border border-slate-100 flex justify-between items-center">
+                        <span class="text-[11px] font-bold text-slate-500 uppercase tracking-wider"><i class="fa-solid fa-handshake text-slate-400 mr-1.5"></i> Debts Collected</span>
+                        <span class="font-black text-slate-700 text-sm">${formatMoney(data.inflow.debts_collected)}</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white/95 backdrop-blur-xl border border-slate-100 p-6 rounded-[1.5rem] shadow-sm hover:shadow-md transition-shadow">
+                <div class="flex items-start justify-between mb-5">
+                    <div>
+                        <h3 class="text-[10px] font-black text-slate-700 uppercase tracking-widest mb-0.5">Top Debtors</h3>
+                        <p class="text-xs font-bold text-rose-500/70">Unpaid Accounts</p>
+                    </div>
+                    <div class="h-10 w-10 rounded-xl bg-rose-50 flex items-center justify-center text-rose-500 border border-rose-100 shadow-sm shrink-0">
+                        <i class="fa-solid fa-user-clock text-lg"></i>
+                    </div>
+                </div>
+                <ul class="space-y-1">${topDebtorsHtml}</ul>
+            </div>
+
+        </div>`;
+
+                $container.html(dashboardHtml);
+            }).fail(function () {
+                $container.html('<div class="p-8 text-center text-sm font-bold text-red-500 bg-red-50 rounded-2xl border border-red-100">Network or Server Error fetching Overview.</div>');
+            });
+        }
+
 
         // 3. EVENT LISTENERS
 
         // Initial fetch on page load
+        loadDashboardOverview();
         loadSalesReport();
         loadIncomeReport();
         loadReceivablesReport();
