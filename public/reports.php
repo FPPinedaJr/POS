@@ -32,7 +32,7 @@ if (!isset($_SESSION['user_id'])) {
     <?php include_once("includes/partial/header.php"); ?>
 
 
-    <main class="flex-1 relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 py-8">
+    <main class="flex-1 relative z-10 w-full max-w-7xl mx-auto mb-10 px-4 sm:px-6 py-8">
 
         <div class="mb-8">
             <h2 class="text-3xl font-black text-slate-800 tracking-tight drop-shadow-sm">Reports Overview</h2>
@@ -96,11 +96,11 @@ if (!isset($_SESSION['user_id'])) {
         </div>
 
         <div
-            class="bg-white/90 backdrop-blur-xl border border-white rounded-[2rem] shadow-xl shadow-slate-200/50 p-6 min-h-[400px]">
+            class="bg-white/90 backdrop-blur-xl border border-white rounded-4xl shadow-xl shadow-slate-200/50 p-6 min-h-100">
 
             <div
                 class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 pb-6 border-b border-slate-100">
-                <div class="flex items-center gap-3">
+                <div id="date-filter-section" class="flex items-center gap-3">
                     <input type="date" id="filter_start"
                         class="rounded-xl border border-slate-200 px-4 py-2 text-sm font-medium text-slate-700 focus:ring-2 focus:ring-fuchsia-500/20 focus:border-fuchsia-500 outline-none">
                     <span class="text-slate-400 font-bold text-sm">to</span>
@@ -111,7 +111,7 @@ if (!isset($_SESSION['user_id'])) {
                 </div>
 
                 <button type="button"
-                    class="bg-fuchsia-50 text-fuchsia-600 hover:bg-fuchsia-100 px-4 py-2 rounded-xl text-sm font-bold transition-colors flex items-center gap-2 cursor-pointer">
+                    class="ml-auto bg-fuchsia-50 text-fuchsia-600 hover:bg-fuchsia-100 px-4 py-2 rounded-xl text-sm font-bold transition-colors flex items-center gap-2 cursor-pointer">
                     <i class="fa-solid fa-download"></i> Export Data
                 </button>
             </div>
@@ -679,7 +679,32 @@ if (!isset($_SESSION['user_id'])) {
             loadIncomeReport();
             loadReceivablesReport();
             loadInventoryReport();
+        });
 
+        $('.tab-btn').on('click', function () {
+            const target = $(this).data('target');
+            const $dateFilter = $('#date-filter-section'); // Ensure your filter container has this ID
+
+            // 1. Handle Tab Button Visual State
+            $('.tab-btn').removeClass('border-fuchsia-600 text-fuchsia-600').addClass('border-transparent text-slate-500');
+            $(this).addClass('border-fuchsia-600 text-fuchsia-600').removeClass('border-transparent text-slate-500');
+
+            // 2. Show/Hide Date Filter based on Tab
+            if (target === '#tab-inventory') {
+                $dateFilter.fadeOut(200); // Use fadeOut for a smoother "sleek" transition
+                loadInventoryReport();
+            } else {
+                $dateFilter.fadeIn(200);
+
+                // Trigger specific loads based on target
+                if (target === '#tab-sales') loadSalesReport();
+                if (target === '#tab-receivables') loadReceivablesReport();
+                if (target === '#tab-income') loadIncomeReport();
+            }
+
+            // 3. Handle Content Visibility (if you are using div containers)
+            $('.tab-content').addClass('hidden');
+            $(target).removeClass('hidden');
         });
 
         // Accordion toggles

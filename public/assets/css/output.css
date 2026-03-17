@@ -146,6 +146,7 @@
     --radius-xl: 0.75rem;
     --radius-2xl: 1rem;
     --radius-3xl: 1.5rem;
+    --radius-4xl: 2rem;
     --drop-shadow-sm: 0 1px 2px rgb(0 0 0 / 0.15);
     --ease-out: cubic-bezier(0, 0, 0.2, 1);
     --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
@@ -608,6 +609,9 @@
   .mb-10 {
     margin-bottom: calc(var(--spacing) * 10);
   }
+  .mb-20 {
+    margin-bottom: calc(var(--spacing) * 20);
+  }
   .ml-0 {
     margin-left: calc(var(--spacing) * 0);
   }
@@ -752,11 +756,11 @@
   .max-h-\[90vh\] {
     max-height: 90vh;
   }
+  .min-h-100 {
+    min-height: calc(var(--spacing) * 100);
+  }
   .min-h-\[4\.5rem\] {
     min-height: 4.5rem;
-  }
-  .min-h-\[400px\] {
-    min-height: 400px;
   }
   .min-h-screen {
     min-height: 100vh;
@@ -862,9 +866,6 @@
   }
   .max-w-3xl {
     max-width: var(--container-3xl);
-  }
-  .max-w-4xl {
-    max-width: var(--container-4xl);
   }
   .max-w-5xl {
     max-width: var(--container-5xl);
@@ -1188,6 +1189,9 @@
   .rounded-3xl {
     border-radius: var(--radius-3xl);
   }
+  .rounded-4xl {
+    border-radius: var(--radius-4xl);
+  }
   .rounded-\[1\.5rem\] {
     border-radius: 1.5rem;
   }
@@ -1463,12 +1467,6 @@
   }
   .bg-fuchsia-50 {
     background-color: var(--color-fuchsia-50);
-  }
-  .bg-fuchsia-50\/50 {
-    background-color: color-mix(in srgb, oklch(97.7% 0.017 320.058) 50%, transparent);
-    @supports (color: color-mix(in lab, red, red)) {
-      background-color: color-mix(in oklab, var(--color-fuchsia-50) 50%, transparent);
-    }
   }
   .bg-fuchsia-100 {
     background-color: var(--color-fuchsia-100);
@@ -2061,9 +2059,6 @@
   }
   .text-\[\.5em\] {
     font-size: .5em;
-  }
-  .text-\[8px\] {
-    font-size: 8px;
   }
   .text-\[9px\] {
     font-size: 9px;
