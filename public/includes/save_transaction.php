@@ -128,7 +128,11 @@ try {
     }
 
     $pdo->commit();
-    echo json_encode(['success' => true, 'transaction_number' => $transactionNumber]);
+    echo json_encode([
+        'success' => true,
+        'transaction_uuid' => $transactionUuid,
+        'transaction_number' => $transactionNumber
+    ]);
 
 } catch (Exception $e) {
     $pdo->rollBack();

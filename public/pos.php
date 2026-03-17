@@ -4,6 +4,80 @@ if (!isset($_SESSION['user_id'])) {
     header('Location: index.php');
     exit;
 }
+
+require_once __DIR__ . '/includes/connect_db.php';
+require_once __DIR__ . '/includes/DashboardItemsQuery.php';
+
+$userId = (int) $_SESSION['user_id'];
+
+// Preload POS items (server-side, like inventory.php)
+$posItems = [];
+try {
+    $posInput = [
+        'sort' => 'name_asc',
+        'hide_out_of_stock' => true,
+    ];
+    $posPageData = inv_fetch_dashboard_items($pdo, $userId, $posInput, 500);
+    $posItems = $posPageData['items'] ?? [];
+} catch (Throwable $e) {
+    $posItems = [];
+}
+
+// Preload today's transactions (created today OR settled today) + all receivables
+$todaysTransactions = [];
+$allReceivables = [];
+try {
+    $stmtToday = $pdo->prepare("
+        SELECT 
+            th.transaction_uuid,
+            th.transaction_number,
+            th.customer,
+            th.total_amount,
+            th.is_unpaid,
+            th.void_date,
+            th.settle_date,
+            th.created_at,
+            GROUP_CONCAT(CONCAT(ti.quantity, 'x ', i.item_name) SEPARATOR ', ') AS items_summary
+        FROM transaction_header th
+        LEFT JOIN transaction_item ti ON th.transaction_uuid = ti.transaction_uuid
+        LEFT JOIN item i ON ti.item_id = i.item_id
+        WHERE th.user_id = :user_id
+          AND (
+                DATE(th.created_at) = CURDATE()
+                OR th.settle_date = CURDATE()
+              )
+        GROUP BY th.transaction_uuid, th.transaction_number, th.customer, th.total_amount, th.is_unpaid, th.void_date, th.settle_date, th.created_at
+        ORDER BY th.created_at DESC
+    ");
+    $stmtToday->execute(['user_id' => $userId]);
+    $todaysTransactions = $stmtToday->fetchAll(PDO::FETCH_ASSOC) ?: [];
+
+    $stmtRecv = $pdo->prepare("
+        SELECT 
+            th.transaction_uuid,
+            th.transaction_number,
+            th.customer,
+            th.total_amount,
+            th.is_unpaid,
+            th.void_date,
+            th.settle_date,
+            th.created_at,
+            GROUP_CONCAT(CONCAT(ti.quantity, 'x ', i.item_name) SEPARATOR ', ') AS items_summary
+        FROM transaction_header th
+        LEFT JOIN transaction_item ti ON th.transaction_uuid = ti.transaction_uuid
+        LEFT JOIN item i ON ti.item_id = i.item_id
+        WHERE th.user_id = :user_id
+          AND th.is_unpaid = 1
+          AND th.void_date IS NULL
+        GROUP BY th.transaction_uuid, th.transaction_number, th.customer, th.total_amount, th.is_unpaid, th.void_date, th.settle_date, th.created_at
+        ORDER BY th.created_at DESC
+    ");
+    $stmtRecv->execute(['user_id' => $userId]);
+    $allReceivables = $stmtRecv->fetchAll(PDO::FETCH_ASSOC) ?: [];
+} catch (Throwable $e) {
+    $todaysTransactions = [];
+    $allReceivables = [];
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -301,6 +375,12 @@ if (!isset($_SESSION['user_id'])) {
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="assets/js/toast-helper.js"></script>
     <script>
+        // Server-preloaded POS data (no AJAX reads required)
+        window.__POS_ITEMS__ = <?php echo json_encode($posItems, JSON_UNESCAPED_SLASHES); ?>;
+        window.__TODAYS_TRANSACTIONS__ = <?php echo json_encode($todaysTransactions, JSON_UNESCAPED_SLASHES); ?>;
+        window.__ALL_RECEIVABLES__ = <?php echo json_encode($allReceivables, JSON_UNESCAPED_SLASHES); ?>;
+    </script>
+    <script>
         $(document).ready(function () {
 
             // ------------------------------------------
@@ -308,12 +388,13 @@ if (!isset($_SESSION['user_id'])) {
             // ------------------------------------------
             let cart = [];
             let searchDebounceTimer;
-            let allItems = [];
+            let allItems = Array.isArray(window.__POS_ITEMS__) ? window.__POS_ITEMS__ : [];
             let checkoutStep = 1;
             let selectedItemForCart = null;
             let checkoutTotal = 0;
             let pendingAction = null;
-            let todaysTransactions = null;
+            let todaysTransactions = { success: true, transactions: Array.isArray(window.__TODAYS_TRANSACTIONS__) ? window.__TODAYS_TRANSACTIONS__ : [] };
+            let allReceivables = { success: true, transactions: Array.isArray(window.__ALL_RECEIVABLES__) ? window.__ALL_RECEIVABLES__ : [] };
 
             const $grid = $('#pos-item-grid');
             const $loader = $('#pos-loading');
@@ -332,7 +413,17 @@ if (!isset($_SESSION['user_id'])) {
             });
 
             $(document).on('click', function (e) {
-                if (!$profileMenu.is(e.target) && $profileMenu.has(e.target).length === 0 && !$profileBtn.is(e.target)) {
+                // If the click is inside any modal/backdrop, don't auto-close the account menu.
+                // This prevents "close modal" clicks from also closing the google menu.
+                if ($(e.target).closest('#sales-history-modal, #item-select-modal, #checkout-wizard-modal, #confirm-action-modal').length > 0) {
+                    return;
+                }
+
+                if (
+                    !$profileMenu.is(e.target) &&
+                    $profileMenu.has(e.target).length === 0 &&
+                    !$profileBtn.is(e.target)
+                ) {
                     $profileMenu.addClass('hidden');
                 }
             });
@@ -405,32 +496,33 @@ if (!isset($_SESSION['user_id'])) {
             }
 
             function loadPosItems() {
-                $grid.empty();
-                $noResults.addClass('hidden');
-                $loader.removeClass('hidden');
+                // Items are preloaded server-side; just render them.
+                $loader.addClass('hidden');
+                applySearchFilter();
+            }
 
-                $.ajax({
-                    url: 'includes/ajax_pos_items.php',
-                    type: 'GET',
-                    dataType: 'json',
-                    success: function (response) {
-                        $loader.addClass('hidden');
+            // Stock sync: refresh item_count every 5 minutes when online
+            function syncStockIfOnline() {
+                if (typeof navigator !== 'undefined' && navigator.onLine === false) return;
 
-                        if (response.success && response.items && response.items.length > 0) {
-                            allItems = response.items;
-                            applySearchFilter();
-                        } else {
-                            allItems = [];
-                            $noResults.removeClass('hidden');
-                        }
-                    },
-                    error: function () {
-                        $loader.addClass('hidden');
-                        if (typeof showToast === 'function') {
-                            showToast('error', 'Error loading items. Please check your connection.');
-                        }
-                    }
-                });
+                $.get('includes/ajax_pos_items.php', function (res) {
+                    if (!res || !res.success || !Array.isArray(res.items)) return;
+
+                    const stockById = {};
+                    res.items.forEach(it => {
+                        stockById[String(it.item_id)] = parseInt(it.item_count, 10) || 0;
+                    });
+
+                    allItems = (allItems || []).map(it => {
+                        const id = String(it.item_id);
+                        if (!(id in stockById)) return it;
+                        const next = { ...it };
+                        next.item_count = stockById[id];
+                        return next;
+                    });
+
+                    applySearchFilter();
+                }, 'json');
             }
 
             $(document).on('input', '#pos-search', function () {
@@ -441,25 +533,11 @@ if (!isset($_SESSION['user_id'])) {
                 }, 200);
             });
 
-            function preloadTodayTransactions() {
-                $.get('includes/ajax_transactions.php', function (res) {
-                    if (res && res.success) {
-                        todaysTransactions = res;
-                    }
-                });
-            }
-
-            function refreshTodayTransactions(done) {
-                $.get('includes/ajax_transactions.php', function (res) {
-                    if (res && res.success) {
-                        todaysTransactions = res;
-                    }
-                    if (typeof done === 'function') done(res);
-                });
-            }
-
             loadPosItems();
-            preloadTodayTransactions();
+            // Initial sync after load (in case stocks changed since render)
+            setTimeout(syncStockIfOnline, 3000);
+            // Repeat every 5 minutes
+            setInterval(syncStockIfOnline, 5 * 60 * 1000);
 
 
             // ------------------------------------------
@@ -924,6 +1002,67 @@ if (!isset($_SESSION['user_id'])) {
                     cart: cart
                 };
 
+                // Optimistic UI: apply local changes immediately, rollback on failure.
+                const snapshot = {
+                    cart: JSON.parse(JSON.stringify(cart || [])),
+                    allItems: JSON.parse(JSON.stringify(allItems || [])),
+                    todays: JSON.parse(JSON.stringify(todaysTransactions || {})),
+                    receivables: JSON.parse(JSON.stringify(allReceivables || {})),
+                };
+
+                // Clear cart right away
+                cart = [];
+                renderCart();
+
+                // Update local stock cache and re-render items
+                try {
+                    const soldMap = {};
+                    (payload.cart || []).forEach(ci => {
+                        const id = String(ci.id);
+                        soldMap[id] = (soldMap[id] || 0) + (parseInt(ci.qty, 10) || 0);
+                    });
+                    allItems = (allItems || []).map(it => {
+                        const id = String(it.item_id);
+                        if (!soldMap[id]) return it;
+                        const next = { ...it };
+                        const prevCount = parseInt(next.item_count, 10) || 0;
+                        next.item_count = Math.max(0, prevCount - soldMap[id]);
+                        return next;
+                    });
+                    applySearchFilter();
+                } catch (e) { }
+
+                // Add transaction to today's + receivables cache immediately (temp until server confirms)
+                const nowIso = new Date().toISOString();
+                const itemsSummary = (payload.cart || [])
+                    .map(ci => `${parseInt(ci.qty, 10) || 0}x ${ci.name}`)
+                    .join(', ');
+
+                const optimisticUuid = 'local-' + Math.random().toString(16).slice(2);
+                const optimisticTxn = {
+                    transaction_uuid: optimisticUuid,
+                    transaction_number: 'PENDING',
+                    customer: payload.customer || 'Walk-in',
+                    total_amount: String((payload.cart || []).reduce((s, ci) => s + ((parseFloat(ci.price) || 0) * (parseInt(ci.qty, 10) || 0)), 0)),
+                    is_unpaid: payload.is_unpaid ? 1 : 0,
+                    void_date: null,
+                    settle_date: null,
+                    created_at: nowIso,
+                    items_summary: itemsSummary
+                };
+                if (todaysTransactions && Array.isArray(todaysTransactions.transactions)) {
+                    todaysTransactions.transactions.unshift(optimisticTxn);
+                }
+                if (payload.is_unpaid && allReceivables && Array.isArray(allReceivables.transactions)) {
+                    allReceivables.transactions.unshift(optimisticTxn);
+                }
+                rerenderTransactionsIfOpen();
+
+                // Show success toast immediately (offline-first)
+                if (typeof showToast === 'function') {
+                    showToast('success', 'Transaction Saved.');
+                }
+
                 $.ajax({
                     url: 'includes/save_transaction.php',
                     type: 'POST',
@@ -931,22 +1070,45 @@ if (!isset($_SESSION['user_id'])) {
                     data: JSON.stringify(payload),
                     success: function (res) {
                         if (res.success) {
-                            cart = [];
-                            renderCart();
-                            loadPosItems();
-                            // Refresh today's transactions so the "Today's Transactions" view is up-to-date
-                            preloadTodayTransactions();
+                            // Replace optimistic txn with server-confirmed identifiers
+                            const realUuid = res.transaction_uuid || optimisticUuid;
+                            const realNumber = res.transaction_number || '';
+                            const patchList = (list) => {
+                                if (!Array.isArray(list)) return;
+                                const idx = list.findIndex(t => String(t.transaction_uuid) === String(optimisticUuid));
+                                if (idx >= 0) {
+                                    list[idx].transaction_uuid = realUuid;
+                                    list[idx].transaction_number = realNumber;
+                                }
+                            };
+                            patchList(todaysTransactions && todaysTransactions.transactions);
+                            patchList(allReceivables && allReceivables.transactions);
+                            rerenderTransactionsIfOpen();
+
                             closeCheckoutWizard();
-                            if (typeof showToast === 'function') {
-                                showToast('success', 'Transaction Successful! Receipt: ' + res.transaction_number);
-                            }
                         } else {
+                            // Rollback optimistic changes
+                            cart = snapshot.cart;
+                            allItems = snapshot.allItems;
+                            todaysTransactions = snapshot.todays;
+                            allReceivables = snapshot.receivables;
+                            renderCart();
+                            applySearchFilter();
+                            rerenderTransactionsIfOpen();
                             if (typeof showToast === 'function') {
                                 showToast('error', res.message || 'Checkout failed.');
                             }
                         }
                     },
                     error: function () {
+                        // Rollback optimistic changes
+                        cart = snapshot.cart;
+                        allItems = snapshot.allItems;
+                        todaysTransactions = snapshot.todays;
+                        allReceivables = snapshot.receivables;
+                        renderCart();
+                        applySearchFilter();
+                        rerenderTransactionsIfOpen();
                         if (typeof showToast === 'function') {
                             showToast('error', 'Server error during checkout.');
                         }
@@ -1019,6 +1181,7 @@ if (!isset($_SESSION['user_id'])) {
                         const isUnpaid = parseInt(t.is_unpaid) === 1;
                         const isVoided = !!t.void_date;
                         const isSettledReceivable = !!t.settle_date;
+                        const isPending = (t && t._sync === 'pending') || String(t.transaction_number || '').toUpperCase() === 'PENDING';
                         const customer = t.customer || 'Walk-in';
                         const primaryLabel = isUnpaid
                             ? (customer || 'Walk-in')
@@ -1035,11 +1198,20 @@ if (!isset($_SESSION['user_id'])) {
                                 ? `<span class="bg-emerald-100 text-emerald-700 text-[10px] px-2 py-0.5 rounded font-black uppercase tracking-widest">From Receivable</span>`
                                 : '');
 
+                        const syncBadge = isPending
+                            ? `<span class="inline-flex items-center justify-center bg-indigo-50 text-indigo-700 text-[10px] px-2 py-0.5 rounded font-black uppercase tracking-widest" title="Pending sync">
+                                   <i class="fa-solid fa-spinner fa-spin"></i>
+                               </span>`
+                            : `<span class="inline-flex items-center justify-center bg-slate-100 text-slate-700 text-[10px] px-2 py-0.5 rounded font-black uppercase tracking-widest" title="Saved">
+                                   <i class="fa-solid fa-check"></i>
+                               </span>`;
+
                         listHtml += `
                             <div class="flex justify-between items-start p-4 bg-white border border-slate-200 rounded-xl hover:border-indigo-300 hover:shadow-md transition-all">
                                 <div class="pr-4">
-                                    <div class="flex items-center gap-2 mb-1">
+                                    <div class="flex items-center gap-2 mb-1 flex-wrap">
                                         <p class="text-sm font-bold text-slate-800">${primaryLabel}</p>
+                                        ${syncBadge}
                                         ${statusBadge}
                                     </div>
                                     ${itemsSummary ? `<p class="text-xs text-slate-500 leading-snug">${itemsSummary}</p>` : ''}
@@ -1061,6 +1233,22 @@ if (!isset($_SESSION['user_id'])) {
                     });
                 }
                 $('#ui-transaction-list').html(listHtml);
+            }
+
+            function rerenderTransactionsIfOpen() {
+                if (!$salesModal.hasClass('flex')) return;
+                const title = ($('#sales-history-modal h2').text() || '').toLowerCase();
+
+                if (title.indexOf('receivables') !== -1) {
+                    const useData = allReceivables;
+                    renderTransactionsList((useData && useData.transactions) ? useData.transactions : [], 'No receivables found.');
+                } else {
+                    const useData = todaysTransactions;
+                    const onlyPaid = (useData && useData.transactions)
+                        ? useData.transactions.filter(t => parseInt(t.is_unpaid) !== 1)
+                        : [];
+                    renderTransactionsList(onlyPaid, 'No transactions yet today.');
+                }
             }
 
             $('#open-sales-history').on('click', function () {
@@ -1088,11 +1276,12 @@ if (!isset($_SESSION['user_id'])) {
                 $('#ui-transaction-list').html('<div class="text-center py-4"><i class="fa-solid fa-spinner fa-spin text-slate-400"></i></div>');
                 $salesModal.removeClass('hidden').addClass('flex');
 
-                $.get('includes/ajax_transactions.php', { mode: 'receivables_all' }, function (res) {
-                    if (res.success) {
-                        renderTransactionsList(res.transactions || [], 'No receivables found.');
-                    }
-                });
+                const useData = allReceivables;
+                if (useData && useData.success) {
+                    renderTransactionsList(useData.transactions || [], 'No receivables found.');
+                } else {
+                    renderTransactionsList([], 'No receivables found.');
+                }
             });
 
             $(document).on('click', '.inline-void-transaction', function () {
@@ -1148,17 +1337,42 @@ if (!isset($_SESSION['user_id'])) {
                 const $cancelBtn = $('#confirm-action-cancel');
                 const $closeBtn = $('#confirm-action-close');
 
-                // Loader / prevent double-submit
+                // Offline-first: disable immediately, close modal (no "Processing..." UI)
                 $confirmBtn.prop('disabled', true);
                 $cancelBtn.prop('disabled', true);
                 $closeBtn.prop('disabled', true);
-                const originalText = $confirmBtn.text();
-                $confirmBtn.data('original-text', originalText);
-                $confirmBtn.html('<i class="fa-solid fa-spinner fa-spin mr-2"></i>Processing...');
 
                 const { isUnpaid, uuid } = pendingAction;
+                closeConfirmModal();
 
                 if (isUnpaid) {
+                    // Optimistic UI: remove from receivables, add to today's as paid-from-receivable
+                    const snapshot = {
+                        todays: JSON.parse(JSON.stringify(todaysTransactions || {})),
+                        receivables: JSON.parse(JSON.stringify(allReceivables || {})),
+                    };
+
+                    const today = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
+                    let paidTxn = null;
+                    if (allReceivables && Array.isArray(allReceivables.transactions)) {
+                        const idx = allReceivables.transactions.findIndex(t => String(t.transaction_uuid) === String(uuid));
+                        if (idx >= 0) {
+                            paidTxn = { ...allReceivables.transactions[idx] };
+                            allReceivables.transactions.splice(idx, 1);
+                        }
+                    }
+                    if (paidTxn) {
+                        paidTxn.is_unpaid = 0;
+                        paidTxn.settle_date = today;
+                        paidTxn._sync = 'pending';
+                        if (todaysTransactions && Array.isArray(todaysTransactions.transactions)) {
+                            todaysTransactions.transactions = todaysTransactions.transactions.filter(t => String(t.transaction_uuid) !== String(uuid));
+                            todaysTransactions.transactions.unshift(paidTxn);
+                        }
+                    }
+                    rerenderTransactionsIfOpen();
+                    if (typeof showToast === 'function') showToast('success', 'Receivable Paid!');
+
                     $.ajax({
                         url: 'includes/pay_receivable.php',
                         type: 'POST',
@@ -1166,21 +1380,55 @@ if (!isset($_SESSION['user_id'])) {
                         data: JSON.stringify({ uuid }),
                         success: function (res) {
                             if (res.success) {
-                                if (typeof showToast === 'function') {
-                                    showToast('success', 'Receivable Paid!');
+                                // Mark as synced (remove pending flag)
+                                if (todaysTransactions && Array.isArray(todaysTransactions.transactions)) {
+                                    const tIdx = todaysTransactions.transactions.findIndex(t => String(t.transaction_uuid) === String(uuid));
+                                    if (tIdx >= 0) {
+                                        delete todaysTransactions.transactions[tIdx]._sync;
+                                    }
                                 }
-                                refreshTodayTransactions(() => {
-                                    $('#open-receivables').click();
-                                });
+                                rerenderTransactionsIfOpen();
                             } else {
+                                // Rollback optimistic change
+                                todaysTransactions = snapshot.todays;
+                                allReceivables = snapshot.receivables;
+                                rerenderTransactionsIfOpen();
                                 if (typeof showToast === 'function') {
                                     showToast('error', res.message || 'Unable to pay receivable.');
                                 }
                             }
                         },
-                        complete: closeConfirmModal
+                        error: function () {
+                            // Rollback optimistic change
+                            todaysTransactions = snapshot.todays;
+                            allReceivables = snapshot.receivables;
+                            rerenderTransactionsIfOpen();
+                            if (typeof showToast === 'function') {
+                                showToast('error', 'Server error while paying receivable.');
+                            }
+                        },
+                        complete: function () { }
                     });
                 } else {
+                    // Optimistic UI: mark voided / remove from receivables list
+                    const snapshot = {
+                        todays: JSON.parse(JSON.stringify(todaysTransactions || {})),
+                        receivables: JSON.parse(JSON.stringify(allReceivables || {})),
+                    };
+                    const today = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
+                    if (todaysTransactions && Array.isArray(todaysTransactions.transactions)) {
+                        const tIdx = todaysTransactions.transactions.findIndex(t => String(t.transaction_uuid) === String(uuid));
+                        if (tIdx >= 0) {
+                            todaysTransactions.transactions[tIdx].void_date = today;
+                            todaysTransactions.transactions[tIdx]._sync = 'pending';
+                        }
+                    }
+                    if (allReceivables && Array.isArray(allReceivables.transactions)) {
+                        allReceivables.transactions = allReceivables.transactions.filter(t => String(t.transaction_uuid) !== String(uuid));
+                    }
+                    rerenderTransactionsIfOpen();
+                    if (typeof showToast === 'function') showToast('success', 'Transaction Voided.');
+
                     $.ajax({
                         url: 'includes/void_transaction.php',
                         type: 'POST',
@@ -1188,25 +1436,35 @@ if (!isset($_SESSION['user_id'])) {
                         data: JSON.stringify({ uuid }),
                         success: function (res) {
                             if (res.success) {
-                                if (typeof showToast === 'function') {
-                                    showToast('success', 'Transaction Voided.');
-                                }
-                                refreshTodayTransactions(() => {
-                                    const title = $('#sales-history-modal h2').text() || '';
-                                    if (title.indexOf('Receivables') !== -1) {
-                                        $('#open-receivables').click();
-                                    } else {
-                                        $('#open-sales-history').click();
+                                // Mark as synced (remove pending flag)
+                                if (todaysTransactions && Array.isArray(todaysTransactions.transactions)) {
+                                    const tIdx = todaysTransactions.transactions.findIndex(t => String(t.transaction_uuid) === String(uuid));
+                                    if (tIdx >= 0) {
+                                        delete todaysTransactions.transactions[tIdx]._sync;
                                     }
-                                });
+                                }
+                                rerenderTransactionsIfOpen();
                                 loadPosItems();
                             } else {
+                                // Rollback optimistic change
+                                todaysTransactions = snapshot.todays;
+                                allReceivables = snapshot.receivables;
+                                rerenderTransactionsIfOpen();
                                 if (typeof showToast === 'function') {
                                     showToast('error', res.message || 'Unable to void transaction.');
                                 }
                             }
                         },
-                        complete: closeConfirmModal
+                        error: function () {
+                            // Rollback optimistic change
+                            todaysTransactions = snapshot.todays;
+                            allReceivables = snapshot.receivables;
+                            rerenderTransactionsIfOpen();
+                            if (typeof showToast === 'function') {
+                                showToast('error', 'Server error while voiding transaction.');
+                            }
+                        },
+                        complete: function () { }
                     });
                 }
             });

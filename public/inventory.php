@@ -1227,6 +1227,8 @@ try {
                 $stockNotifBtn.on('click', function (e) {
                     e.preventDefault();
                     e.stopPropagation();
+                    // Only one menu open at a time
+                    if ($profileMenu.length) $profileMenu.addClass('hidden');
                     $stockNotifPanel.toggleClass('hidden');
                 });
             }
@@ -1351,6 +1353,8 @@ try {
             // --- Profile Dropdown Logic ---
             $profileBtn.on('click', function (e) {
                 e.stopPropagation();
+                // Only one menu open at a time
+                if ($stockNotifPanel.length) $stockNotifPanel.addClass('hidden');
                 $profileMenu.toggleClass('hidden');
             });
 
