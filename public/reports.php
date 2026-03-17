@@ -29,24 +29,8 @@ if (!isset($_SESSION['user_id'])) {
     <div class="fixed top-0 left-0 right-0 h-1 bg-linear-to-r from-indigo-500 via-fuchsia-500 to-teal-400 z-100">
     </div>
 
-    <header class="bg-white border-b border-slate-200 sticky top-0 z-40 shadow-sm">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between">
-            <div class="flex items-center gap-3">
-                <div
-                    class="h-10 w-10 rounded-xl bg-fuchsia-600/90 flex items-center justify-center text-white shadow-md shadow-fuchsia-200">
-                    <i class="fa-solid fa-chart-pie"></i>
-                </div>
-                <div class="flex flex-col sm:flex-row sm:items-baseline sm:gap-1">
-                    <h1 class="text-xl font-black text-fuchsia-700 tracking-tight">Venda</h1>
-                    <span class="text-lg font-medium text-slate-600 tracking-wide">Reports</span>
-                </div>
-            </div>
+    <?php include_once("includes/partial/header.php"); ?>
 
-            <a href="dashboard.php" class="text-sm font-bold text-slate-500 hover:text-fuchsia-600 transition-colors">
-                <i class="fa-solid fa-arrow-left mr-1"></i> Back to Dashboard
-            </a>
-        </div>
-    </header>
 
     <main class="flex-1 relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 py-8">
 
@@ -88,24 +72,25 @@ if (!isset($_SESSION['user_id'])) {
         </div>
 
         <div class="flex items-center gap-1 border-b border-slate-200 mb-6 overflow-x-auto hide-scrollbar">
-            <button
-                class="px-5 py-3 text-sm font-bold border-b-2 border-fuchsia-600 text-fuchsia-600 whitespace-nowrap">
+            <button data-target="#tab-sales"
+                class="tab-btn px-5 py-3 text-sm font-bold border-b-2 border-fuchsia-600 text-fuchsia-600 whitespace-nowrap transition-all">
                 <i class="fa-solid fa-chart-line mr-1.5"></i> Sales Report
             </button>
-            <button
-                class="px-5 py-3 text-sm font-bold border-b-2 border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300 transition-all whitespace-nowrap">
+
+            <button data-target="#tab-income"
+                class="tab-btn px-5 py-3 text-sm font-bold border-b-2 border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300 transition-all whitespace-nowrap">
                 <i class="fa-solid fa-money-bill-wave mr-1.5"></i> Income Report
             </button>
-            <button
-                class="px-5 py-3 text-sm font-bold border-b-2 border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300 transition-all whitespace-nowrap">
+            <button data-target="#tab-receivables"
+                class="tab-btn px-5 py-3 text-sm font-bold border-b-2 border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300 transition-all whitespace-nowrap">
                 <i class="fa-solid fa-file-invoice-dollar mr-1.5"></i> Receivables
             </button>
-            <button
-                class="px-5 py-3 text-sm font-bold border-b-2 border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300 transition-all whitespace-nowrap">
+            <button data-target="#tab-inventory"
+                class="tab-btn px-5 py-3 text-sm font-bold border-b-2 border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300 transition-all whitespace-nowrap">
                 <i class="fa-solid fa-clipboard-list mr-1.5"></i> Inventory
             </button>
-            <button
-                class="px-5 py-3 text-sm font-bold border-b-2 border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300 transition-all whitespace-nowrap">
+            <button data-target="#tab-audit"
+                class="tab-btn px-5 py-3 text-sm font-bold border-b-2 border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300 transition-all whitespace-nowrap">
                 <i class="fa-solid fa-clock-rotate-left mr-1.5"></i> Audit Trail
             </button>
         </div>
@@ -113,14 +98,15 @@ if (!isset($_SESSION['user_id'])) {
         <div
             class="bg-white/90 backdrop-blur-xl border border-white rounded-[2rem] shadow-xl shadow-slate-200/50 p-6 min-h-[400px]">
 
-            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+            <div
+                class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 pb-6 border-b border-slate-100">
                 <div class="flex items-center gap-3">
                     <input type="date" id="filter_start"
                         class="rounded-xl border border-slate-200 px-4 py-2 text-sm font-medium text-slate-700 focus:ring-2 focus:ring-fuchsia-500/20 focus:border-fuchsia-500 outline-none">
                     <span class="text-slate-400 font-bold text-sm">to</span>
                     <input type="date" id="filter_end"
                         class="rounded-xl border border-slate-200 px-4 py-2 text-sm font-medium text-slate-700 focus:ring-2 focus:ring-fuchsia-500/20 focus:border-fuchsia-500 outline-none">
-                    <button type="button" id="btn_filter_sales"
+                    <button type="button" id="btn_apply_filters"
                         class="bg-slate-100 hover:bg-slate-200 text-slate-700 px-4 py-2 rounded-xl text-sm font-bold transition-colors cursor-pointer">Filter</button>
                 </div>
 
@@ -130,23 +116,50 @@ if (!isset($_SESSION['user_id'])) {
                 </button>
             </div>
 
-            <div id="sales-report-container" class="space-y-4">
-                <div
-                    class="p-8 text-center text-sm font-bold text-slate-400 border-2 border-dashed border-slate-200 rounded-2xl">
-                    Loading sales data...
+            <div id="tab-sales" class="tab-content block">
+                <div id="sales-report-container" class="space-y-4">
                 </div>
             </div>
 
+            <div id="tab-income" class="tab-content hidden">
+                <div id="income-report-container">
+                </div>
+            </div>
+
+            <div id="tab-receivables" class="tab-content hidden">
+                <div id="receivables-report-container">
+                </div>
+            </div>
+
+            <!-- <div id="tab-inventory" class="tab-content hidden">
+                <div id="inventory-report-container">
+                </div>
+            </div>
+
+            <div id="tab-trail" class="tab-content hidden">
+                <div id="trail-report-container">
+                </div>
+            </div> -->
+
+        </div>
+
         </div>
     </main>
+
+    <?php include_once("includes/partial/footer.php"); ?>
 </body>
-<?php include_once("includes/partial/footer.php"); ?>
 
 <script src="./assets/js/jquery-4.0.0.min.js"></script>
 <script>
     $(document).ready(function () {
 
-        // Set default dates (Last 30 days)
+        // 1. GLOBAL HELPERS & DEFAULTS
+        // Define formatMoney so all reports can use it without crashing
+        const formatMoney = (amount) => {
+            return '₱' + parseFloat(amount).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        };
+
+        // Set default dates to the last 30 days BEFORE we load the reports
         const today = new Date();
         const thirtyDaysAgo = new Date();
         thirtyDaysAgo.setDate(today.getDate() - 30);
@@ -154,12 +167,8 @@ if (!isset($_SESSION['user_id'])) {
         $('#filter_start').val(thirtyDaysAgo.toISOString().split('T')[0]);
         $('#filter_end').val(today.toISOString().split('T')[0]);
 
-        // Format currency helper
-        const formatMoney = (amount) => {
-            return '₱' + parseFloat(amount).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-        };
 
-        // Main fetch function
+        // 2. FETCH FUNCTIONS
         function loadSalesReport() {
             const startDate = $('#filter_start').val();
             const endDate = $('#filter_end').val();
@@ -176,7 +185,7 @@ if (!isset($_SESSION['user_id'])) {
                         return;
                     }
 
-                    // Optional: Add a subtle table header inside the container for context
+                    // Add the table header for context
                     $container.append(`
                     <div class="hidden sm:flex items-center px-4 pb-2 mb-2 text-[10px] font-black text-slate-400 uppercase tracking-widest border-b border-slate-100">
                         <div class="w-1/4">Transaction</div>
@@ -186,33 +195,27 @@ if (!isset($_SESSION['user_id'])) {
                     </div>
                 `);
 
-                    // Loop through transactions and build tile-rows
                     res.data.forEach(txn => {
                         let borderLeft = '';
                         let customerHtml = '';
                         let statusHtml = '';
 
-                        // LOGIC 1: UNPAID CREDIT SALE
+                        // UNPAID CREDIT SALE
                         if (txn.is_unpaid) {
                             borderLeft = 'border-l-rose-400';
                             customerHtml = `
                             <div class="flex items-center gap-1.5 text-xs font-bold text-slate-600">
                                 <i class="fa-solid fa-user text-slate-400"></i>
                                 <span class="truncate">${txn.customer}</span>
+                                <span class="text-rose-500 ml-0.5">(Credit)</span>
                             </div>`;
-
-                            // Unified Split-Badge (Rose)
                             statusHtml = `
                             <div class="inline-flex items-center border border-rose-100 rounded-md overflow-hidden shadow-sm">
-                                <div class="bg-rose-50 text-rose-600 px-2 py-1 text-[10px] font-bold flex items-center gap-1.5">
-                                    <i class="fa-solid fa-clock"></i> Unpaid
-                                </div>
-                                <div class="bg-white text-rose-400 px-2 py-1 text-[9px] font-bold border-l border-rose-100 uppercase tracking-wider">
-                                    Pending
-                                </div>
+                                <div class="bg-rose-50 text-rose-600 px-2 py-1 text-[10px] font-bold flex items-center gap-1.5"><i class="fa-solid fa-clock"></i> Unpaid</div>
+                                <div class="bg-white text-rose-400 px-2 py-1 text-[9px] font-bold border-l border-rose-100 uppercase tracking-wider">Pending</div>
                             </div>`;
                         }
-                        // LOGIC 2: PAID CREDIT SALE
+                        // PAID CREDIT SALE
                         else if (!txn.is_unpaid && txn.settle_date) {
                             borderLeft = 'border-l-emerald-400';
                             customerHtml = `
@@ -220,44 +223,30 @@ if (!isset($_SESSION['user_id'])) {
                                 <i class="fa-solid fa-user text-slate-400"></i>
                                 <span class="truncate">${txn.customer}</span>
                             </div>`;
-
-                            // Unified Split-Badge (Emerald + Slate Date)
                             statusHtml = `
                             <div class="inline-flex items-center border border-emerald-100 rounded-md overflow-hidden shadow-sm">
-                                <div class="bg-emerald-50 text-emerald-600 px-2 py-1 text-[10px] font-bold flex items-center gap-1.5">
-                                    <i class="fa-solid fa-check"></i> Settled
-                                </div>
-                                <div class="bg-slate-50 text-slate-500 px-2 py-1 text-[10px] font-semibold border-l border-emerald-100">
-                                    ${txn.settle_date}
-                                </div>
+                                <div class="bg-emerald-50 text-emerald-600 px-2 py-1 text-[10px] font-bold flex items-center gap-1.5"><i class="fa-solid fa-check"></i> Paid</div>
+                                <div class="bg-slate-50 text-slate-500 px-2 py-1 text-[10px] font-semibold border-l border-emerald-100">${txn.settle_date}</div>
                             </div>`;
                         }
-                        // LOGIC 3: CASH SALE
+                        // CASH SALE
                         else {
                             borderLeft = 'border-l-emerald-400';
                             customerHtml = `
                             <div class="flex items-center gap-1.5 text-xs font-bold text-emerald-600">
-                                <i class="fa-solid fa-money-bill-wave text-emerald-400"></i>
-                                Cash Sale
+                                <i class="fa-solid fa-money-bill-wave text-emerald-400"></i> Cash Sale
                             </div>`;
-
-                            // Unified Split-Badge (Solid Emerald)
                             statusHtml = `
                             <div class="inline-flex items-center border border-emerald-100 rounded-md overflow-hidden shadow-sm">
-                                <div class="bg-emerald-50 text-emerald-600 px-2 py-1 text-[10px] font-bold flex items-center gap-1.5">
-                                    <i class="fa-solid fa-check-double"></i> Paid
-                                </div>
-                                <div class="bg-emerald-50/40 text-emerald-500 px-2 py-1 text-[10px] font-semibold border-l border-emerald-100">
-                                    Cash
-                                </div>
+                                <div class="bg-emerald-50 text-emerald-600 px-2 py-1 text-[10px] font-bold flex items-center gap-1.5"><i class="fa-solid fa-check-double"></i> Paid</div>
+                                <div class="bg-emerald-50/40 text-emerald-500 px-2 py-1 text-[10px] font-semibold border-l border-emerald-100">Cash</div>
                             </div>`;
                         }
 
-                        // Build the single-line item rows
                         let itemsHtml = '';
                         txn.items.forEach(item => {
                             itemsHtml += `
-                            <li class="flex items-center justify-between py-1.5 border-b border-slate-100 last:border-0">
+                            <li class="flex items-center justify-between py-1.5 border-b border-slate-100/50 last:border-0">
                                 <div class="flex items-center gap-2 overflow-hidden pr-2">
                                     <span class="text-fuchsia-600 font-bold shrink-0">${item.qty}x</span>
                                     <span class="text-slate-700 font-medium truncate">${item.name}</span>
@@ -267,29 +256,18 @@ if (!isset($_SESSION['user_id'])) {
                                     <span class="text-slate-200 font-light mx-0.5">|</span>
                                     <span class="font-bold text-slate-700 min-w-[3.5rem]">${formatMoney(item.subtotal)}</span>
                                 </div>
-                            </li>
-                        `;
+                            </li>`;
                         });
 
-                        // Build the Tile-Row HTML
                         let tileHtml = `
                         <div class="bg-white border border-slate-200 rounded-[1rem] shadow-sm mb-3 overflow-hidden transition-all duration-200 border-l-4 ${borderLeft}">
-                            
                             <div class="sales-row-trigger flex flex-col sm:flex-row sm:items-center justify-between p-3.5 cursor-pointer hover:bg-slate-50 transition-colors group">
-                                
                                 <div class="w-full sm:w-1/4 mb-2 sm:mb-0 flex items-center justify-between sm:block">
                                     <h4 class="text-sm font-black text-slate-800 tracking-wide">${txn.number}</h4>
                                     <span class="text-[10px] font-bold text-slate-400">${txn.created_at}</span>
                                 </div>
-
-                                <div class="w-full sm:w-1/4 mb-2 sm:mb-0">
-                                    ${customerHtml}
-                                </div>
-
-                                <div class="w-full sm:w-1/4 mb-2 sm:mb-0 flex items-center justify-start sm:justify-start pl-0 sm:pl-4">
-                                    ${statusHtml}
-                                </div>
-
+                                <div class="w-full sm:w-1/4 mb-2 sm:mb-0">${customerHtml}</div>
+                                <div class="w-full sm:w-1/4 mb-2 sm:mb-0 flex items-center justify-start sm:justify-start pl-0 sm:pl-4">${statusHtml}</div>
                                 <div class="w-full sm:w-1/4 flex items-center justify-between sm:justify-end gap-4">
                                     <span class="text-sm sm:text-base font-black text-slate-900">${formatMoney(txn.total)}</span>
                                     <div class="h-8 w-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-400 group-hover:bg-fuchsia-50 group-hover:text-fuchsia-600 transition-colors">
@@ -297,44 +275,331 @@ if (!isset($_SESSION['user_id'])) {
                                     </div>
                                 </div>
                             </div>
-
                             <div class="sales-row-details hidden bg-slate-50/50 px-5 py-4 border-t border-slate-100">
-                                <h5 class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-2.5 flex items-center gap-1.5">
-                                    <i class="fa-solid fa-list-ul"></i> Transaction Details
-                                </h5>
-                                <ul class="text-[11px] flex flex-col w-full sm:w-1/4">
-                                    ${itemsHtml}
-                                </ul>
+                                <h5 class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-2.5 flex items-center gap-1.5"><i class="fa-solid fa-list-ul"></i> Transaction Details</h5>
+                                <ul class="text-[11px] flex flex-col w-full sm:w-2/3">${itemsHtml}</ul>
+                            </div>
+                        </div>`;
+
+                        $container.append(tileHtml);
+                    });
+                } else {
+                    $container.html(`<div class="p-8 text-center text-sm font-bold text-red-500 bg-red-50 rounded-2xl border border-red-100">Error: ${res.message}</div>`);
+                }
+            }, 'json').fail(function () {
+                $container.html('<div class="p-8 text-center text-sm font-bold text-red-500 bg-red-50 rounded-2xl border border-red-100">Network or Server Error fetching Sales.</div>');
+            });
+        }
+
+        function loadIncomeReport() {
+            const startDate = $('#filter_start').val();
+            const endDate = $('#filter_end').val();
+            const $container = $('#income-report-container');
+
+            $container.html('<div class="p-8 text-center text-sm font-bold text-fuchsia-400 animate-pulse"><i class="fa-solid fa-circle-notch fa-spin mr-2"></i> Generating statement...</div>');
+
+            $.post('includes/fetch_income.php', { start_date: startDate, end_date: endDate }, function (res) {
+                if (res.success) {
+                    const m = res.metrics;
+                    const b = res.breakdowns;
+                    const profitColor = m.net_profit >= 0 ? 'text-fuchsia-600' : 'text-rose-600';
+
+                    // Helper to build Item lists (Sleeker design)
+                    const buildItemRows = (items) => {
+                        if (!items || items.length === 0) return '<li class="text-center text-slate-400 py-4 text-[11px] font-medium border-t border-slate-100 mt-2">No items in this category.</li>';
+                        return items.map((item, index) => `
+                        <li class="flex justify-between items-center py-3 ${index === 0 ? 'border-t border-slate-100 mt-2 pt-4' : 'border-t border-slate-50'}">
+                            <div class="flex items-center gap-3">
+                                <span class="text-slate-400 font-bold text-[10px] w-5 text-right">${item.total_qty}x</span>
+                                <span class="text-xs font-bold text-slate-700">${item.item_name}</span>
+                            </div>
+                            <span class="text-xs font-black text-slate-800">${formatMoney(item.total_revenue)}</span>
+                        </li>
+                    `).join('');
+                    };
+
+                    // Helper to build Transaction lists (Sleeker design)
+                    const buildTxnRows = (txns) => {
+                        if (!txns || txns.length === 0) return '<li class="text-center text-slate-400 py-4 text-[11px] font-medium border-t border-slate-100 mt-2">No settled payments in this period.</li>';
+                        return txns.map((txn, index) => `
+                        <li class="flex justify-between items-center py-3 ${index === 0 ? 'border-t border-slate-100 mt-2 pt-4' : 'border-t border-slate-50'}">
+                            <div class="flex items-center gap-3">
+                                <span class="text-xs font-black text-slate-800">${txn.transaction_number}</span>
+                                <span class="text-[10px] text-slate-500 font-medium bg-slate-100 px-2 py-0.5 rounded-md">${txn.customer || 'Walk-in'}</span>
+                            </div>
+                            <span class="text-xs font-black text-emerald-600">+ ${formatMoney(txn.total_amount)}</span>
+                        </li>
+                    `).join('');
+                    };
+
+                    let statementHtml = `
+                    <div class="max-w-2xl mx-auto">
+                        
+                        <div class="bg-white rounded-[2rem] p-8 sm:p-10 border border-slate-200 shadow-xl shadow-slate-200/50 relative overflow-hidden z-10">
+                            <div class="absolute top-0 left-0 right-0 h-2 bg-fuchsia-500"></div>
+                            <div class="text-center mb-10 mt-2">
+                                <h3 class="text-2xl font-black text-slate-800 uppercase tracking-widest">Income Statement</h3>
+                                <p class="text-[11px] font-bold text-slate-400 tracking-widest mt-1">${startDate} &nbsp;—&nbsp; ${endDate}</p>
+                            </div>
+                            
+                            <div class="space-y-4 text-sm font-semibold text-slate-600">
+                                <div class="flex justify-between items-end pb-1">
+                                    <span>Total Gross Sales</span>
+                                    <span class="text-slate-900 font-bold">${formatMoney(m.gross_sales)}</span>
+                                </div>
+                                <div class="flex justify-between items-end pb-1 text-rose-500">
+                                    <span>Less: Unpaid Credit Sales</span>
+                                    <span>- ${formatMoney(m.unpaid_sales)}</span>
+                                </div>
+                                <div class="flex justify-between items-end pb-1 text-emerald-500">
+                                    <span>Plus: Past Debts Settled</span>
+                                    <span>+ ${formatMoney(m.settled_past)}</span>
+                                </div>
+                                <div class="border-t border-slate-200 pt-4 pb-2 flex justify-between items-center text-base text-slate-800">
+                                    <span class="font-bold">Total Cash Collected</span>
+                                    <span class="font-black">${formatMoney(m.total_cash)}</span>
+                                </div>
+                                <div class="flex justify-between items-end pb-1 text-slate-500 pt-2">
+                                    <span>Less: Cost of Goods Sold (COGS)</span>
+                                    <span>- ${formatMoney(m.cogs)}</span>
+                                </div>
+                                <div class="border-t-2 border-slate-800 mt-6 pt-6 flex justify-between items-center">
+                                    <span class="text-lg font-black text-slate-800 uppercase tracking-wide">Net Cash Profit</span>
+                                    <span class="text-2xl font-black ${profitColor}">${formatMoney(m.net_profit)}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center mt-12 mb-8">
+                            <div class="flex-grow border-t border-slate-200"></div>
+                            <span class="px-4 text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
+                                <i class="fa-solid fa-chart-pie text-slate-300"></i> Detailed Breakdowns
+                            </span>
+                            <div class="flex-grow border-t border-slate-200"></div>
+                        </div>
+
+                        <div class="bg-white border border-slate-200 rounded-[1.5rem] shadow-sm overflow-hidden">
+                            
+                            <div class="border-b border-slate-100 last:border-0">
+                                <button type="button" class="breakdown-trigger w-full px-6 py-4 flex justify-between items-center hover:bg-slate-50 transition-colors cursor-pointer group">
+                                    <span class="text-xs font-black text-slate-700 uppercase flex items-center gap-3">
+                                        <div class="h-8 w-8 rounded-full bg-slate-50 border border-slate-100 flex items-center justify-center text-slate-400 group-hover:bg-fuchsia-50 group-hover:text-fuchsia-600 transition-colors"><i class="fa-solid fa-box"></i></div>
+                                        Cash Sales Items
+                                    </span>
+                                    <i class="fa-solid fa-chevron-down transition-transform duration-200 toggle-icon text-slate-300 text-xs group-hover:text-slate-500"></i>
+                                </button>
+                                <div class="breakdown-content hidden px-6 pb-4 bg-white"><ul class="flex flex-col">${buildItemRows(b.cash_items)}</ul></div>
+                            </div>
+
+                            <div class="border-b border-slate-100 last:border-0">
+                                <button type="button" class="breakdown-trigger w-full px-6 py-4 flex justify-between items-center hover:bg-slate-50 transition-colors cursor-pointer group">
+                                    <span class="text-xs font-black text-slate-700 uppercase flex items-center gap-3">
+                                        <div class="h-8 w-8 rounded-full bg-slate-50 border border-slate-100 flex items-center justify-center text-slate-400 group-hover:bg-rose-50 group-hover:text-rose-500 transition-colors"><i class="fa-solid fa-clock"></i></div>
+                                        Unpaid Credit Items
+                                    </span>
+                                    <i class="fa-solid fa-chevron-down transition-transform duration-200 toggle-icon text-slate-300 text-xs group-hover:text-slate-500"></i>
+                                </button>
+                                <div class="breakdown-content hidden px-6 pb-4 bg-white"><ul class="flex flex-col">${buildItemRows(b.unpaid_items)}</ul></div>
+                            </div>
+
+                            <div class="border-b border-slate-100 last:border-0">
+                                <button type="button" class="breakdown-trigger w-full px-6 py-4 flex justify-between items-center hover:bg-slate-50 transition-colors cursor-pointer group">
+                                    <span class="text-xs font-black text-slate-700 uppercase flex items-center gap-3">
+                                        <div class="h-8 w-8 rounded-full bg-slate-50 border border-slate-100 flex items-center justify-center text-slate-400 group-hover:bg-emerald-50 group-hover:text-emerald-500 transition-colors"><i class="fa-solid fa-handshake"></i></div>
+                                        Settled Payments (Txn)
+                                    </span>
+                                    <i class="fa-solid fa-chevron-down transition-transform duration-200 toggle-icon text-slate-300 text-xs group-hover:text-slate-500"></i>
+                                </button>
+                                <div class="breakdown-content hidden px-6 pb-4 bg-white"><ul class="flex flex-col">${buildTxnRows(b.settled_txns)}</ul></div>
                             </div>
 
                         </div>
-                    `;
+                    </div>`;
 
+                    $container.html(statementHtml);
+                } else {
+                    $container.html(`<div class="p-8 text-center text-sm font-bold text-red-500 bg-red-50 rounded-2xl border border-red-100">Error: ${res.message}</div>`);
+                }
+            }, 'json').fail(function () {
+                $container.html('<div class="p-8 text-center text-sm font-bold text-red-500 bg-red-50 rounded-2xl border border-red-100">Network or Server Error fetching Income.</div>');
+            });
+        }
+
+        function loadReceivablesReport() {
+            const startDate = $('#filter_start').val();
+            const endDate = $('#filter_end').val();
+            const $container = $('#receivables-report-container');
+
+            $container.html('<div class="p-8 text-center text-sm font-bold text-fuchsia-400 animate-pulse"><i class="fa-solid fa-circle-notch fa-spin mr-2"></i> Fetching receivables...</div>');
+
+            $.post('includes/fetch_receivables.php', { start_date: startDate, end_date: endDate }, function (res) {
+                if (res.success) {
+                    $container.empty();
+                    const m = res.metrics;
+
+                    // 1. Build the Top Summary Card
+                    let summaryHtml = `
+            <div class="bg-rose-50/50 border border-rose-100 rounded-[1.5rem] p-6 mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div class="flex items-center gap-4">
+                    <div class="h-12 w-12 rounded-full bg-white border border-rose-100 flex items-center justify-center text-rose-500 shadow-sm">
+                        <i class="fa-solid fa-file-invoice-dollar text-xl"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-[10px] font-black text-rose-400 uppercase tracking-widest">Unpaid within period</h3>
+                        <p class="text-sm font-bold text-slate-700">${m.total_invoices} Outstanding Invoice${m.total_invoices !== 1 ? 's' : ''}</p>
+                    </div>
+                </div>
+                <div class="text-right">
+                    <h3 class="text-[10px] font-black text-rose-400 uppercase tracking-widest mb-0.5">Total Amount Owed</h3>
+                    <p class="text-3xl font-black text-rose-600">${formatMoney(m.total_amount)}</p>
+                </div>
+            </div>
+            `;
+                    $container.append(summaryHtml);
+
+                    // Handle empty state
+                    if (res.data.length === 0) {
+                        $container.append('<div class="p-8 text-center text-sm font-bold text-slate-400 border-2 border-dashed border-slate-200 rounded-2xl">No unpaid receivables found for this date range.</div>');
+                        return;
+                    }
+
+                    // Table Header - CHANGED to 4 columns (w-1/4)
+                    $container.append(`
+            <div class="hidden sm:flex items-center px-4 pb-2 mb-2 text-[10px] font-black text-slate-400 uppercase tracking-widest border-b border-slate-100">
+                <div class="w-1/4">Transaction</div>
+                <div class="w-1/4 text-center">Customer</div>
+                <div class="w-1/4 text-center">Overdue Status</div>
+                <div class="w-1/4 text-right pr-12">Total Owed</div>
+            </div>
+            `);
+
+                    // 2. Loop through Receivables and build tiles
+                    res.data.forEach(txn => {
+                        // Logic for Standard Aging Buckets with escalating colors
+                        let agingBadge = '';
+                        const days = txn.days_outstanding;
+
+                        if (days === 0) {
+                            // Current / Today: Neutral
+                            agingBadge = `<span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-slate-100 text-slate-600 border border-slate-200">Today</span>`;
+                        } else if (days >= 1 && days <= 30) {
+                            // 1-30 Days: Mild warning (Amber)
+                            agingBadge = `<span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-700 border border-amber-200">1–30 days past due</span>`;
+                        } else if (days >= 31 && days <= 60) {
+                            // 31-60 Days: Moderate warning (Orange)
+                            agingBadge = `<span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-orange-100 text-orange-700 border border-orange-200">31–60 days past due</span>`;
+                        } else if (days >= 61 && days <= 90) {
+                            // 61-90 Days: Severe warning (Solid Rose)
+                            agingBadge = `<span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-black bg-rose-400 text-white shadow-sm ring-2 ring-rose-200/50">61–90 days past due</span>`;
+                        } else {
+                            // 91+ Days: Critical (Dark Red)
+                            agingBadge = `<span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-black bg-red-500 text-white shadow-sm ring-2 ring-red-300/50">91+ days past due</span>`;
+                        }
+
+                        // Build the itemized list (same sleek layout as sales)
+                        let itemsHtml = '';
+                        txn.items.forEach(item => {
+                            itemsHtml += `
+                    <li class="flex items-center justify-between py-1.5 border-b border-slate-100/50 last:border-0">
+                        <div class="flex items-center gap-2 overflow-hidden pr-2">
+                            <span class="text-fuchsia-600 font-bold shrink-0">${item.qty}x</span>
+                            <span class="text-slate-700 font-medium truncate">${item.name}</span>
+                        </div>
+                        <div class="flex items-center gap-2 shrink-0 text-right text-[10px]">
+                            <span class="text-slate-400 font-medium">@ ${formatMoney(item.price)}</span>
+                            <span class="text-slate-200 font-light mx-0.5">|</span>
+                            <span class="font-bold text-slate-700 min-w-[3.5rem]">${formatMoney(item.subtotal)}</span>
+                        </div>
+                    </li>`;
+                        });
+
+                        // Build the main Row Tile - CHANGED to split Customer and Status into two w-1/4 blocks
+                        let tileHtml = `
+                <div class="bg-white border border-slate-200 rounded-[1rem] shadow-sm mb-3 overflow-hidden transition-all duration-200 border-l-4 border-l-rose-400">
+                    <div class="receivables-row-trigger flex flex-col sm:flex-row sm:items-center justify-between p-3.5 cursor-pointer hover:bg-slate-50 transition-colors group">
+                        
+                        <div class="w-full sm:w-1/4 mb-2 sm:mb-0 flex items-center justify-between sm:block">
+                            <h4 class="text-sm font-black text-slate-800 tracking-wide">${txn.number}</h4>
+                            <span class="text-[10px] font-bold text-slate-400">${txn.created_at}</span>
+                        </div>
+
+                        <div class="w-full sm:w-1/4 mb-2 sm:mb-0 flex items-center sm:justify-center gap-1.5">
+                            <div class="flex items-center gap-1.5 text-xs font-bold text-slate-700">
+                                <i class="fa-solid fa-user text-slate-400"></i> ${txn.customer}
+                            </div>
+                        </div>
+
+                        <div class="w-full sm:w-1/4 mb-2 sm:mb-0 flex items-center sm:justify-center">
+                            ${agingBadge}
+                        </div>
+
+                        <div class="w-full sm:w-1/4 flex items-center justify-between sm:justify-end gap-4">
+                            <span class="text-sm sm:text-base font-black text-rose-600">${formatMoney(txn.total)}</span>
+                            <div class="h-8 w-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-400 group-hover:bg-rose-50 group-hover:text-rose-600 transition-colors shrink-0">
+                                <i class="fa-solid fa-chevron-down transition-transform duration-200 toggle-icon text-xs"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="receivables-row-details hidden bg-slate-50/50 px-5 py-4 border-t border-slate-100">
+                        <h5 class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-2.5 flex items-center gap-1.5">
+                            <i class="fa-solid fa-list-ul"></i> Unpaid Items
+                        </h5>
+                        <ul class="text-[11px] flex flex-col w-full sm:w-2/3">
+                            ${itemsHtml}
+                        </ul>
+                    </div>
+                </div>
+                `;
                         $container.append(tileHtml);
                     });
 
                 } else {
                     $container.html(`<div class="p-8 text-center text-sm font-bold text-red-500 bg-red-50 rounded-2xl border border-red-100">Error: ${res.message}</div>`);
                 }
-            }, 'json');
+            }, 'json').fail(function () {
+                $container.html('<div class="p-8 text-center text-sm font-bold text-red-500 bg-red-50 rounded-2xl border border-red-100">Network or Server Error fetching Receivables.</div>');
+            });
         }
 
-        // --- EVENT LISTENERS ---
+        // 3. EVENT LISTENERS
 
-        // Initial fetch and filter click
+        // Initial fetch on page load
         loadSalesReport();
-        $('#btn_filter_sales').on('click', loadSalesReport);
+        loadIncomeReport();
+        loadReceivablesReport();
 
-        // Accordion Slide Toggle for the Tile-Rows
-        $('#sales-report-container').on('click', '.sales-row-trigger', function () {
-            const $details = $(this).next('.sales-row-details');
-            const $icon = $(this).find('.toggle-icon');
-
-            // Slide the details open/closed smoothly
-            $details.slideToggle(250);
-            // Flip the chevron icon upside down
-            $icon.toggleClass('rotate-180');
+        // Global Filter Click
+        $('#btn_apply_filters').on('click', function () {
+            loadSalesReport();
+            loadIncomeReport();
+            loadReceivablesReport();
         });
+
+        // Accordion toggles
+        $('#sales-report-container').on('click', '.sales-row-trigger', function () {
+            $(this).next('.sales-row-details').slideToggle(250);
+            $(this).find('.toggle-icon').toggleClass('rotate-180');
+        });
+
+        $('#income-report-container').on('click', '.breakdown-trigger', function () {
+            $(this).next('.breakdown-content').slideToggle(250);
+            $(this).find('.toggle-icon').toggleClass('rotate-180');
+        });
+
+        // Tab Switching Logic
+        $('.tab-btn').on('click', function () {
+            $('.tab-btn').removeClass('border-fuchsia-600 text-fuchsia-600').addClass('border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300');
+            $(this).removeClass('border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300').addClass('border-fuchsia-600 text-fuchsia-600');
+            $('.tab-content').addClass('hidden').removeClass('block');
+            $($(this).data('target')).removeClass('hidden').addClass('block');
+        });
+
+        $('#receivables-report-container').on('click', '.receivables-row-trigger', function () {
+            $(this).next('.receivables-row-details').slideToggle(250);
+            $(this).find('.toggle-icon').toggleClass('rotate-180');
+        });
+
     });
 </script>
 
