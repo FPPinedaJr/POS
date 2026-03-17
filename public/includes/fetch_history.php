@@ -74,12 +74,17 @@ foreach ($grouped as $date => $dayLogs):
                     ?>
                         <div class="relative pl-5 group/item">
                             <div
-                                class="absolute -left-[25px] top-1 h-2.5 w-2.5 rounded-full <?php echo $dotColor; ?> ring-4 ring-gray-50 group-hover/item:ring-white transition-all">
+                                class="absolute -left-[22px] top-1 h-2.5 w-2.5 rounded-full <?php echo $dotColor; ?> ring-4 ring-gray-50 group-hover/item:ring-white transition-all">
                             </div>
 
                             <p class="text-[13px] font-semibold text-gray-900 leading-tight">
                                 <?php echo htmlspecialchars($log['item_name']); ?>
                             </p>
+                            <?php if (!empty($log['description'])): ?>
+                                <p class="mt-0.5 text-[11px] text-gray-500 leading-snug">
+                                    <?php echo htmlspecialchars($log['description']); ?>
+                                </p>
+                            <?php endif; ?>
                             <div class="flex items-center gap-2 mt-1.5 text-[11px] text-gray-500">
                                 <span><?php echo $time; ?></span>
                                 <span>•</span>
