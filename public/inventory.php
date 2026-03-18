@@ -152,9 +152,15 @@ try {
                                         <div id="filter-category-add-row" class="hidden mt-3 flex gap-2">
                                             <input type="text" id="filter-category-add-input" placeholder="Name..."
                                                 class="flex-1 rounded-lg border-white bg-white shadow-inner px-3 py-1.5 text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500/20 font-medium" />
-                                            <button type="button" id="filter-category-add-btn"
-                                                class="inline-flex items-center justify-center px-3 py-1.5 rounded-lg bg-indigo-600 text-xs font-bold text-white hover:bg-indigo-700 shadow-md">
-                                                Add
+                                            <button type="button" id="filter-category-add-btn" aria-label="Add category"
+                                                class="relative inline-flex items-center justify-center px-3 py-1.5 rounded-lg bg-indigo-600 text-xs font-bold text-white hover:bg-indigo-700 shadow-md overflow-hidden">
+                                                <span class="filter-category-add-sizer invisible select-none">Add</span>
+                                                <span class="filter-category-add-label absolute inset-0 flex items-center justify-center transition-opacity duration-150">
+                                                    Add
+                                                </span>
+                                                <span class="filter-category-add-spinner absolute inset-0 flex items-center justify-center opacity-0 invisible transition-opacity duration-150">
+                                                    <i class="fa-solid fa-spinner fa-spin text-[10px]"></i>
+                                                </span>
                                             </button>
                                         </div>
                                     </div>
@@ -1117,64 +1123,6 @@ try {
 
     <div id="toast-container" class="fixed top-6 right-6 z-80 space-y-3 pointer-events-none"></div>
 
-    <div id="legal-modal"
-        class="fixed inset-0 z-[75] hidden items-center justify-center bg-slate-900/40 backdrop-blur-sm p-4 transition-all">
-        <div class="relative w-full max-w-lg mx-auto">
-            <div
-                class="bg-white/95 backdrop-blur-xl rounded-[2rem] shadow-2xl border border-white overflow-hidden animate-in fade-in zoom-in duration-200">
-
-                <div
-                    class="px-6 pt-6 pb-3 border-b border-slate-100 flex items-center justify-between relative overflow-hidden rounded-t-[2rem]">
-
-                    <div
-                        class="absolute top-0 right-0 w-32 h-32 bg-indigo-500/10 rounded-full blur-2xl -translate-y-1/2 translate-x-1/2 pointer-events-none">
-                    </div>
-
-                    <div class="relative z-10 flex items-center gap-3.5">
-                        <div
-                            class="h-10 w-10 rounded-full bg-indigo-50 border border-indigo-100 flex items-center justify-center shadow-inner">
-                            <i class="fa-solid fa-circle-info text-indigo-500 text-lg"></i>
-                        </div>
-                        <div>
-                            <h3 class="text-xl font-black text-slate-900 tracking-tight">About Us</h3>
-                            <p class="text-xs font-medium text-slate-500 mt-0.5">VendaTrack</p>
-                        </div>
-                    </div>
-
-                    <button type="button" id="close-legal-modal"
-                        class="relative z-10 h-8 w-8 inline-flex items-center justify-center rounded-full cursor-pointer bg-white shadow-sm border border-slate-100 hover:bg-slate-50 transition-all text-slate-400 hover:text-slate-600">
-                        <i class="fa-solid fa-xmark text-sm"></i>
-                    </button>
-                </div>
-
-                <div class="px-6 py-3 space-y-2 max-h-[70vh] overflow-y-auto">
-
-                    <div class="space-y-2 p-4 rounded-2xl bg-slate-50/80 border border-white shadow-inner">
-                        <h4
-                            class="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-1.5">
-                            <i class="fa-solid fa-layer-group text-indigo-400"></i> Overview
-                        </h4>
-                        <p class="text-sm font-medium text-slate-700 leading-relaxed">
-                            This inventory system helps you organize items, categories, and stock history in one place
-                            with a seamless, modern interface.
-                        </p>
-                    </div>
-
-                    <div class="space-y-2 p-4 rounded-2xl bg-slate-50/80 border border-white shadow-inner">
-                        <h4
-                            class="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-1.5">
-                            <i class="fa-solid fa-envelope text-teal-400"></i> Contact
-                        </h4>
-                        <p class="text-sm font-medium text-slate-700 leading-relaxed">
-                            For questions, bug reports, or support, please contact your system administrator.
-                        </p>
-                    </div>
-
-                </div>
-            </div>
-        </div>
-    </div>
-
     <?php include_once("includes/partial/footer.php"); ?>
 
     <script src="https://cdn.jsdelivr.net/npm/uuid@9.0.1/dist/umd/uuidv7.min.js"></script>
@@ -1200,24 +1148,11 @@ try {
             const $addQtyInput = $('#item_count');
             const $passModal = $('#passModal');
             const $sidebar = $('#historySidebar');
-            const $legalModal = $('#legal-modal');
 
             let hOffset = 0;
             const hLimit = 24;
 
-            // --- Legal modal ---
-            function openLegalModal() {
-                if (!$legalModal.length) return;
-                $legalModal.removeClass('hidden').addClass('flex');
-            }
-            function closeLegalModal() {
-                if (!$legalModal.length) return;
-                $legalModal.addClass('hidden').removeClass('flex');
-            }
-            $('#open-legal-modal').on('click', openLegalModal);
-            $('#close-legal-modal, #legal-modal-ok').on('click', closeLegalModal);
             $(document).on('click', function (e) {
-                if ($legalModal.length && $(e.target).is($legalModal)) closeLegalModal();
                 if ($stockNotifPanel.length && !$stockNotifPanel.is(e.target) && $stockNotifPanel.has(e.target).length === 0 && !$stockNotifBtn.is(e.target)) {
                     $stockNotifPanel.addClass('hidden');
                 }
@@ -1836,16 +1771,33 @@ try {
             const $filterAddRow = $('#filter-category-add-row');
             const $filterAddInput = $('#filter-category-add-input');
             const $filterAddBtn = $('#filter-category-add-btn');
+            const $filterAddSizer = $filterAddBtn.find('.filter-category-add-sizer');
+            const $filterAddLabel = $filterAddBtn.find('.filter-category-add-label');
+            const $filterAddSpinner = $filterAddBtn.find('.filter-category-add-spinner');
             let filterEditingId = null;
+
+            function setFilterAddLoading(isLoading) {
+                if (isLoading) {
+                    $filterAddBtn.prop('disabled', true);
+                    $filterAddLabel.addClass('opacity-0 invisible');
+                    $filterAddSpinner.removeClass('invisible opacity-0').addClass('opacity-100');
+                } else {
+                    $filterAddBtn.prop('disabled', false);
+                    $filterAddLabel.removeClass('opacity-0 invisible');
+                    // Keep original width consistent with prior "Add" label
+                    $filterAddSizer.text('Add');
+                    $filterAddSpinner.addClass('opacity-0 invisible').removeClass('opacity-100');
+                }
+            }
 
             function resetFilterCategoryRow() {
                 filterEditingId = null;
                 $filterAddInput.val('');
                 $filterAddRow.addClass('hidden');
                 $filterAddBtn
-                    .text('Add')
                     .removeClass('bg-amber-600 hover:bg-amber-700')
                     .addClass('bg-indigo-600 hover:bg-indigo-700');
+                setFilterAddLoading(false);
             }
 
             function getFilterCategoryNames() {
@@ -1861,6 +1813,26 @@ try {
             }
 
             if ($filterCatPanel.length) {
+                function setMiniBtnLoading($btn, isLoading) {
+                    if (!$btn || !$btn.length) return;
+                    if (isLoading) {
+                        if ($btn.data('origHtml') == null) $btn.data('origHtml', $btn.html());
+                        $btn.prop('disabled', true);
+                        $btn.html('<i class="fa-solid fa-spinner fa-spin text-[10px]"></i>');
+                    } else {
+                        const orig = $btn.data('origHtml');
+                        if (orig != null) $btn.html(orig);
+                        $btn.prop('disabled', false);
+                    }
+                }
+
+                function setRowActionsLoading($row, isLoading, $primaryBtn) {
+                    const $actions = $row.find('.filter-category-actions');
+                    const $btns = $actions.find('button');
+                    $btns.prop('disabled', !!isLoading);
+                    if ($primaryBtn && $primaryBtn.length) setMiniBtnLoading($primaryBtn, !!isLoading);
+                }
+
                 $filterAddToggle.on('click', function () {
                     $filterAddRow.toggleClass('hidden');
                     if (!$filterAddRow.hasClass('hidden')) setTimeout(() => $filterAddInput.trigger('focus'), 0);
@@ -1881,6 +1853,7 @@ try {
 
                     if (isEditing) {
                         const id = String(filterEditingId);
+                        setFilterAddLoading(true);
                         $.post(categoryCrudUrl, { action: 'update', category_id: id, category_name: name }).done(res => {
                             if (!res.ok) return showToast('error', res.message || 'Could not rename category.');
 
@@ -1904,10 +1877,14 @@ try {
 
                             showToast('success', 'Category renamed.');
                             resetFilterCategoryRow();
-                        }).fail(() => showToast('error', 'Could not rename category.'));
+                        }).fail(() => {
+                            showToast('error', 'Could not rename category.');
+                            setFilterAddLoading(false);
+                        });
                         return;
                     }
 
+                    setFilterAddLoading(true);
                     $.post(categoryCrudUrl, { action: 'add', category_name: name }).done(res => {
                         if (!res.ok) return showToast('error', res.message || 'Could not add category.');
 
@@ -1940,7 +1917,10 @@ try {
 
                         resetFilterCategoryRow();
                         showToast('success', 'Category added.');
-                    }).fail(() => showToast('error', 'Could not add category.'));
+                    }).fail(() => {
+                        showToast('error', 'Could not add category.');
+                        setFilterAddLoading(false);
+                    });
                 });
 
                 function exitInlineCategoryEdit($row, restoreText = true) {
@@ -2013,8 +1993,10 @@ try {
 
                 $filterCatPanel.on('click', '.filter-category-inline-cancel', function (e) {
                     e.stopPropagation();
-                    const $row = $(this).closest('.filter-category-row');
-                    exitInlineCategoryEdit($row, true);
+                    const $btn = $(this);
+                    const $row = $btn.closest('.filter-category-row');
+                    setMiniBtnLoading($btn, true);
+                    setTimeout(() => exitInlineCategoryEdit($row, true), 150);
                 });
 
                 function saveInlineCategoryEdit($row) {
@@ -2031,13 +2013,16 @@ try {
                         return showToast('error', 'A category with this name already exists.');
                     }
 
+                    const $saveBtn = $row.find('.filter-category-inline-save').first();
+                    setRowActionsLoading($row, true, $saveBtn);
                     $.post(categoryCrudUrl, { action: 'update', category_id: idStr, category_name: nextName }).done(res => {
                         if (!res.ok) return showToast('error', res.message || 'Could not rename category.');
                         const updated = String(res.category_name || nextName).trim();
                         applyCategoryRenameEverywhere(idStr, updated);
                         showToast('success', 'Category renamed.');
                         exitInlineCategoryEdit($row, false);
-                    }).fail(() => showToast('error', 'Could not rename category.'));
+                    }).fail(() => showToast('error', 'Could not rename category.'))
+                        .always(() => setRowActionsLoading($row, false, $saveBtn));
                 }
 
                 $filterCatPanel.on('click', '.filter-category-inline-save', function (e) {
@@ -2064,18 +2049,24 @@ try {
 
                 $filterCatPanel.on('click', '.filter-category-cancel', function (e) {
                     e.stopPropagation();
-                    const $row = $(this).closest('.filter-category-row');
-                    $row.attr('data-confirming', '0');
-                    $row.find('.filter-category-actions').html(
-                        '<button type="button" class="filter-category-rename h-7 w-7 inline-flex items-center justify-center rounded-md bg-white border border-slate-100 shadow-sm text-slate-500 hover:bg-slate-50 hover:text-slate-700 transition-colors" title="Rename"><i class="fa-solid fa-pen text-[10px]"></i></button>' +
-                        '<button type="button" class="filter-category-delete h-7 w-7 inline-flex items-center justify-center rounded-md bg-white border border-slate-100 shadow-sm text-red-500 hover:bg-red-50 hover:text-red-700 transition-colors" title="Delete"><i class="fa-solid fa-trash-can text-[10px]"></i></button>'
-                    );
+                    const $btn = $(this);
+                    const $row = $btn.closest('.filter-category-row');
+                    setMiniBtnLoading($btn, true);
+                    setTimeout(() => {
+                        $row.attr('data-confirming', '0');
+                        $row.find('.filter-category-actions').html(
+                            '<button type="button" class="filter-category-rename h-7 w-7 inline-flex items-center justify-center rounded-md bg-white border border-slate-100 shadow-sm text-slate-500 hover:bg-slate-50 hover:text-slate-700 transition-colors" title="Rename"><i class="fa-solid fa-pen text-[10px]"></i></button>' +
+                            '<button type="button" class="filter-category-delete h-7 w-7 inline-flex items-center justify-center rounded-md bg-white border border-slate-100 shadow-sm text-red-500 hover:bg-red-50 hover:text-red-700 transition-colors" title="Delete"><i class="fa-solid fa-trash-can text-[10px]"></i></button>'
+                        );
+                    }, 150);
                 });
 
                 $filterCatPanel.on('click', '.filter-category-confirm', function (e) {
                     e.stopPropagation();
                     const $row = $(this).closest('.filter-category-row');
                     const id = String($row.attr('data-id'));
+                    const $confirmBtn = $(this);
+                    setRowActionsLoading($row, true, $confirmBtn);
                     $.post(categoryCrudUrl, { action: 'delete', category_id: id }).done(res => {
                         if (!res.ok) {
                             showToast('error', res.message || 'Could not remove category.');
@@ -2100,7 +2091,7 @@ try {
                     }).fail(() => {
                         showToast('error', 'Could not remove category.');
                         $row.find('.filter-category-cancel').click();
-                    });
+                    }).always(() => setRowActionsLoading($row, false, $confirmBtn));
                 });
             }
 

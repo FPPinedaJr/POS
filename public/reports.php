@@ -164,24 +164,72 @@ if (!isset($_SESSION['user_id'])) {
                         return;
                     }
 
-                    let grandTotal = res.data.reduce((sum, txn) => sum + parseFloat(txn.total), 0);
+                    // Calculate Subtotals
+                    let grandTotal = 0;
+                    let totalCash = 0;
+                    let totalGCash = 0;
+                    let totalCredit = 0;
+
+                    res.data.forEach(txn => {
+                        let amount = parseFloat(txn.total);
+                        grandTotal += amount;
+
+                        if (txn.is_unpaid) {
+                            totalCredit += amount;
+                        } else if (txn.is_gcash) {
+                            totalGCash += amount;
+                        } else {
+                            totalCash += amount;
+                        }
+                    });
+
                     let totalTransactions = res.data.length;
 
                     let summaryHtml = `
-                    <div class="bg-emerald-50/50 border border-emerald-100 rounded-[1.5rem] p-6 mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-sm">
+                    <div class="bg-white border border-slate-200 rounded-[1.25rem] p-5 sm:p-6 mb-6 shadow-sm flex flex-col lg:flex-row lg:items-center justify-between gap-5">
+                        
                         <div class="flex items-center gap-4">
-                            <div class="h-12 w-12 rounded-full bg-white border border-emerald-100 flex items-center justify-center text-emerald-500 shadow-sm shrink-0">
-                                <i class="fa-solid fa-chart-line text-xl"></i>
+                            <div class="h-11 w-11 rounded-full bg-emerald-50 border border-emerald-100 flex items-center justify-center text-emerald-500 shadow-sm shrink-0">
+                                <i class="fa-solid fa-chart-line text-lg"></i>
                             </div>
                             <div>
-                                <h3 class="text-[10px] font-black text-emerald-500 uppercase tracking-widest">Period Summary</h3>
-                                <p class="text-sm font-bold text-slate-700">${totalTransactions} Transaction${totalTransactions !== 1 ? 's' : ''}</p>
+                                <h3 class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-0.5">Total Gross Sales</h3>
+                                <div class="flex items-baseline gap-2">
+                                    <p class="text-2xl sm:text-3xl font-black text-slate-800 leading-none">${formatMoney(grandTotal)}</p>
+                                    <span class="text-[10px] font-bold text-slate-400"> from ${totalTransactions} transactions</span>
+                                </div>
                             </div>
                         </div>
-                        <div class="text-left sm:text-right border-t border-emerald-100 sm:border-0 pt-4 sm:pt-0 mt-2 sm:mt-0">
-                            <h3 class="text-[10px] font-black text-emerald-500 uppercase tracking-widest mb-0.5">Total Sales</h3>
-                            <p class="text-3xl font-black text-emerald-600">${formatMoney(grandTotal)}</p>
+
+                        <div class="flex flex-row items-center justify-between sm:justify-start gap-4 sm:gap-6 text-xs font-bold border-t lg:border-t-0 border-slate-100 pt-4 lg:pt-0">
+                            
+                            <div class="flex flex-col gap-1">
+                                <span class="text-[9px] uppercase tracking-widest text-slate-400 flex items-center gap-1.5">
+                                    <i class="fa-solid fa-money-bill-wave text-emerald-400"></i> Cash
+                                </span>
+                                <span class="text-sm text-slate-700">${formatMoney(totalCash)}</span>
+                            </div>
+                            
+                            <div class="w-px h-6 bg-slate-200 hidden sm:block"></div>
+                            
+                            <div class="flex flex-col gap-1">
+                                <span class="text-[9px] uppercase tracking-widest text-slate-400 flex items-center gap-1.5">
+                                    <i class="fa-solid fa-mobile-screen text-blue-400"></i> GCash
+                                </span>
+                                <span class="text-sm text-slate-700">${formatMoney(totalGCash)}</span>
+                            </div>
+                            
+                            <div class="w-px h-6 bg-slate-200 hidden sm:block"></div>
+                            
+                            <div class="flex flex-col gap-1">
+                                <span class="text-[9px] uppercase tracking-widest text-slate-400 flex items-center gap-1.5">
+                                    <i class="fa-solid fa-clock text-rose-400"></i> Credit
+                                </span>
+                                <span class="text-sm text-slate-700">${formatMoney(totalCredit)}</span>
+                            </div>
+
                         </div>
+                        
                     </div>`;
                     $container.append(summaryHtml);
 
@@ -197,6 +245,11 @@ if (!isset($_SESSION['user_id'])) {
                         let borderLeft = '';
                         let customerHtml = '';
                         let statusHtml = '';
+
+                        // Handle GCash Badge Logic
+                        let methodBadge = txn.is_gcash
+                            ? `<div class="bg-blue-50 text-blue-600 px-2 py-1 text-[10px] font-bold border-l border-emerald-100">GCash</div>`
+                            : `<div class="bg-emerald-50/40 text-emerald-600 px-2 py-1 text-[10px] font-bold border-l border-emerald-100">Cash</div>`;
 
                         if (txn.is_unpaid) {
                             borderLeft = 'border-l-rose-400';
@@ -220,6 +273,7 @@ if (!isset($_SESSION['user_id'])) {
                             statusHtml = `
                             <div class="inline-flex items-center border border-emerald-100 rounded-md overflow-hidden shadow-sm">
                                 <div class="bg-emerald-50 text-emerald-600 px-2 py-1 text-[10px] font-bold flex items-center gap-1.5"><i class="fa-solid fa-check"></i> Paid</div>
+                                ${methodBadge}
                                 <div class="bg-slate-50 text-slate-500 px-2 py-1 text-[10px] font-semibold border-l border-emerald-100">${txn.settle_date}</div>
                             </div>`;
                         } else {
@@ -231,7 +285,7 @@ if (!isset($_SESSION['user_id'])) {
                             statusHtml = `
                             <div class="inline-flex items-center border border-emerald-100 rounded-md overflow-hidden shadow-sm">
                                 <div class="bg-emerald-50 text-emerald-600 px-2 py-1 text-[10px] font-bold flex items-center gap-1.5"><i class="fa-solid fa-check-double"></i> Paid</div>
-                                <div class="bg-emerald-50/40 text-emerald-500 px-2 py-1 text-[10px] font-semibold border-l border-emerald-100">Cash</div>
+                                ${methodBadge}
                             </div>`;
                         }
 
