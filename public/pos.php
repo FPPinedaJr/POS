@@ -201,7 +201,7 @@ try {
                             <div class="flex flex-col">
                                 <span class="text-xs font-bold text-slate-800">Retail</span>
                                 <span id="item-select-retail"
-                                    class="text-[11px] font-semibold text-slate-500">₱0.00</span>
+                                    class="text-[11px] font-semibold text-slate-500">₱ 0.00</span>
                             </div>
                         </label>
 
@@ -215,7 +215,7 @@ try {
                             <div class="flex flex-col">
                                 <span class="text-xs font-bold text-slate-800">Wholesale</span>
                                 <span id="item-select-wholesale"
-                                    class="text-[11px] font-semibold text-slate-500">₱0.00</span>
+                                    class="text-[11px] font-semibold text-slate-500">₱ 0.00</span>
                             </div>
                         </label>
                     </div>
@@ -224,7 +224,7 @@ try {
                 <div
                     class="mt-2 rounded-2xl border border-slate-100 bg-slate-50 px-4 py-3 flex justify-between items-center">
                     <div class="text-xs font-bold text-slate-500 uppercase tracking-[0.2em]">Total</div>
-                    <div id="item-select-total" class="text-2xl font-black text-slate-900">₱0.00</div>
+                    <div id="item-select-total" class="text-2xl font-black text-slate-900">₱ 0.00</div>
                 </div>
             </div>
 
@@ -248,7 +248,7 @@ try {
             id="floating-checkout-count">0</span>
         <div class="flex flex-col items-start leading-tight">
             <span>Checkout</span>
-            <span class="text-[11px] font-semibold text-teal-100" id="floating-checkout-total">₱0.00</span>
+            <span class="text-[11px] font-semibold text-teal-100" id="floating-checkout-total">₱ 0.00</span>
         </div>
     </button>
 
@@ -300,7 +300,7 @@ try {
                     </div>
                     <div class="flex justify-between items-center">
                         <span class="text-sm font-bold text-slate-500">Order Total</span>
-                        <span class="text-2xl font-black text-slate-900" id="co-total-1">₱0.00</span>
+                        <span class="text-2xl font-black text-slate-900" id="co-total-1">₱ 0.00</span>
                     </div>
                     <p class="text-xs text-slate-400 font-medium">
                         You can still go back to the main screen to adjust quantities before checking out.
@@ -339,7 +339,7 @@ try {
 
                     <div class="mt-4 rounded-2xl border border-slate-100 bg-slate-50 px-4 py-3 flex justify-between items-center">
                         <div class="text-xs font-bold text-slate-500 uppercase tracking-[0.2em]">Total Amount</div>
-                        <div class="text-2xl font-black text-slate-900" id="co-total-2">₱0.00</div>
+                        <div class="text-2xl font-black text-slate-900" id="co-total-2">₱ 0.00</div>
                     </div>
                     <div id="co-credit-name-wrapper" class="hidden space-y-2">
                         <label class="block text-xs font-bold text-slate-500 uppercase tracking-[0.2em]">
@@ -538,7 +538,7 @@ try {
                             </div>
                             <div class="p-3 flex-1 flex flex-col justify-center">
                                 <h3 class="text-sm font-bold text-slate-800 truncate group-hover:text-teal-700 transition-colors">${item.item_name}</h3>
-                                <p class="text-sm font-semibold text-teal-700 mt-0.5">₱${parseFloat(item.retail_price).toFixed(2)}</p>
+                                <p class="text-sm font-semibold text-teal-700 mt-0.5">₱ ${parseFloat(item.retail_price).toFixed(2)}</p>
                             </div>
                         </div>
                     `);
@@ -639,10 +639,10 @@ try {
                             <div class="cart-item bg-white p-3 rounded-xl border border-slate-200 shadow-sm flex flex-col gap-2">
                                 <div class="flex justify-between items-start">
                                     <span class="text-sm font-bold text-slate-800 line-clamp-2">${item.name}</span>
-                                    <span class="text-sm font-black text-teal-700">₱${subtotal.toFixed(2)}</span>
+                                    <span class="text-sm font-black text-teal-700">₱ ${subtotal.toFixed(2)}</span>
                                 </div>
                                 <div class="flex justify-between items-center">
-                                    <p class="text-[10px] font-bold text-slate-400">₱${item.price.toFixed(2)} each</p>
+                                    <p class="text-[10px] font-bold text-slate-400">₱ ${item.price.toFixed(2)} each</p>
                                     <div class="flex items-center gap-2 bg-slate-50 rounded-lg p-1 border border-slate-200">
                                         <button class="cart-action w-6 h-6 flex items-center justify-center rounded-md text-slate-500 hover:bg-white hover:text-red-500 hover:shadow-sm transition-all" data-id="${item.id}" data-action="decrease"><i class="fa-solid fa-minus text-[10px]"></i></button>
                                         <span class="text-xs font-black w-4 text-center">${item.qty}</span>
@@ -654,7 +654,7 @@ try {
                     });
                 }
 
-                $('#cart-subtotal, #cart-total').text('₱' + total.toFixed(2));
+                $('#cart-subtotal, #cart-total').text('₱ ' + total.toFixed(2));
 
                 // Update floating checkout button
                 if (cart.length === 0) {
@@ -662,7 +662,7 @@ try {
                 } else {
                     $('#floating-checkout').removeClass('hidden');
                     $('#floating-checkout-count').text(cart.length);
-                    $('#floating-checkout-total').text('₱' + total.toFixed(2));
+                    $('#floating-checkout-total').text('₱ ' + total.toFixed(2));
                 }
 
                 // If checkout wizard is open, re-render step 1 list & totals to stay in sync
@@ -690,7 +690,7 @@ try {
                                     </div>
                                     <div class="min-w-0">
                                         <p class="text-slate-800 font-semibold truncate">${item.name}</p>
-                                        <p class="text-[11px] text-slate-400 font-medium truncate">₱${item.price.toFixed(2)} each</p>
+                                        <p class="text-[11px] text-slate-400 font-medium truncate">₱ ${item.price.toFixed(2)} each</p>
                                     </div>
                                 </div>
                                 <div class="flex items-center gap-3">
@@ -711,14 +711,14 @@ try {
                                             <i class="fa-solid fa-plus text-[11px]"></i>
                                         </button>
                                     </div>
-                                    <span class="text-sm font-black text-slate-900 min-w-[80px] text-right">₱${subtotal.toFixed(2)}</span>
+                                    <span class="text-sm font-black text-slate-900 min-w-[80px] text-right">₱ ${subtotal.toFixed(2)}</span>
                                 </div>
                             </div>
                         `);
                     });
 
                     checkoutTotal = wizardTotal;
-                    $('#co-total-1, #co-total-2').text('₱' + wizardTotal.toFixed(2));
+                    $('#co-total-1, #co-total-2').text('₱ ' + wizardTotal.toFixed(2));
                 }
             }
 
@@ -735,7 +735,7 @@ try {
                     : selectedItemForCart.retailPrice;
 
                 const total = qty * unitPrice;
-                $('#item-select-total').text('₱' + total.toFixed(2));
+                $('#item-select-total').text('₱ ' + total.toFixed(2));
 
                 // Reset base styles
                 $('.price-option-retail')
@@ -801,8 +801,8 @@ try {
                 $('#item-select-stock').text('In stock: ' + maxStock);
                 $('#item-select-qty').val(1).attr({ min: 1, max: maxStock });
                 $('#item-select-qty-hint').text('Maximum available: ' + maxStock);
-                $('#item-select-retail').text('₱' + (retailPrice || 0).toFixed(2));
-                $('#item-select-wholesale').text('₱' + (wholesalePrice || 0).toFixed(2));
+                $('#item-select-retail').text('₱ ' + (retailPrice || 0).toFixed(2));
+                $('#item-select-wholesale').text('₱ ' + (wholesalePrice || 0).toFixed(2));
 
                 // Default price selection: retail (or wholesale if retail is 0 and wholesale > 0)
                 let defaultType = 'retail';
@@ -1009,7 +1009,7 @@ try {
                                 </div>
                                 <div class="min-w-0">
                                     <p class="text-slate-800 font-semibold truncate">${item.name}</p>
-                                    <p class="text-[11px] text-slate-400 font-medium truncate">₱${item.price.toFixed(2)} each</p>
+                                    <p class="text-[11px] text-slate-400 font-medium truncate">₱ ${item.price.toFixed(2)} each</p>
                                 </div>
                             </div>
                             <div class="flex items-center gap-3">
@@ -1030,14 +1030,14 @@ try {
                                         <i class="fa-solid fa-plus text-[11px]"></i>
                                     </button>
                                 </div>
-                                <span class="text-sm font-black text-slate-900 min-w-[80px] text-right">₱${subtotal.toFixed(2)}</span>
+                                <span class="text-sm font-black text-slate-900 min-w-[80px] text-right">₱ ${subtotal.toFixed(2)}</span>
                             </div>
                         </div>
                     `);
                 });
 
                 checkoutTotal = total;
-                $('#co-total-1, #co-total-2').text('₱' + total.toFixed(2));
+                $('#co-total-1, #co-total-2').text('₱ ' + total.toFixed(2));
 
                 // Reset step 2 fields (payment type)
                 $('input[name="co-payment"][value="cash"]').prop('checked', true);
@@ -1286,7 +1286,7 @@ try {
                                     ${itemsSummary ? `<p class="text-xs text-slate-500 leading-snug">${itemsSummary}</p>` : ''}
                                 </div>
                                 <div class="flex flex-col items-end gap-2">
-                                    <p class="text-lg font-black text-slate-900">₱${parseFloat(t.total_amount).toFixed(2)}</p>
+                                    <p class="text-lg font-black text-slate-900">₱ ${parseFloat(t.total_amount).toFixed(2)}</p>
                                     ${isVoided
                                         ? ''
                                         : `<button 
