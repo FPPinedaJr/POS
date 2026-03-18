@@ -238,7 +238,7 @@ try {
 
     <!-- Floating checkout button (appears when cart has items) -->
     <button id="floating-checkout"
-        class="hidden fixed bottom-4 right-4 z-40 bg-teal-600 hover:bg-teal-700 text-white rounded-full shadow-xl shadow-teal-300 px-5 py-3 flex items-center gap-3 text-sm font-black tracking-widest uppercase cursor-pointer">
+        class="hidden fixed bottom-4 right-4 z-40 bg-teal-600 hover:bg-teal-700 text-white rounded-full shadow-lg shadow-teal-200/80 px-5 py-3 flex items-center gap-3 text-sm font-black tracking-widest uppercase cursor-pointer">
         <span class="inline-flex items-center justify-center h-7 w-7 rounded-full bg-white/10 border border-white/30 text-[11px]"
             id="floating-checkout-count">0</span>
         <div class="flex flex-col items-start leading-tight">
