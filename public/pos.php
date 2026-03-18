@@ -110,37 +110,42 @@ try {
             </div>
         <?php endif; ?>
 
-        <div class="flex-1 flex overflow-hidden">
+        <div class="flex-1 flex min-h-0">
 
-            <main class="flex-1 flex flex-col h-full relative z-10">
+            <main class="flex-1 flex flex-col h-full relative z-10 min-h-0">
 
-                <div class="flex-1 overflow-y-auto pb-6">
-                    <div class="bg-white/60 backdrop-blur-xl border border-white rounded-3xl shadow-xl shadow-slate-200/40 p-4 sm:p-5">
-                        <div class="flex items-center justify-between gap-3 mb-4">
-                            <div>
-                                <h2 class="text-lg sm:text-xl font-black text-slate-900 tracking-tight">Products</h2>
-                                <p class="text-xs sm:text-sm text-slate-500 font-medium mt-0.5">Tap an item to add it to the order.</p>
+                <div class="flex-1 pb-6 overflow-hidden min-h-0">
+                    <div
+                        class="bg-white/60 backdrop-blur-xl border border-white rounded-none shadow-xl shadow-slate-200/40 p-0 sm:p-0 overflow-hidden h-full flex flex-col min-h-0">
+                        <div class="flex-1 overflow-y-auto pos-scroll min-h-0">
+                            <div id="pos-products-header"
+                                class="sticky top-0 z-20 px-4 sm:px-5 py-4 bg-white/95 backdrop-blur-md border-b border-slate-200 flex items-center justify-between gap-3">
+                                <div class="space-y-1">
+                                    <h2 class="text-lg sm:text-xl font-black text-slate-900 tracking-tight">Products</h2>
+                                    <p class="text-xs sm:text-sm text-slate-500 font-medium leading-snug">Tap an item to add it to the order.</p>
+                                </div>
+                            </div>
+
+                            <div class="px-4 sm:px-5 pt-3 pb-5">
+                                <div id="pos-item-grid" class="space-y-4 sm:space-y-5">
+                                </div>
+                                <div id="pos-loading"
+                                    class="hidden text-center py-10 text-slate-400 font-bold uppercase tracking-widest text-sm">
+                                    <i class="fa-solid fa-spinner fa-spin mr-2"></i> Loading Items...
+                                </div>
+                                <div id="pos-no-results" class="hidden text-center py-12">
+                                    <i class="fa-solid fa-box-open text-4xl text-slate-300 mb-4"></i>
+                                    <h3 class="text-lg font-black text-slate-700">No items found</h3>
+                                    <p class="text-sm text-slate-500 font-medium">Try a different search term.</p>
+                                </div>
                             </div>
                         </div>
-
-                        <div id="pos-item-grid"
-                            class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-3 sm:gap-4">
-                        </div>
-                <div id="pos-loading"
-                    class="hidden text-center py-10 text-slate-400 font-bold uppercase tracking-widest text-sm">
-                    <i class="fa-solid fa-spinner fa-spin mr-2"></i> Loading Items...
-                </div>
-                <div id="pos-no-results" class="hidden text-center py-12">
-                    <i class="fa-solid fa-box-open text-4xl text-slate-300 mb-4"></i>
-                    <h3 class="text-lg font-black text-slate-700">No items found</h3>
-                    <p class="text-sm text-slate-500 font-medium">Try a different search term.</p>
-                </div>
                     </div>
-            </div>
-        </main>
+                </div>
+            </main>
 
-        <!-- Current Order / Cart container temporarily removed for later modification -->
-    </div>
+            <!-- Current Order / Cart container temporarily removed for later modification -->
+        </div>
     </div>
 
     <!-- Item quantity & price selection modal -->
@@ -201,11 +206,11 @@ try {
                         </label>
 
                         <label
-                            class="price-option-wholesale flex items-center gap-2 px-3 py-2 rounded-xl border border-slate-200 cursor-pointer hover:border-emerald-400 hover:bg-emerald-50/40">
+                            class="price-option-wholesale flex items-center gap-2 px-3 py-2 rounded-xl border border-slate-200 cursor-pointer hover:border-amber-400 hover:bg-amber-50/40">
                             <input type="radio" name="item-select-price" value="wholesale" class="hidden">
                             <div
                                 class="h-4 w-4 rounded-full border border-slate-300 flex items-center justify-center">
-                                <span class="dot h-2 w-2 rounded-full bg-emerald-500 hidden"></span>
+                                <span class="dot h-2 w-2 rounded-full bg-amber-500 hidden"></span>
                             </div>
                             <div class="flex flex-col">
                                 <span class="text-xs font-bold text-slate-800">Wholesale</span>
@@ -229,7 +234,7 @@ try {
                     Cancel
                 </button>
                 <button id="item-select-add"
-                    class="px-4 py-2 rounded-xl bg-teal-600 hover:bg-teal-700 text-white text-sm font-black tracking-[0.2em] uppercase shadow-md shadow-teal-200 cursor-pointer">
+                    class="px-4 py-2 rounded-xl bg-teal-500 hover:bg-teal-600 text-white text-sm font-black tracking-[0.2em] uppercase shadow-md shadow-teal-200 cursor-pointer">
                     Add to Order
                 </button>
             </div>
@@ -238,7 +243,7 @@ try {
 
     <!-- Floating checkout button (appears when cart has items) -->
     <button id="floating-checkout"
-        class="hidden fixed bottom-4 right-4 z-40 bg-teal-600 hover:bg-teal-700 text-white rounded-full shadow-lg shadow-teal-200/80 px-5 py-3 flex items-center gap-3 text-sm font-black tracking-widest uppercase cursor-pointer">
+        class="hidden fixed bottom-4 right-4 z-40 bg-teal-500 hover:bg-teal-600 text-white rounded-full shadow-lg shadow-teal-200/80 px-5 py-3 flex items-center gap-3 text-sm font-black tracking-widest uppercase cursor-pointer">
         <span class="inline-flex items-center justify-center h-7 w-7 rounded-full bg-white/10 border border-white/30 text-[11px]"
             id="floating-checkout-count">0</span>
         <div class="flex flex-col items-start leading-tight">
@@ -350,7 +355,7 @@ try {
             <div
                 class="p-4 border-t border-slate-100 bg-slate-50/80 flex justify-end items-center gap-3 shrink-0">
                 <button id="co-next"
-                    class="px-4 py-2 rounded-xl bg-teal-600 hover:bg-teal-700 text-white text-sm font-black tracking-[0.2em] uppercase shadow-md shadow-teal-200 cursor-pointer">
+                    class="px-4 py-2 rounded-xl bg-teal-500 hover:bg-teal-600 text-white text-sm font-black tracking-[0.2em] uppercase shadow-md shadow-teal-200 cursor-pointer">
                     Next
                 </button>
                 <button id="co-confirm"
@@ -469,15 +474,52 @@ try {
 
                 $noResults.addClass('hidden');
 
-                visibleItems.forEach(item => {
+                // Sort items by name for consistent A–Z behavior
+                const sorted = [...visibleItems].sort((a, b) => {
+                    const an = (a.item_name || '').toLowerCase();
+                    const bn = (b.item_name || '').toLowerCase();
+                    return an.localeCompare(bn);
+                });
+
+                let lastInitial = null;
+                let sectionCards = [];
+
+                function flushSection(letter) {
+                    if (!letter || sectionCards.length === 0) return;
+                    const cardsHtml = sectionCards.join('');
+                    sectionCards = [];
+                    $grid.append(`
+                        <section class="pos-letter-section">
+                            <div id="pos-letter-${letter}"
+                                class="sticky top-[5.25rem] z-10 -mx-4 sm:-mx-5 px-4 sm:px-5 py-2 bg-slate-50/90 backdrop-blur-md border-b border-slate-200 flex items-center">
+                                <span class="inline-flex h-8 w-8 items-center justify-center rounded-xl bg-teal-500/15 text-teal-700 text-sm font-black shadow-sm">
+                                    ${letter}
+                                </span>
+                            </div>
+                            <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-3 sm:gap-4">
+                                ${cardsHtml}
+                            </div>
+                        </section>
+                    `);
+                }
+
+                sorted.forEach(item => {
+                    const name = item.item_name || '';
+                    const rawInitial = name.charAt(0).toUpperCase();
+                    const initial = /^[A-Z]$/.test(rawInitial) ? rawInitial : '#';
+
+                    if (initial !== lastInitial) {
+                        flushSection(lastInitial);
+                        lastInitial = initial;
+                    }
+
                     const imgSrc = item.image_thumb_path ? item.image_thumb_path : 'assets/images/placeholder.png';
-                    const initial = item.item_name.charAt(0).toUpperCase();
 
                     const imageHtml = item.image_thumb_path
                         ? `<img src="${imgSrc}" class="w-full h-full object-cover" loading="lazy">`
                         : `<div class="w-full h-full flex items-center justify-center bg-slate-200 text-slate-400 font-black text-2xl">${initial}</div>`;
 
-                    const card = `
+                    sectionCards.push(`
                         <div class="pos-item-card bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden cursor-pointer hover:shadow-md hover:border-teal-200 transition-all active:scale-95 group flex flex-col"
                              data-id="${item.item_id}" 
                              data-name="${item.item_name}" 
@@ -488,7 +530,7 @@ try {
                             <div class="aspect-square w-full bg-slate-50 relative shrink-0">
                                 ${imageHtml}
                                 ${parseInt(item.item_count, 10) > 0
-                                    ? `<div class="absolute top-2 right-2 bg-white/90 backdrop-blur-sm px-2 py-1 rounded-lg text[10px] font-black text-slate-700 shadow-sm">
+                                    ? `<div class="absolute top-2 right-2 bg-white/90 backdrop-blur-sm px-2 py-1 rounded-lg text-[10px] font-black text-slate-700 shadow-sm">
                                             Qty: ${item.item_count}
                                        </div>`
                                     : ''
@@ -496,12 +538,13 @@ try {
                             </div>
                             <div class="p-3 flex-1 flex flex-col justify-center">
                                 <h3 class="text-sm font-bold text-slate-800 truncate group-hover:text-teal-700 transition-colors">${item.item_name}</h3>
-                                <p class="text-xs font-black text-teal-600 mt-1">₱${parseFloat(item.retail_price).toFixed(2)}</p>
+                                <p class="text-sm font-semibold text-teal-700 mt-0.5">₱${parseFloat(item.retail_price).toFixed(2)}</p>
                             </div>
                         </div>
-                    `;
-                    $grid.append(card);
+                    `);
                 });
+
+                flushSection(lastInitial);
             }
 
             function applySearchFilter() {
@@ -518,6 +561,7 @@ try {
 
                 renderItems(filtered);
             }
+
 
             function loadPosItems() {
                 // Items are preloaded server-side; just render them.
@@ -556,6 +600,7 @@ try {
                     applySearchFilter();
                 }, 200);
             });
+
 
             loadPosItems();
             // Initial sync after load (in case stocks changed since render)
@@ -697,10 +742,10 @@ try {
                     .removeClass('bg-teal-50 border-teal-400')
                     .addClass('bg-white border-slate-200');
                 $('.price-option-wholesale')
-                    .removeClass('bg-emerald-50 border-emerald-400')
+                    .removeClass('bg-amber-50 border-amber-400')
                     .addClass('bg-white border-slate-200');
                 $('#item-select-total')
-                    .removeClass('text-teal-500 text-emerald-500')
+                    .removeClass('text-teal-500 text-amber-500')
                     .addClass('text-slate-900');
 
                 // Highlight selected price option + total color
@@ -709,10 +754,10 @@ try {
                     $('.price-option-wholesale .dot').removeClass('hidden');
                     $('.price-option-wholesale')
                         .removeClass('bg-white border-slate-200')
-                        .addClass('bg-emerald-50 border-emerald-400');
+                        .addClass('bg-amber-50 border-amber-400');
                     $('#item-select-total')
                         .removeClass('text-slate-900')
-                        .addClass('text-emerald-500');
+                        .addClass('text-amber-500');
                 } else {
                     $('.price-option-retail .dot').removeClass('hidden');
                     $('.price-option-retail')
