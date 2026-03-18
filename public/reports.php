@@ -237,11 +237,18 @@ if (!isset($_SESSION['user_id'])) {
 
                         let itemsHtml = '';
                         txn.items.forEach(item => {
+                            const wholesaleBadge = item.is_wholesale
+                                ? `<span class="ml-2 px-1.5 py-0.5 bg-amber-100 text-amber-700 text-[8px] font-medium rounded-full uppercase tracking-widest shrink-0 shadow-sm border border-amber-200/50">Wholesale</span>`
+                                : '';
+
                             itemsHtml += `
                             <li class="flex items-center justify-between py-1.5 border-b border-slate-100/50 last:border-0">
-                                <div class="flex items-center gap-2 overflow-hidden pr-2">
+                                <div class="flex items-center gap-2 pr-2">
                                     <span class="text-fuchsia-600 font-bold shrink-0">${item.qty}x</span>
-                                    <span class="text-slate-700 font-medium truncate">${item.name}</span>
+                                    <div class="flex items-center">
+                                        <span class="text-slate-700 font-medium truncate">${item.name}</span>
+                                        ${wholesaleBadge}
+                                    </div>
                                 </div>
                                 <div class="flex items-center gap-2 shrink-0 text-right text-[10px]">
                                     <span class="text-slate-400 font-medium">@ ${formatMoney(item.price)}</span>
@@ -251,7 +258,6 @@ if (!isset($_SESSION['user_id'])) {
                             </li>`;
                         });
 
-                        // Fixed BUG: tileHtml is now generated correctly for Mobile
                         let tileHtml = `
                         <div class="bg-white border border-slate-200 rounded-[1rem] shadow-sm mb-3 overflow-hidden transition-all duration-200 border-l-4 ${borderLeft}">
                             <div class="sales-row-trigger flex flex-col sm:flex-row sm:items-center justify-between p-4 sm:p-3.5 cursor-pointer hover:bg-slate-50 transition-colors group gap-3 sm:gap-0">

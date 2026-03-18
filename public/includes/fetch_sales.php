@@ -9,7 +9,7 @@ if (!isset($_SESSION['user_id'])) {
     exit;
 }
 
-$userId = (int)$_SESSION['user_id'];
+$userId = (int) $_SESSION['user_id'];
 $startDate = $_POST['start_date'] ?? date('Y-m-d', strtotime('-30 days'));
 $endDate = $_POST['end_date'] ?? date('Y-m-d');
 
@@ -25,6 +25,7 @@ try {
             th.created_at,
             ti.quantity, 
             ti.unit_price_at_sale,
+            ti.is_wholesale, 
             i.item_name
         FROM transaction_header th
         LEFT JOIN transaction_item ti ON th.transaction_uuid = ti.transaction_uuid
@@ -47,14 +48,14 @@ try {
     $transactions = [];
     foreach ($results as $row) {
         $uuid = $row['transaction_uuid'];
-        
+
         if (!isset($transactions[$uuid])) {
             $transactions[$uuid] = [
                 'uuid' => $uuid,
                 'number' => $row['transaction_number'],
                 'customer' => !empty($row['customer']) ? $row['customer'] : 'Walk-in Customer',
-                'total' => (float)$row['total_amount'],
-                'is_unpaid' => (int)$row['is_unpaid'] === 1,
+                'total' => (float) $row['total_amount'],
+                'is_unpaid' => (int) $row['is_unpaid'] === 1,
                 'created_at' => date('M d, Y', strtotime($row['created_at'])),
                 'settle_date' => $row['settle_date'] ? date('M d, Y', strtotime($row['settle_date'])) : null,
                 'items' => []
@@ -62,18 +63,19 @@ try {
         }
 
         if (!empty($row['item_name'])) {
-            $subtotal = (int)$row['quantity'] * (float)$row['unit_price_at_sale'];
+            $subtotal = (int) $row['quantity'] * (float) $row['unit_price_at_sale'];
             $transactions[$uuid]['items'][] = [
                 'name' => $row['item_name'],
-                'qty' => (int)$row['quantity'],
-                'price' => (float)$row['unit_price_at_sale'],
-                'subtotal' => $subtotal
+                'qty' => (int) $row['quantity'],
+                'price' => (float) $row['unit_price_at_sale'],
+                'subtotal' => $subtotal,
+                'is_wholesale' => (bool) $row['is_wholesale'] 
             ];
         }
     }
 
     echo json_encode([
-        'success' => true, 
+        'success' => true,
         'data' => array_values($transactions)
     ]);
 
