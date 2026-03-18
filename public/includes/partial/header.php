@@ -1,6 +1,26 @@
 <?php
 // Get the name of the current file (e.g., 'portal.php' or 'inventory.php')
 $currentPage = basename($_SERVER['PHP_SELF']);
+
+// Theme accents per page (matches portal action colors)
+$theme = 'indigo';
+if ($currentPage === 'pos.php') {
+    $theme = 'teal';
+} elseif ($currentPage === 'inventory.php') {
+    $theme = 'indigo';
+} elseif ($currentPage === 'reports.php' || $currentPage === 'analytics.php') {
+    $theme = 'fuchsia';
+}
+
+$ringClass = $theme === 'teal'
+    ? 'hover:ring-teal-500/10'
+    : ($theme === 'fuchsia' ? 'hover:ring-fuchsia-500/10' : 'hover:ring-indigo-500/10');
+$hoverTextClass = $theme === 'teal'
+    ? 'hover:text-teal-600'
+    : ($theme === 'fuchsia' ? 'hover:text-fuchsia-600' : 'hover:text-indigo-600');
+$iconClass = $theme === 'teal'
+    ? 'text-teal-400'
+    : ($theme === 'fuchsia' ? 'text-fuchsia-400' : 'text-indigo-400');
 ?>
 
 <header class="bg-white/70 backdrop-blur-xl border-b border-white sticky top-0 z-40 shadow-sm shadow-slate-200/50">
@@ -27,7 +47,7 @@ $currentPage = basename($_SERVER['PHP_SELF']);
                 <?php if ($currentPage === 'inventory.php'): ?>
                     <div class="relative">
                         <button id="stock-notif-btn" type="button"
-                            class="flex items-center justify-center p-1 rounded-full hover:cursor-pointer hover:ring-4 hover:ring-indigo-500/10 transition-all focus:outline-none shadow-sm bg-white/50">
+                            class="flex items-center justify-center p-1 rounded-full hover:cursor-pointer hover:ring-4 <?php echo $ringClass; ?> transition-all focus:outline-none shadow-sm bg-white/50">
                             <span
                                 class="h-9 w-9 flex items-center justify-center text-slate-900">
                                 <i class="fa-solid fa-bell text-sm"></i>
@@ -100,7 +120,7 @@ $currentPage = basename($_SERVER['PHP_SELF']);
 
                 <div class="relative ml-2">
                     <button id="profileTrigger"
-                        class="flex items-center justify-center p-1 rounded-full hover:cursor-pointer hover:ring-4 hover:ring-indigo-500/10 transition-all focus:outline-none shadow-sm bg-white/50">
+                        class="flex items-center justify-center p-1 rounded-full hover:cursor-pointer hover:ring-4 <?php echo $ringClass; ?> transition-all focus:outline-none shadow-sm bg-white/50">
                         <img class="h-9 w-9 rounded-full object-cover border-2 border-white"
                             src="<?php echo htmlspecialchars($_SESSION['user_picture']); ?>" alt="User">
                     </button>
@@ -124,7 +144,7 @@ $currentPage = basename($_SERVER['PHP_SELF']);
 
                             <?php if (empty($_SESSION['google_id'])): ?>
                                 <button id="openPassModal"
-                                    class="mt-4 px-6 py-2 border hover:cursor-pointer border-slate-200 bg-white/80 rounded-full text-sm font-semibold text-slate-700 hover:text-indigo-600 hover:bg-white hover:border-indigo-200 hover:shadow-md transition-all z-10">
+                                    class="mt-4 px-6 py-2 border hover:cursor-pointer border-slate-200 bg-white/80 rounded-full text-sm font-semibold text-slate-700 hover:bg-white hover:shadow-md transition-all z-10 <?php echo $hoverTextClass; ?>">
                                     Change password
                                 </button>
                             <?php endif; ?>
@@ -134,29 +154,29 @@ $currentPage = basename($_SERVER['PHP_SELF']);
 
                             <?php if ($currentPage !== 'portal.php'): ?>
                                 <a href="portal.php"
-                                    class="w-full flex items-center gap-3 px-4 py-3 text-sm font-bold text-slate-700 hover:bg-white hover:text-indigo-600 hover:shadow-sm rounded-2xl transition-all mb-1">
-                                    <i class="fa-solid fa-house text-indigo-400"></i>
+                                    class="w-full flex items-center gap-3 px-4 py-3 text-sm font-bold text-slate-700 hover:bg-white <?php echo $hoverTextClass; ?> hover:shadow-sm rounded-2xl transition-all mb-1">
+                                    <i class="fa-solid fa-house <?php echo $iconClass; ?>"></i>
                                     <span>Home</span>
                                 </a>
                             <?php endif; ?>
 
                             <?php if ($currentPage === 'inventory.php'): ?>
                                 <button id="openHistorySidebar"
-                                    class="w-full hover:cursor-pointer flex items-center gap-3 px-4 py-3 text-sm font-bold text-slate-700 hover:bg-white hover:text-indigo-600 hover:shadow-sm rounded-2xl transition-all">
-                                    <i class="fa-solid fa-clock-rotate-left text-indigo-400"></i>
+                                    class="w-full hover:cursor-pointer flex items-center gap-3 px-4 py-3 text-sm font-bold text-slate-700 hover:bg-white <?php echo $hoverTextClass; ?> hover:shadow-sm rounded-2xl transition-all">
+                                    <i class="fa-solid fa-clock-rotate-left <?php echo $iconClass; ?>"></i>
                                     <span>Inventory History</span>
                                 </button>
                             <?php endif; ?>
 
                             <?php if ($currentPage === 'pos.php'): ?>
                                 <button id="open-sales-history"
-                                    class="w-full hover:cursor-pointer flex items-center gap-3 px-4 py-3 text-sm font-bold text-slate-700 hover:bg-white hover:text-indigo-600 hover:shadow-sm rounded-2xl transition-all mb-1">
-                                    <i class="fa-solid fa-receipt text-indigo-400"></i>
+                                    class="w-full hover:cursor-pointer flex items-center gap-3 px-4 py-3 text-sm font-bold text-slate-700 hover:bg-white <?php echo $hoverTextClass; ?> hover:shadow-sm rounded-2xl transition-all mb-1">
+                                    <i class="fa-solid fa-receipt <?php echo $iconClass; ?>"></i>
                                     <span>Today's Transaction</span>
                                 </button>
                                 <button id="open-receivables"
                                     class="w-full hover:cursor-pointer flex items-center gap-3 px-4 py-3 text-sm font-bold text-slate-700 hover:bg-white hover:text-amber-600 hover:shadow-sm rounded-2xl transition-all mb-1">
-                                    <i class="fa-solid fa-hand-holding-dollar text-indigo-400"></i>
+                                    <i class="fa-solid fa-hand-holding-dollar <?php echo $iconClass; ?>"></i>
                                     <span>Receivables</span>.
                                 </button>
                             <?php endif; ?>
@@ -170,7 +190,7 @@ $currentPage = basename($_SERVER['PHP_SELF']);
 
                         <div class="p-3 text-center border-t border-slate-100 bg-white">
                             <button type="button" id="open-legal-modal"
-                                class="text-[10px] font-bold text-slate-400 uppercase tracking-widest hover:text-indigo-600 transition-colors cursor-pointer">
+                                class="text-[10px] font-bold text-slate-400 uppercase tracking-widest transition-colors cursor-pointer <?php echo $hoverTextClass; ?>">
                                 About Us
                             </button>
                         </div>

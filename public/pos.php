@@ -91,27 +91,41 @@ try {
 </head>
 
 <body class="h-screen bg-slate-100 flex flex-col font-sans text-slate-800 overflow-hidden">
+    <div class="fixed inset-0 z-[-2] bg-gradient-to-br from-teal-500/10 via-emerald-500/5 to-cyan-500/10 pointer-events-none"></div>
+    <div class="fixed inset-0 z-[-1] bg-[linear-gradient(to_right,#cbd5e1_1px,transparent_1px),linear-gradient(to_bottom,#cbd5e1_1px,transparent_1px)] bg-[size:32px_32px] opacity-30 pointer-events-none [mask-image:linear-gradient(to_bottom,black_40%,transparent_100%)]"></div>
 
     <?php include 'includes/partial/header.php'; ?>
 
-    <?php if ($currentPage === 'pos.php'): ?>
-        <div class="px-6 pt-4">
-            <div class="max-w-xl relative">
-                <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
+    <div class="max-w-7xl mx-auto w-full px-4 sm:px-6 flex-1 flex flex-col overflow-hidden">
+        <?php if ($currentPage === 'pos.php'): ?>
+            <div class="pt-4 pb-3">
+                <div class="max-w-2xl relative">
+                <i
+                    class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 transition-colors pointer-events-none"
+                    id="pos-search-icon"></i>
                 <input type="search" id="pos-search"
-                    class="w-full bg-slate-100/80 border border-transparent rounded-xl pl-10 pr-4 py-2 focus:bg-white focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all font-medium text-slate-800 placeholder-slate-400 shadow-inner"
+                    class="w-full bg-white/70 border border-white/60 rounded-2xl pl-10 pr-4 py-2.5 focus:bg-white focus:ring-4 focus:ring-teal-500/15 focus:border-teal-200 transition-all font-medium text-slate-800 placeholder-slate-400/80 shadow-sm shadow-slate-200"
                     placeholder="Search inventory..." autocomplete="off">
-            </div>
-        </div>
-    <?php endif; ?>
-
-    <div class="flex-1 flex overflow-hidden">
-
-        <main class="flex-1 flex flex-col h-full relative z-10">
-
-            <div class="flex-1 overflow-y-auto p-6">
-                <div id="pos-item-grid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
                 </div>
+            </div>
+        <?php endif; ?>
+
+        <div class="flex-1 flex overflow-hidden">
+
+            <main class="flex-1 flex flex-col h-full relative z-10">
+
+                <div class="flex-1 overflow-y-auto pb-6">
+                    <div class="bg-white/60 backdrop-blur-xl border border-white rounded-3xl shadow-xl shadow-slate-200/40 p-4 sm:p-5">
+                        <div class="flex items-center justify-between gap-3 mb-4">
+                            <div>
+                                <h2 class="text-lg sm:text-xl font-black text-slate-900 tracking-tight">Products</h2>
+                                <p class="text-xs sm:text-sm text-slate-500 font-medium mt-0.5">Tap an item to add it to the order.</p>
+                            </div>
+                        </div>
+
+                        <div id="pos-item-grid"
+                            class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-3 sm:gap-4">
+                        </div>
                 <div id="pos-loading"
                     class="hidden text-center py-10 text-slate-400 font-bold uppercase tracking-widest text-sm">
                     <i class="fa-solid fa-spinner fa-spin mr-2"></i> Loading Items...
@@ -121,19 +135,21 @@ try {
                     <h3 class="text-lg font-black text-slate-700">No items found</h3>
                     <p class="text-sm text-slate-500 font-medium">Try a different search term.</p>
                 </div>
+                    </div>
             </div>
         </main>
 
         <!-- Current Order / Cart container temporarily removed for later modification -->
     </div>
+    </div>
 
     <!-- Item quantity & price selection modal -->
     <div id="item-select-modal"
         class="fixed inset-0 z-[55] hidden items-center justify-center bg-slate-900/40 backdrop-blur-sm p-4 transition-all">
-        <div class="bg-white w-full max-w-sm rounded-3xl shadow-2xl flex flex-col max-h-[90vh] overflow-hidden">
-            <div class="p-5 border-b border-slate-100 flex justify-between items-center shrink-0">
+        <div class="bg-white/95 backdrop-blur-xl w-full max-w-sm rounded-3xl shadow-2xl flex flex-col max-h-[90vh] overflow-hidden border border-white">
+            <div class="p-5 border-b border-teal-100/60 flex justify-between items-center shrink-0">
                 <div>
-                    <p class="text-[11px] font-black uppercase tracking-[0.2em] text-indigo-400">Add to order</p>
+                    <p class="text-[11px] font-black uppercase tracking-[0.2em] text-teal-500">Add to order</p>
                     <h2 id="item-select-name" class="text-lg font-black text-slate-900 tracking-tight mt-1 truncate">
                         Item name
                     </h2>
@@ -143,7 +159,7 @@ try {
                     </p>
                 </div>
                 <button id="item-select-close"
-                    class="h-8 w-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 flex items-center justify-center transition-colors cursor-pointer">
+                    class="h-8 w-8 rounded-full bg-slate-100 hover:bg-teal-50 text-slate-500 hover:text-teal-700 flex items-center justify-center transition-colors cursor-pointer">
                     <i class="fa-solid fa-xmark"></i>
                 </button>
             </div>
@@ -157,7 +173,7 @@ try {
                             <i class="fa-solid fa-minus"></i>
                         </button>
                         <input type="number" id="item-select-qty"
-                            class="w-20 text-center text-base font-bold px-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500/40"
+                            class="w-20 text-center text-base font-bold px-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-teal-500/40"
                             min="1" value="1">
                         <button type="button" id="item-select-qty-plus"
                             class="h-8 w-8 flex items-center justify-center rounded-full border border-slate-200 text-slate-500 hover:bg-slate-50 cursor-pointer">
@@ -171,11 +187,11 @@ try {
                     <p class="block text-xs font-bold text-slate-500 uppercase tracking-[0.2em]">Price type</p>
                     <div class="grid grid-cols-2 gap-3" id="item-select-price-options">
                         <label
-                            class="price-option-retail flex items-center gap-2 px-3 py-2 rounded-xl border border-slate-200 cursor-pointer hover:border-indigo-400 hover:bg-indigo-50/40">
+                            class="price-option-retail flex items-center gap-2 px-3 py-2 rounded-xl border border-slate-200 cursor-pointer hover:border-teal-400 hover:bg-teal-50/40">
                             <input type="radio" name="item-select-price" value="retail" class="hidden" checked>
                             <div
                                 class="h-4 w-4 rounded-full border border-slate-300 flex items-center justify-center">
-                                <span class="dot h-2 w-2 rounded-full bg-indigo-500 hidden"></span>
+                                <span class="dot h-2 w-2 rounded-full bg-teal-500 hidden"></span>
                             </div>
                             <div class="flex flex-col">
                                 <span class="text-xs font-bold text-slate-800">Retail</span>
@@ -207,13 +223,13 @@ try {
                 </div>
             </div>
 
-            <div class="p-4 border-t border-slate-100 bg-slate-50/80 flex justify-end gap-3 shrink-0">
+            <div class="p-4 border-t border-teal-100/60 bg-teal-50/40 flex justify-end gap-3 shrink-0">
                 <button id="item-select-cancel"
                     class="px-4 py-2 rounded-xl border border-slate-200 text-sm font-bold text-slate-600 hover:bg-white hover:border-slate-300 transition-colors cursor-pointer">
                     Cancel
                 </button>
                 <button id="item-select-add"
-                    class="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-black tracking-[0.2em] uppercase shadow-md shadow-indigo-200 cursor-pointer">
+                    class="px-4 py-2 rounded-xl bg-teal-600 hover:bg-teal-700 text-white text-sm font-black tracking-[0.2em] uppercase shadow-md shadow-teal-200 cursor-pointer">
                     Add to Order
                 </button>
             </div>
@@ -222,12 +238,12 @@ try {
 
     <!-- Floating checkout button (appears when cart has items) -->
     <button id="floating-checkout"
-        class="hidden fixed bottom-4 right-4 z-40 bg-indigo-600 hover:bg-indigo-700 text-white rounded-full shadow-xl shadow-indigo-300 px-5 py-3 flex items-center gap-3 text-sm font-black tracking-widest uppercase cursor-pointer">
+        class="hidden fixed bottom-4 right-4 z-40 bg-teal-600 hover:bg-teal-700 text-white rounded-full shadow-xl shadow-teal-300 px-5 py-3 flex items-center gap-3 text-sm font-black tracking-widest uppercase cursor-pointer">
         <span class="inline-flex items-center justify-center h-7 w-7 rounded-full bg-white/10 border border-white/30 text-[11px]"
             id="floating-checkout-count">0</span>
         <div class="flex flex-col items-start leading-tight">
             <span>Checkout</span>
-            <span class="text-[11px] font-semibold text-indigo-100" id="floating-checkout-total">₱0.00</span>
+            <span class="text-[11px] font-semibold text-teal-100" id="floating-checkout-total">₱0.00</span>
         </div>
     </button>
 
@@ -258,7 +274,7 @@ try {
                         <i class="fa-solid fa-arrow-left"></i>
                     </button>
                     <div>
-                        <p class="text-[11px] font-black uppercase tracking-[0.2em] text-indigo-400">Step <span
+                        <p class="text-[11px] font-black uppercase tracking-[0.2em] text-teal-500">Step <span
                                 id="co-step-number">1</span> of 2</p>
                         <h2 id="co-step-title" class="text-xl font-black text-slate-900 tracking-tight mt-1">Review
                             Order
@@ -334,7 +350,7 @@ try {
             <div
                 class="p-4 border-t border-slate-100 bg-slate-50/80 flex justify-end items-center gap-3 shrink-0">
                 <button id="co-next"
-                    class="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-black tracking-[0.2em] uppercase shadow-md shadow-indigo-200 cursor-pointer">
+                    class="px-4 py-2 rounded-xl bg-teal-600 hover:bg-teal-700 text-white text-sm font-black tracking-[0.2em] uppercase shadow-md shadow-teal-200 cursor-pointer">
                     Next
                 </button>
                 <button id="co-confirm"
@@ -405,6 +421,14 @@ try {
             const $confirmModal = $('#confirm-action-modal');
             const $profileBtn = $('#profileTrigger');
             const $profileMenu = $('#googleMenu');
+            const $posSearch = $('#pos-search');
+            const $posSearchIcon = $('#pos-search-icon');
+
+            // POS Search theming (teal focus)
+            if ($posSearch.length && $posSearchIcon.length) {
+                $posSearch.on('focus', () => $posSearchIcon.removeClass('text-slate-400').addClass('text-teal-600'));
+                $posSearch.on('blur', () => $posSearchIcon.removeClass('text-teal-600').addClass('text-slate-400'));
+            }
 
             // Header Profile Dropdown
             $profileBtn.on('click', function (e) {
@@ -454,7 +478,7 @@ try {
                         : `<div class="w-full h-full flex items-center justify-center bg-slate-200 text-slate-400 font-black text-2xl">${initial}</div>`;
 
                     const card = `
-                        <div class="pos-item-card bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden cursor-pointer hover:shadow-md hover:border-indigo-200 transition-all active:scale-95 group flex flex-col"
+                        <div class="pos-item-card bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden cursor-pointer hover:shadow-md hover:border-teal-200 transition-all active:scale-95 group flex flex-col"
                              data-id="${item.item_id}" 
                              data-name="${item.item_name}" 
                              data-retail="${item.retail_price}" 
@@ -471,8 +495,8 @@ try {
                                 }
                             </div>
                             <div class="p-3 flex-1 flex flex-col justify-center">
-                                <h3 class="text-sm font-bold text-slate-800 truncate group-hover:text-indigo-600 transition-colors">${item.item_name}</h3>
-                                <p class="text-xs font-black text-indigo-500 mt-1">₱${parseFloat(item.retail_price).toFixed(2)}</p>
+                                <h3 class="text-sm font-bold text-slate-800 truncate group-hover:text-teal-700 transition-colors">${item.item_name}</h3>
+                                <p class="text-xs font-black text-teal-600 mt-1">₱${parseFloat(item.retail_price).toFixed(2)}</p>
                             </div>
                         </div>
                     `;
@@ -570,14 +594,14 @@ try {
                             <div class="cart-item bg-white p-3 rounded-xl border border-slate-200 shadow-sm flex flex-col gap-2">
                                 <div class="flex justify-between items-start">
                                     <span class="text-sm font-bold text-slate-800 line-clamp-2">${item.name}</span>
-                                    <span class="text-sm font-black text-indigo-600">₱${subtotal.toFixed(2)}</span>
+                                    <span class="text-sm font-black text-teal-700">₱${subtotal.toFixed(2)}</span>
                                 </div>
                                 <div class="flex justify-between items-center">
                                     <p class="text-[10px] font-bold text-slate-400">₱${item.price.toFixed(2)} each</p>
                                     <div class="flex items-center gap-2 bg-slate-50 rounded-lg p-1 border border-slate-200">
                                         <button class="cart-action w-6 h-6 flex items-center justify-center rounded-md text-slate-500 hover:bg-white hover:text-red-500 hover:shadow-sm transition-all" data-id="${item.id}" data-action="decrease"><i class="fa-solid fa-minus text-[10px]"></i></button>
                                         <span class="text-xs font-black w-4 text-center">${item.qty}</span>
-                                        <button class="cart-action w-6 h-6 flex items-center justify-center rounded-md text-slate-500 hover:bg-white hover:text-indigo-600 hover:shadow-sm transition-all" data-id="${item.id}" data-action="increase"><i class="fa-solid fa-plus text-[10px]"></i></button>
+                                        <button class="cart-action w-6 h-6 flex items-center justify-center rounded-md text-slate-500 hover:bg-white hover:text-teal-700 hover:shadow-sm transition-all" data-id="${item.id}" data-action="increase"><i class="fa-solid fa-plus text-[10px]"></i></button>
                                     </div>
                                 </div>
                             </div>
@@ -636,7 +660,7 @@ try {
                                         </button>
                                         <span class="text-xs font-black w-4 text-center">${item.qty}</span>
                                         <button 
-                                            class="co-cart-action h-7 w-7 flex items-center justify-center rounded-full text-slate-500 hover:bg-white hover:text-indigo-600 hover:shadow-sm transition-all"
+                                            class="co-cart-action h-7 w-7 flex items-center justify-center rounded-full text-slate-500 hover:bg-white hover:text-teal-700 hover:shadow-sm transition-all"
                                             data-id="${item.id}" 
                                             data-action="increase">
                                             <i class="fa-solid fa-plus text-[11px]"></i>
@@ -670,13 +694,13 @@ try {
 
                 // Reset base styles
                 $('.price-option-retail')
-                    .removeClass('bg-indigo-50 border-indigo-400')
+                    .removeClass('bg-teal-50 border-teal-400')
                     .addClass('bg-white border-slate-200');
                 $('.price-option-wholesale')
                     .removeClass('bg-emerald-50 border-emerald-400')
                     .addClass('bg-white border-slate-200');
                 $('#item-select-total')
-                    .removeClass('text-indigo-500 text-emerald-500')
+                    .removeClass('text-teal-500 text-emerald-500')
                     .addClass('text-slate-900');
 
                 // Highlight selected price option + total color
@@ -693,10 +717,10 @@ try {
                     $('.price-option-retail .dot').removeClass('hidden');
                     $('.price-option-retail')
                         .removeClass('bg-white border-slate-200')
-                        .addClass('bg-indigo-50 border-indigo-400');
+                        .addClass('bg-teal-50 border-teal-400');
                     $('#item-select-total')
                         .removeClass('text-slate-900')
-                        .addClass('text-indigo-500');
+                        .addClass('text-teal-500');
                 }
             }
 
@@ -955,7 +979,7 @@ try {
                                     </button>
                                     <span class="text-xs font-black w-4 text-center">${item.qty}</span>
                                     <button 
-                                        class="co-cart-action h-7 w-7 flex items-center justify-center rounded-full text-slate-500 hover:bg-white hover:text-indigo-600 hover:shadow-sm transition-all"
+                                        class="co-cart-action h-7 w-7 flex items-center justify-center rounded-full text-slate-500 hover:bg-white hover:text-teal-700 hover:shadow-sm transition-all"
                                         data-id="${item.id}" 
                                         data-action="increase">
                                         <i class="fa-solid fa-plus text-[11px]"></i>
@@ -1199,7 +1223,7 @@ try {
                                 : '');
 
                         const syncBadge = isPending
-                            ? `<span class="inline-flex items-center justify-center bg-indigo-50 text-indigo-700 text-[10px] px-2 py-0.5 rounded font-black uppercase tracking-widest" title="Pending sync">
+                            ? `<span class="inline-flex items-center justify-center bg-teal-50 text-teal-700 text-[10px] px-2 py-0.5 rounded font-black uppercase tracking-widest" title="Pending sync">
                                    <i class="fa-solid fa-spinner fa-spin"></i>
                                </span>`
                             : `<span class="inline-flex items-center justify-center bg-slate-100 text-slate-700 text-[10px] px-2 py-0.5 rounded font-black uppercase tracking-widest" title="Saved">
@@ -1207,7 +1231,7 @@ try {
                                </span>`;
 
                         listHtml += `
-                            <div class="flex justify-between items-start p-4 bg-white border border-slate-200 rounded-xl hover:border-indigo-300 hover:shadow-md transition-all">
+                            <div class="flex justify-between items-start p-4 bg-white border border-slate-200 rounded-xl hover:border-teal-300 hover:shadow-md transition-all">
                                 <div class="pr-4">
                                     <div class="flex items-center gap-2 mb-1 flex-wrap">
                                         <p class="text-sm font-bold text-slate-800">${primaryLabel}</p>
