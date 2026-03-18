@@ -32,12 +32,11 @@ try {
         ORDER BY th.created_at DESC
     ");
 
-    // Add 'end_date_diff' to your execute array
     $stmt->execute([
         'uid' => $userId,
         'sd' => $startDate,
         'ed' => $endDate,
-        'end_date_diff' => $endDate // Passes the filter's end date to DATEDIFF
+        'end_date_diff' => $endDate 
     ]);
     $transactions = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
@@ -65,7 +64,6 @@ try {
         $stmtItems->execute(['uid' => $userId, 'sd' => $startDate, 'ed' => $endDate]);
         $allItems = $stmtItems->fetchAll(PDO::FETCH_ASSOC);
 
-        // Group items by transaction_uuid
         $itemsGrouped = [];
         foreach ($allItems as $item) {
             $itemsGrouped[$item['transaction_uuid']][] = [
@@ -76,7 +74,6 @@ try {
             ];
         }
 
-        // Assemble the final array
         foreach ($transactions as $txn) {
             $totalReceivables += (float) $txn['total_amount'];
             $data[] = [

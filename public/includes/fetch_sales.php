@@ -10,14 +10,10 @@ if (!isset($_SESSION['user_id'])) {
 }
 
 $userId = (int)$_SESSION['user_id'];
-
-// Default to the last 30 days if no dates are provided
 $startDate = $_POST['start_date'] ?? date('Y-m-d', strtotime('-30 days'));
 $endDate = $_POST['end_date'] ?? date('Y-m-d');
 
 try {
-    // We join the transaction_header, transaction_item, and item tables
-    // We filter by DATE(created_at) because the Sales report is based on when it left the store!
     $sql = "
         SELECT 
             th.transaction_uuid, 
@@ -48,7 +44,6 @@ try {
 
     $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-    // Group the flat SQL results into structured transactions with an 'items' array
     $transactions = [];
     foreach ($results as $row) {
         $uuid = $row['transaction_uuid'];
@@ -66,7 +61,6 @@ try {
             ];
         }
 
-        // Add the item to the receipt list if it exists
         if (!empty($row['item_name'])) {
             $subtotal = (int)$row['quantity'] * (float)$row['unit_price_at_sale'];
             $transactions[$uuid]['items'][] = [
@@ -78,7 +72,6 @@ try {
         }
     }
 
-    // Convert associative array to indexed array for easier JS mapping
     echo json_encode([
         'success' => true, 
         'data' => array_values($transactions)

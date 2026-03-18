@@ -14,7 +14,7 @@ $startDate = $_POST['start_date'] ?? date('Y-m-d', strtotime('-30 days'));
 $endDate = $_POST['end_date'] ?? date('Y-m-d');
 
 try {
-    // 1. Get Gross Sales & Unpaid Sales (Created within this period)
+    // 1. Get Gross Sales & Unpaid Sales 
     $stmtA = $pdo->prepare("
         SELECT 
             COALESCE(SUM(total_amount), 0) as gross_sales,
@@ -25,7 +25,7 @@ try {
     $stmtA->execute(['uid' => $userId, 'sd' => $startDate, 'ed' => $endDate]);
     $salesData = $stmtA->fetch(PDO::FETCH_ASSOC);
 
-    // 2. Get Settled Past Debts (Paid in this period, but originally created BEFORE this period)
+    // 2. Get Settled Past Debts 
     $stmtB = $pdo->prepare("
         SELECT COALESCE(SUM(total_amount), 0) as settled_past
         FROM transaction_header
@@ -42,7 +42,7 @@ try {
 
     $settledData = $stmtB->fetch(PDO::FETCH_ASSOC);
 
-    // 3. Get Cost of Goods Sold (COGS) (Cost of items sold within this period)
+    // 3. Get Cost of Goods Sold (COGS) 
     $stmtC = $pdo->prepare("
         SELECT COALESCE(SUM(ti.quantity * i.value), 0) as cogs
         FROM transaction_header th
@@ -90,7 +90,6 @@ try {
     $settledTxns = $stmtD3->fetchAll(PDO::FETCH_ASSOC);
 
 
-    // Calculate Final Metrics
     $grossSales = (float) $salesData['gross_sales'];
     $unpaidSales = (float) $salesData['unpaid_sales'];
     $settledPast = (float) $settledData['settled_past'];

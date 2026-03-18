@@ -38,7 +38,6 @@ try {
         $groupedData[$cat][] = $item;
 
         $overallValue += (float) $item['total_value'];
-        // FIXED: Changed quantity_on_hand to current_stock to match SQL
         $totalItems += (float) $item['current_stock'];
     }
 

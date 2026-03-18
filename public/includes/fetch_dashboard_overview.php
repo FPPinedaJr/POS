@@ -13,7 +13,6 @@ $data = [];
 
 try {
     // 1. BEST SELLERS (Last 30 Days)
-    // Joins item, transaction_item, and transaction_header to count quantities sold recently
     $stmtSellers = $pdo->prepare("
         SELECT 
             i.item_name, 
@@ -31,7 +30,6 @@ try {
     $data['best_sellers'] = $stmtSellers->fetchAll(PDO::FETCH_ASSOC);
 
     // 2. TODAY'S INFLOW
-    // Calculates pure cash sales vs collected debts for the current date
     $stmtInflow = $pdo->prepare("
         SELECT 
             SUM(CASE WHEN is_unpaid = 0 AND settle_date IS NULL AND DATE(created_at) = CURRENT_DATE() THEN total_amount ELSE 0 END) as cash_sales,
@@ -49,7 +47,6 @@ try {
     ];
 
     // 3. TOP UNPAID ACCOUNTS
-    // Groups unpaid amounts by customer name
     $stmtDebtors = $pdo->prepare("
         SELECT 
             customer, 
