@@ -662,9 +662,7 @@ try {
                         total += subtotal;
                         const isWholesale = (item.is_wholesale == 1 || item.price_type === 'wholesale');
                         const wholesaleBadge = isWholesale
-                            ? `<span class="inline-flex items-center px-2 py-0.5 rounded-full border text-[9px] font-black uppercase tracking-widest bg-amber-50 text-amber-700 border-amber-200">
-                                    Wholesale
-                               </span>`
+                            ? `<span class="inline-flex self-start w-fit px-1.5 py-0.5 bg-amber-100 text-amber-700 text-[8px] font-medium rounded-full uppercase tracking-widest leading-none shadow-sm border border-amber-200/50">Wholesale</span>`
                             : '';
 
                         $container.append(`
@@ -713,9 +711,7 @@ try {
                         wizardTotal += subtotal;
                         const isWholesale = (item.is_wholesale == 1 || item.price_type === 'wholesale');
                         const wholesaleBadge = isWholesale
-                            ? `<span class="inline-flex items-center px-2 py-0.5 rounded-full border text-[9px] font-black uppercase tracking-widest bg-amber-50 text-amber-700 border-amber-200">
-                                    Wholesale
-                               </span>`
+                            ? `<span class="inline-flex self-start w-fit px-1.5 py-0.5 bg-amber-100 text-amber-700 text-[8px] font-medium rounded-full uppercase tracking-widest leading-none shadow-sm border border-amber-200/50">Wholesale</span>`
                             : '';
 
                         const canDecreaseToDelete = item.qty === 1;
@@ -1181,9 +1177,7 @@ try {
                     total += subtotal;
                     const isWholesale = (item.is_wholesale == 1 || item.price_type === 'wholesale');
                     const wholesaleBadge = isWholesale
-                        ? `<span class="inline-flex items-center px-2 py-0.5 rounded-full border text-[9px] font-black uppercase tracking-widest bg-amber-50 text-amber-700 border-amber-200">
-                                Wholesale
-                           </span>`
+                        ? `<span class="inline-flex self-start w-fit px-1.5 py-0.5 bg-amber-100 text-amber-700 text-[8px] font-medium rounded-full uppercase tracking-widest leading-none shadow-sm border border-amber-200/50">Wholesale</span>`
                         : '';
 
                     const canDecreaseToDelete = item.qty === 1;
