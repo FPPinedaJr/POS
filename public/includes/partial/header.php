@@ -118,15 +118,27 @@ $iconClass = $theme === 'teal'
                     </div>
                 <?php endif; ?>
 
-                <div class="relative ml-2">
-                    <button id="profileTrigger"
-                        class="flex items-center justify-center p-1 rounded-full hover:cursor-pointer hover:ring-4 <?php echo $ringClass; ?> transition-all focus:outline-none shadow-sm bg-white/50">
-                        <img class="h-9 w-9 rounded-full object-cover border-2 border-white"
-                            src="<?php echo htmlspecialchars($_SESSION['user_picture']); ?>" alt="User">
-                    </button>
+                <div class="ml-2 flex items-center gap-2">
+                    <?php if ($currentPage === 'pos.php'): ?>
+                        <button id="pos-open-qr-scanner" type="button"
+                            class="sm:hidden group relative flex items-center justify-center p-1.5 rounded-full hover:cursor-pointer hover:ring-4 <?php echo $ringClass; ?> transition-all focus:outline-none shadow-sm bg-white/60 hover:bg-white"
+                            title="Scan item QR" aria-label="Scan item QR">
+                            <span class="relative h-10 w-10 flex items-center justify-center">
+                                <img src="assets/images/scanner-icon.svg" alt=""
+                                    class="h-6 w-6 opacity-90 group-hover:opacity-100 transition-all duration-200 group-hover:scale-[1.03]" />
+                            </span>
+                        </button>
+                    <?php endif; ?>
 
-                    <div id="googleMenu"
-                        class="hidden absolute right-0 mt-3 w-80 bg-white/95 backdrop-blur-2xl rounded-3xl shadow-2xl border border-white z-50 overflow-hidden">
+                    <div class="relative">
+                        <button id="profileTrigger"
+                            class="flex items-center justify-center p-1 rounded-full hover:cursor-pointer hover:ring-4 <?php echo $ringClass; ?> transition-all focus:outline-none shadow-sm bg-white/50">
+                            <img class="h-9 w-9 rounded-full object-cover border-2 border-white"
+                                src="<?php echo htmlspecialchars($_SESSION['user_picture']); ?>" alt="User">
+                        </button>
+
+                        <div id="googleMenu"
+                            class="hidden absolute right-0 mt-3 w-80 bg-white/95 backdrop-blur-2xl rounded-3xl shadow-2xl border border-white z-50 overflow-hidden">
                         <div class="p-6 flex flex-col items-center text-center relative">
                             <div class="absolute inset-0 linear-gradient-to-br from-indigo-500/5 to-purple-500/5"></div>
 
@@ -194,6 +206,7 @@ $iconClass = $theme === 'teal'
                                 About Us
                             </button>
                         </div>
+                    </div>
                     </div>
                 </div>
             </div>

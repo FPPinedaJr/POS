@@ -43,9 +43,10 @@ try {
     foreach ($data['cart'] as $item) {
         $itemId = (int)$item['id'];
         $qty = (int)$item['qty'];
+        $isWholesale = !empty($item['is_wholesale']) ? 1 : 0;
         
         // Lock the row for update to prevent race conditions (double-selling)
-        $stmt = $pdo->prepare("SELECT item_name, retail_price, current_stock FROM item WHERE item_id = :id FOR UPDATE");
+        $stmt = $pdo->prepare("SELECT item_name, retail_price, wholesale_price, current_stock FROM item WHERE item_id = :id FOR UPDATE");
         $stmt->execute(['id' => $itemId]);
         $dbItem = $stmt->fetch();
 
@@ -57,7 +58,10 @@ try {
         }
 
         $lockedStock[$itemId] = (int) $dbItem['current_stock'];
-        $totalAmount += ($dbItem['retail_price'] * $qty);
+        $retail = (float) ($dbItem['retail_price'] ?? 0);
+        $wholesale = (float) ($dbItem['wholesale_price'] ?? 0);
+        $unit = ($isWholesale === 1 && $wholesale > 0) ? $wholesale : $retail;
+        $totalAmount += ($unit * $qty);
     }
 
     // 2. Insert into transaction_header
@@ -76,8 +80,8 @@ try {
 
     // Prepare statements for the loop
     $stmtItemInsert = $pdo->prepare("
-        INSERT INTO transaction_item (item_uuid, transaction_uuid, item_id, quantity, unit_price_at_sale)
-        VALUES (:iuuid, :tuuid, :item_id, :qty, :price)
+        INSERT INTO transaction_item (item_uuid, transaction_uuid, item_id, quantity, unit_price_at_sale, is_wholesale)
+        VALUES (:iuuid, :tuuid, :item_id, :qty, :price, :is_wholesale)
     ");
     $stmtStockUpdate = $pdo->prepare("
         UPDATE item SET current_stock = current_stock - :qty WHERE item_id = :item_id
@@ -92,6 +96,7 @@ try {
         $itemId = (int)$item['id'];
         $qty = (int)$item['qty'];
         $price = (float)$item['price'];
+        $isWholesale = !empty($item['is_wholesale']) ? 1 : 0;
 
         // Save transaction line item
         $stmtItemInsert->execute([
@@ -99,7 +104,8 @@ try {
             'tuuid' => $transactionUuid,
             'item_id' => $itemId,
             'qty' => $qty,
-            'price' => $price
+            'price' => $price,
+            'is_wholesale' => $isWholesale
         ]);
 
         // Deduct inventory

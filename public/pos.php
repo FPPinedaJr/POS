@@ -241,6 +241,31 @@ try {
         </div>
     </div>
 
+    <!-- QR Scanner modal -->
+    <div id="pos-qr-scan-modal"
+        class="fixed inset-0 z-[65] hidden items-center justify-center bg-slate-900/40 backdrop-blur-sm p-4 transition-all">
+        <div class="bg-white/95 backdrop-blur-xl w-full max-w-md rounded-3xl shadow-2xl border border-white overflow-hidden">
+            <div class="px-5 pt-5 border-b border-slate-100 flex justify-between items-center shrink-0">
+                <div>
+                    <p class="text-[11px] font-black uppercase tracking-[0.2em] text-teal-600">Scanner</p>
+                    <h2 class="text-lg font-black text-slate-900 tracking-tight mt-1">Scan item QR</h2>
+                </div>
+                <button id="pos-qr-scan-close"
+                    class="h-8 w-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 flex items-center justify-center transition-colors cursor-pointer"
+                    aria-label="Close scanner">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <div class="p-5 space-y-3">
+                <div id="pos-qr-reader" class="w-full overflow-hidden rounded-2xl border border-slate-100 bg-white"></div>
+                <p class="text-xs text-slate-500 font-medium">
+                    Allow camera access, then point it at the item QR code.
+                </p>
+            </div>
+        </div>
+    </div>
+
     <!-- Floating checkout button (appears when cart has items) -->
     <button id="floating-checkout"
         class="hidden fixed bottom-4 right-4 z-40 bg-teal-500 hover:bg-teal-600 text-white rounded-full shadow-lg shadow-teal-200/80 px-5 py-3 flex items-center gap-3 text-sm font-black tracking-widest uppercase cursor-pointer">
@@ -394,6 +419,7 @@ try {
     </div>
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://unpkg.com/html5-qrcode"></script>
     <script src="assets/js/toast-helper.js"></script>
     <script>
         // Server-preloaded POS data (no AJAX reads required)
@@ -634,11 +660,22 @@ try {
                     cart.forEach(item => {
                         const subtotal = item.price * item.qty;
                         total += subtotal;
+                        const isWholesale = (item.is_wholesale == 1 || item.price_type === 'wholesale');
+                        const wholesaleBadge = isWholesale
+                            ? `<span class="inline-flex items-center px-2 py-0.5 rounded-full border text-[9px] font-black uppercase tracking-widest bg-amber-50 text-amber-700 border-amber-200">
+                                    Wholesale
+                               </span>`
+                            : '';
 
                         $container.append(`
                             <div class="cart-item bg-white p-3 rounded-xl border border-slate-200 shadow-sm flex flex-col gap-2">
                                 <div class="flex justify-between items-start">
-                                    <span class="text-sm font-bold text-slate-800 line-clamp-2">${item.name}</span>
+                                    <div class="min-w-0 pr-2 flex-1">
+                                        <div class="flex flex-col gap-1 min-w-0">
+                                            ${wholesaleBadge}
+                                            <span class="text-sm font-bold text-slate-800 line-clamp-2">${item.name}</span>
+                                        </div>
+                                    </div>
                                     <span class="text-sm font-black text-teal-700">₱ ${subtotal.toFixed(2)}</span>
                                 </div>
                                 <div class="flex justify-between items-center">
@@ -674,6 +711,12 @@ try {
                     cart.forEach(item => {
                         const subtotal = item.price * item.qty;
                         wizardTotal += subtotal;
+                        const isWholesale = (item.is_wholesale == 1 || item.price_type === 'wholesale');
+                        const wholesaleBadge = isWholesale
+                            ? `<span class="inline-flex items-center px-2 py-0.5 rounded-full border text-[9px] font-black uppercase tracking-widest bg-amber-50 text-amber-700 border-amber-200">
+                                    Wholesale
+                               </span>`
+                            : '';
 
                         const canDecreaseToDelete = item.qty === 1;
                         const hasImage = !!item.image;
@@ -689,7 +732,10 @@ try {
                                         }
                                     </div>
                                     <div class="min-w-0">
-                                        <p class="text-slate-800 font-semibold truncate">${item.name}</p>
+                                        <div class="flex flex-col gap-1 min-w-0">
+                                            ${wholesaleBadge}
+                                            <p class="text-slate-800 font-semibold truncate">${item.name}</p>
+                                        </div>
                                         <p class="text-[11px] text-slate-400 font-medium truncate">₱ ${item.price.toFixed(2)} each</p>
                                     </div>
                                 </div>
@@ -723,6 +769,49 @@ try {
             }
 
             // Item click -> open quantity & price modal
+            function openItemSelectModalFromPayload(payload) {
+                const id = payload?.id;
+                const name = payload?.name;
+                const retailPrice = parseFloat(payload?.retailPrice);
+                const wholesalePrice = parseFloat(payload?.wholesalePrice);
+                const image = payload?.image || '';
+                const maxStock = parseInt(payload?.maxStock, 10);
+
+                if (!maxStock || maxStock <= 0) {
+                    if (typeof showToast === 'function') {
+                        showToast('error', 'This item is out of stock.');
+                    }
+                    return;
+                }
+
+                selectedItemForCart = {
+                    id,
+                    name,
+                    retailPrice: Number.isFinite(retailPrice) ? retailPrice : 0,
+                    wholesalePrice: Number.isFinite(wholesalePrice) ? wholesalePrice : 0,
+                    image: image || '',
+                    maxStock
+                };
+
+                // Populate modal UI
+                $('#item-select-name').text(name);
+                $('#item-select-stock').text('In stock: ' + maxStock);
+                $('#item-select-qty').val(1).attr({ min: 1, max: maxStock });
+                $('#item-select-qty-hint').text('Maximum available: ' + maxStock);
+                $('#item-select-retail').text('₱ ' + (selectedItemForCart.retailPrice || 0).toFixed(2));
+                $('#item-select-wholesale').text('₱ ' + (selectedItemForCart.wholesalePrice || 0).toFixed(2));
+
+                // Default price selection: retail (or wholesale if retail is 0 and wholesale > 0)
+                let defaultType = 'retail';
+                if ((!selectedItemForCart.retailPrice || selectedItemForCart.retailPrice <= 0) && selectedItemForCart.wholesalePrice > 0) {
+                    defaultType = 'wholesale';
+                }
+                $('input[name="item-select-price"][value="' + defaultType + '"]').prop('checked', true);
+
+                updateItemSelectTotal();
+                $itemSelectModal.removeClass('hidden').addClass('flex');
+            }
+
             function updateItemSelectTotal() {
                 if (!selectedItemForCart) return;
 
@@ -779,40 +868,132 @@ try {
                     : 0;
                 const image = $(this).data('image') || '';
                 const maxStock = parseInt($(this).data('stock'), 10);
-
-                if (!maxStock || maxStock <= 0) {
-                    if (typeof showToast === 'function') {
-                        showToast('error', 'This item is out of stock.');
-                    }
-                    return;
-                }
-
-                selectedItemForCart = {
+                openItemSelectModalFromPayload({
                     id,
                     name,
-                    retailPrice: retailPrice || 0,
-                    wholesalePrice: wholesalePrice || 0,
-                    image: image || '',
+                    retailPrice,
+                    wholesalePrice,
+                    image,
                     maxStock
-                };
+                });
+            });
 
-                // Populate modal UI
-                $('#item-select-name').text(name);
-                $('#item-select-stock').text('In stock: ' + maxStock);
-                $('#item-select-qty').val(1).attr({ min: 1, max: maxStock });
-                $('#item-select-qty-hint').text('Maximum available: ' + maxStock);
-                $('#item-select-retail').text('₱ ' + (retailPrice || 0).toFixed(2));
-                $('#item-select-wholesale').text('₱ ' + (wholesalePrice || 0).toFixed(2));
+            // ------------------------------------------
+            // C2. QR SCANNER (Inventory: ITEM:<id>)
+            // ------------------------------------------
+            const $qrScanModal = $('#pos-qr-scan-modal');
+            const $qrClose = $('#pos-qr-scan-close');
+            const $qrOpenBtn = $('#pos-open-qr-scanner');
+            let qrScanner = null;
+            let qrStarting = false;
 
-                // Default price selection: retail (or wholesale if retail is 0 and wholesale > 0)
-                let defaultType = 'retail';
-                if ((!retailPrice || retailPrice <= 0) && wholesalePrice > 0) {
-                    defaultType = 'wholesale';
+            function parseInventoryQr(raw) {
+                const text = (raw || '').toString().trim();
+                const m = text.match(/^ITEM:(\d+)$/i);
+                return m ? m[1] : null;
+            }
+
+            function findItemById(itemId) {
+                const idStr = String(itemId);
+                return (allItems || []).find(it => String(it.item_id) === idStr) || null;
+            }
+
+            async function startQrScanner() {
+                if (qrStarting) return;
+                qrStarting = true;
+
+                try {
+                    if (!window.Html5Qrcode) {
+                        if (typeof showToast === 'function') showToast('error', 'QR scanner library failed to load.');
+                        return;
+                    }
+
+                    if (!qrScanner) {
+                        qrScanner = new Html5Qrcode('pos-qr-reader');
+                    }
+
+                    const cameras = await Html5Qrcode.getCameras();
+                    if (!cameras || cameras.length === 0) {
+                        if (typeof showToast === 'function') showToast('error', 'No camera found.');
+                        return;
+                    }
+
+                    await qrScanner.start(
+                        { facingMode: 'environment' },
+                        { fps: 10, qrbox: { width: 250, height: 250 } },
+                        async (decodedText) => {
+                            const itemId = parseInventoryQr(decodedText);
+                            if (!itemId) {
+                                if (typeof showToast === 'function') showToast('error', 'Invalid QR. Expecting ITEM:<id>.');
+                                return;
+                            }
+
+                            const it = findItemById(itemId);
+                            if (!it) {
+                                if (typeof showToast === 'function') showToast('error', `Item not found: ${itemId}`);
+                                return;
+                            }
+
+                            // Stop scanning first to prevent repeated triggers
+                            try { await qrScanner.stop(); } catch (e) { }
+
+                            closeQrScanModal();
+
+                            openItemSelectModalFromPayload({
+                                id: it.item_id,
+                                name: it.item_name,
+                                retailPrice: it.retail_price,
+                                wholesalePrice: it.wholesale_price,
+                                image: it.image_thumb_path || '',
+                                maxStock: it.item_count
+                            });
+                        }
+                    );
+                } catch (e) {
+                    if (typeof showToast === 'function') showToast('error', 'Camera unavailable or permission denied.');
+                } finally {
+                    qrStarting = false;
                 }
-                $('input[name="item-select-price"][value="' + defaultType + '"]').prop('checked', true);
+            }
 
-                updateItemSelectTotal();
-                $itemSelectModal.removeClass('hidden').addClass('flex');
+            async function stopQrScannerIfRunning() {
+                if (!qrScanner) return;
+                try {
+                    const state = qrScanner.getState ? qrScanner.getState() : null;
+                    // 2 = SCANNING in html5-qrcode
+                    if (state === 2) {
+                        await qrScanner.stop();
+                    }
+                } catch (e) { }
+            }
+
+            function openQrScanModal() {
+                if (!$qrScanModal.length) return;
+                $qrScanModal.removeClass('hidden').addClass('flex');
+                startQrScanner();
+            }
+
+            function closeQrScanModal() {
+                if (!$qrScanModal.length) return;
+                $qrScanModal.addClass('hidden').removeClass('flex');
+                stopQrScannerIfRunning();
+            }
+
+            if ($qrOpenBtn.length) {
+                $qrOpenBtn.on('click', function (e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    // Close account menu if open
+                    if ($profileMenu && $profileMenu.length) $profileMenu.addClass('hidden');
+                    openQrScanModal();
+                });
+            }
+
+            $qrClose.on('click', closeQrScanModal);
+            $(document).on('click', function (e) {
+                if ($qrScanModal.length && $(e.target).is($qrScanModal)) {
+                    closeQrScanModal();
+                }
             });
 
             $('#item-select-qty-minus').on('click', function () {
@@ -867,6 +1048,7 @@ try {
                 const unitPrice = priceType === 'wholesale'
                     ? selectedItemForCart.wholesalePrice
                     : selectedItemForCart.retailPrice;
+                const isWholesale = priceType === 'wholesale' ? 1 : 0;
 
                 if (qty < 1 || qty > selectedItemForCart.maxStock) {
                     if (typeof showToast === 'function') {
@@ -886,12 +1068,16 @@ try {
                     }
                     existingItem.qty += qty;
                     existingItem.price = unitPrice; // last chosen price wins
+                    existingItem.is_wholesale = isWholesale;
+                    existingItem.price_type = priceType;
                 } else {
                     cart.push({
                         id: selectedItemForCart.id,
                         name: selectedItemForCart.name,
                         image: selectedItemForCart.image || '',
                         price: unitPrice,
+                        price_type: priceType,
+                        is_wholesale: isWholesale,
                         qty,
                         maxStock: selectedItemForCart.maxStock
                     });
@@ -993,6 +1179,12 @@ try {
                 cart.forEach(item => {
                     const subtotal = item.price * item.qty;
                     total += subtotal;
+                    const isWholesale = (item.is_wholesale == 1 || item.price_type === 'wholesale');
+                    const wholesaleBadge = isWholesale
+                        ? `<span class="inline-flex items-center px-2 py-0.5 rounded-full border text-[9px] font-black uppercase tracking-widest bg-amber-50 text-amber-700 border-amber-200">
+                                Wholesale
+                           </span>`
+                        : '';
 
                     const canDecreaseToDelete = item.qty === 1;
                     const hasImage = !!item.image;
@@ -1008,7 +1200,10 @@ try {
                                     }
                                 </div>
                                 <div class="min-w-0">
-                                    <p class="text-slate-800 font-semibold truncate">${item.name}</p>
+                                    <div class="flex flex-col gap-1 min-w-0">
+                                        ${wholesaleBadge}
+                                        <p class="text-slate-800 font-semibold truncate">${item.name}</p>
+                                    </div>
                                     <p class="text-[11px] text-slate-400 font-medium truncate">₱ ${item.price.toFixed(2)} each</p>
                                 </div>
                             </div>
