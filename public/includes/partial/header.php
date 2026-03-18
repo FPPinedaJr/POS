@@ -212,3 +212,99 @@ $iconClass = $theme === 'teal'
             </div>
         </div>
 </header>
+
+<div id="legal-modal"
+    class="fixed inset-0 z-[75] hidden items-center justify-center bg-slate-900/40 backdrop-blur-sm p-4 transition-all">
+    <div class="relative w-full max-w-lg mx-auto">
+        <div
+            class="bg-white/95 backdrop-blur-xl rounded-[2rem] shadow-2xl border border-white overflow-hidden animate-in fade-in zoom-in duration-200">
+
+            <div
+                class="px-6 pt-6 pb-3 border-b border-slate-100 flex items-center justify-between relative overflow-hidden rounded-t-[2rem]">
+
+                <div
+                    class="absolute top-0 right-0 w-32 h-32 bg-indigo-500/10 rounded-full blur-2xl -translate-y-1/2 translate-x-1/2 pointer-events-none">
+                </div>
+
+                <div class="relative z-10 flex items-center gap-3.5">
+                    <div
+                        class="h-10 w-10 rounded-full bg-indigo-50 border border-indigo-100 flex items-center justify-center shadow-inner">
+                        <i class="fa-solid fa-circle-info text-indigo-500 text-lg"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-black text-slate-900 tracking-tight">About Us</h3>
+                        <p class="text-xs font-medium text-slate-500 mt-0.5">VendaTrack</p>
+                    </div>
+                </div>
+
+                <button type="button" id="close-legal-modal"
+                    class="relative z-10 h-8 w-8 inline-flex items-center justify-center rounded-full cursor-pointer bg-white shadow-sm border border-slate-100 hover:bg-slate-50 transition-all text-slate-400 hover:text-slate-600">
+                    <i class="fa-solid fa-xmark text-sm"></i>
+                </button>
+            </div>
+
+            <div class="px-6 py-3 space-y-2 max-h-[70vh] overflow-y-auto">
+
+                <div class="space-y-2 p-4 rounded-2xl bg-slate-50/80 border border-white shadow-inner">
+                    <h4 class="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-1.5">
+                        <i class="fa-solid fa-layer-group text-indigo-400"></i> Overview
+                    </h4>
+                    <p class="text-sm font-medium text-slate-700 leading-relaxed">
+                        This inventory system helps you organize items, categories, and stock history in one place
+                        with a seamless, modern interface.
+                    </p>
+                </div>
+
+                <div class="space-y-2 p-4 rounded-2xl bg-slate-50/80 border border-white shadow-inner">
+                    <h4 class="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-1.5">
+                        <i class="fa-solid fa-envelope text-teal-400"></i> Contact
+                    </h4>
+                    <p class="text-sm font-medium text-slate-700 leading-relaxed">
+                        For questions, bug reports, or support, please contact your system administrator.
+                    </p>
+                </div>
+
+                <div class="pt-2">
+                    <button type="button" id="legal-modal-ok"
+                        class="w-full px-5 py-3 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-black tracking-widest uppercase shadow-md shadow-indigo-200 cursor-pointer transition-all">
+                        OK
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const openBtn = document.getElementById('open-legal-modal');
+        const modal = document.getElementById('legal-modal');
+        const closeBtn = document.getElementById('close-legal-modal');
+        const okBtn = document.getElementById('legal-modal-ok');
+
+        function openLegalModal() {
+            if (!modal) return;
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        function closeLegalModal() {
+            if (!modal) return;
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+
+        if (openBtn) openBtn.addEventListener('click', function (e) { e.preventDefault(); openLegalModal(); });
+        if (closeBtn) closeBtn.addEventListener('click', function (e) { e.preventDefault(); closeLegalModal(); });
+        if (okBtn) okBtn.addEventListener('click', function (e) { e.preventDefault(); closeLegalModal(); });
+
+        document.addEventListener('click', function (e) {
+            if (!modal) return;
+            if (e.target === modal) closeLegalModal();
+        });
+
+        document.addEventListener('keydown', function (e) {
+            if (e.key === 'Escape') closeLegalModal();
+        });
+    });
+</script>
