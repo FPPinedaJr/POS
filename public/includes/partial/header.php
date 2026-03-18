@@ -56,7 +56,64 @@ $iconClass = $theme === 'teal'
                                 </span>
                             <?php endif; ?>
                         </button>
+                        <div id="stock-notif-panel"
+                            class="hidden absolute right-0 mt-3 w-80 bg-white/95 backdrop-blur-2xl rounded-3xl shadow-2xl border border-white z-50 overflow-hidden">
+                            <div class="p-6 flex flex-col text-left relative">
+                                <div class="absolute inset-0 linear-gradient-to-br from-sky-500/5 to-indigo-500/5"></div>
+
+                                <div class="relative z-10 mb-3 flex items-center justify-between">
+                                    <h3 class="text-base font-semibold text-slate-900">Low Stock Alert</h3>
+                                </div>
+
+                                <div class="relative z-10 max-h-80 overflow-y-auto -mx-2 px-1.5">
+                                    <?php if (!empty($lowStockItems ?? []) && $notifCount > 0): ?>
+                                        <?php foreach ($lowStockItems as $idx => $ls): ?>
+                                            <?php
+                                            $name = (string) ($ls['name'] ?? '');
+                                            $current = (int) ($ls['current'] ?? 0);
+                                            $image = isset($ls['image']) ? (string) $ls['image'] : null;
+                                            $initial = mb_strtoupper(mb_substr(trim($name) !== '' ? trim($name) : 'I', 0, 1));
+                                            ?>
+                                            <button type="button"
+                                                class="stock-notif-item w-full text-left mb-2 last:mb-0 flex items-center gap-3 px-3 py-1.5">
+                                                <div
+                                                    class="h-10 w-10 rounded-full overflow-hidden flex-shrink-0 border border-slate-300 bg-slate-100 flex items-center justify-center">
+                                                    <?php if ($image): ?>
+                                                        <img src="<?php echo htmlspecialchars($image); ?>"
+                                                            alt="<?php echo htmlspecialchars($name); ?>"
+                                                            class="h-full w-full object-cover">
+                                                    <?php else: ?>
+                                                        <span class="text-xs font-bold text-sky-600">
+                                                            <?php echo htmlspecialchars($initial); ?>
+                                                        </span>
+                                                    <?php endif; ?>
+                                                </div>
+                                                <div class="flex-1 min-w-0">
+                                                    <p class="text-sm font-semibold text-slate-900 truncate">
+                                                        <?php echo htmlspecialchars($name); ?>
+                                                    </p>
+                                                    <p class="text-xs text-slate-600 mt-0.5">
+                                                        Remaining stock:
+                                                        <span
+                                                            class="font-semibold text-sky-600"><?php echo $current; ?></span>
+                                                    </p>
+                                                    <p class="text-[11px] text-red-500 mt-0.5 font-semibold">
+                                                        Stock is at or below its alert level.
+                                                    </p>
+                                                </div>
+                                            </button>
+                                        <?php endforeach; ?>
+                                    <?php else: ?>
+                                        <div class="px-4 py-6 text-center text-sm text-slate-500">
+                                            <p class="font-semibold mb-1">No stock alerts</p>
+                                            <p class="text-xs text-slate-400">You’re all caught up. Items are above their
+                                                thresholds.</p>
+                                        </div>
+                                    <?php endif; ?>
+                                </div>
+                            </div>
                         </div>
+                    </div>
                 <?php endif; ?>
 
                 <div class="ml-2 flex items-center gap-2">

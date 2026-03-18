@@ -178,6 +178,26 @@
     --default-mono-font-family: var(--font-mono);
   }
 }
+
+/* Global pointer cursor for interactive controls */
+button:hover,
+a:hover,
+[role="button"]:hover,
+input[type="button"]:hover,
+input[type="submit"]:hover,
+input[type="reset"]:hover,
+summary:hover,
+label[for]:hover {
+  cursor: pointer;
+}
+
+button:disabled,
+input:disabled,
+select:disabled,
+textarea:disabled,
+[aria-disabled="true"] {
+  cursor: not-allowed;
+}
 @layer base {
   *, ::after, ::before, ::backdrop, ::file-selector-button {
     box-sizing: border-box;
