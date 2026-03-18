@@ -12,15 +12,8 @@ $name = htmlspecialchars($_SESSION['user_name']);
 $firstName = explode(' ', trim($name))[0]; // Get just the first name for a friendlier greeting
 $picture = htmlspecialchars($_SESSION['user_picture']);
 
-// Dynamic Time-Based Greeting
 $hour = date('H');
-if ($hour < 12) {
-    $greeting = "Good morning";
-} elseif ($hour < 17) {
-    $greeting = "Good afternoon";
-} else {
-    $greeting = "Good evening";
-}
+$greeting = "Welcome back";
 ?>
 
 <!DOCTYPE html>
