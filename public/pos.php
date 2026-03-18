@@ -34,6 +34,7 @@ try {
             th.customer,
             th.total_amount,
             th.is_unpaid,
+            th.is_gcash,
             th.void_date,
             th.settle_date,
             th.created_at,
@@ -46,7 +47,7 @@ try {
                 DATE(th.created_at) = CURDATE()
                 OR th.settle_date = CURDATE()
               )
-        GROUP BY th.transaction_uuid, th.transaction_number, th.customer, th.total_amount, th.is_unpaid, th.void_date, th.settle_date, th.created_at
+        GROUP BY th.transaction_uuid, th.transaction_number, th.customer, th.total_amount, th.is_unpaid, th.is_gcash, th.void_date, th.settle_date, th.created_at
         ORDER BY th.created_at DESC
     ");
     $stmtToday->execute(['user_id' => $userId]);
@@ -59,6 +60,7 @@ try {
             th.customer,
             th.total_amount,
             th.is_unpaid,
+            th.is_gcash,
             th.void_date,
             th.settle_date,
             th.created_at,
@@ -69,7 +71,7 @@ try {
         WHERE th.user_id = :user_id
           AND th.is_unpaid = 1
           AND th.void_date IS NULL
-        GROUP BY th.transaction_uuid, th.transaction_number, th.customer, th.total_amount, th.is_unpaid, th.void_date, th.settle_date, th.created_at
+        GROUP BY th.transaction_uuid, th.transaction_number, th.customer, th.total_amount, th.is_unpaid, th.is_gcash, th.void_date, th.settle_date, th.created_at
         ORDER BY th.created_at DESC
     ");
     $stmtRecv->execute(['user_id' => $userId]);
@@ -334,30 +336,40 @@ try {
 
                 <!-- Step 2: Payment type + optional credit customer -->
                 <div id="co-step-2" class="hidden p-5 space-y-4">
-                    <div class="grid grid-cols-2 gap-3" id="co-payment-options">
+                    <div class="grid grid-cols-3 gap-3" id="co-payment-options">
                         <label
-                            class="co-pay-option co-pay-cash flex items-center gap-3 px-3 py-3 rounded-2xl border border-slate-200 cursor-pointer hover:border-emerald-400 hover:bg-emerald-50/40">
+                            class="co-pay-option co-pay-cash group flex flex-col items-center justify-center gap-3 px-4 py-5 rounded-3xl border border-slate-200 bg-white text-slate-900 cursor-pointer hover:border-slate-300 hover:bg-slate-50/40 transition-all">
                             <input type="radio" name="co-payment" value="cash" class="hidden" checked>
-                            <div
-                                class="h-4 w-4 rounded-full border border-slate-300 flex items-center justify-center">
-                                <span class="dot h-2 w-2 rounded-full bg-emerald-500 hidden"></span>
+                            <div class="co-pay-icon h-14 w-14 rounded-full bg-white border border-slate-200 text-slate-700 flex items-center justify-center shrink-0 shadow-sm">
+                                <i class="fa-solid fa-money-bill-1 text-lg text-slate-700"></i>
                             </div>
-                            <div class="flex flex-col">
-                                <span class="text-xs font-bold text-slate-800">Cash (Paid)</span>
-                                <span class="text-[11px] font-semibold text-slate-500">Mark as fully paid</span>
+                            <div class="text-center">
+                                <span class="co-pay-title block text-sm font-black text-slate-900 leading-tight">Cash</span>
+                                <span class="co-pay-subtitle block text-[11px] font-semibold text-slate-600 leading-tight mt-0.5">Paid</span>
                             </div>
                         </label>
 
                         <label
-                            class="co-pay-option co-pay-credit flex items-center gap-3 px-3 py-3 rounded-2xl border border-slate-200 cursor-pointer hover:border-amber-400 hover:bg-amber-50/40">
-                            <input type="radio" name="co-payment" value="credit" class="hidden">
-                            <div
-                                class="h-4 w-4 rounded-full border border-slate-300 flex items-center justify-center">
-                                <span class="dot h-2 w-2 rounded-full bg-amber-500 hidden"></span>
+                            class="co-pay-option co-pay-gcash group flex flex-col items-center justify-center gap-3 px-4 py-5 rounded-3xl border border-slate-200 bg-white text-slate-900 cursor-pointer hover:border-slate-300 hover:bg-slate-50/40 transition-all">
+                            <input type="radio" name="co-payment" value="gcash" class="hidden">
+                            <div class="co-pay-icon h-14 w-14 rounded-full bg-white border border-slate-200 flex items-center justify-center shrink-0 shadow-sm">
+                                <img src="assets/images/gcash.svg" alt="GCash" class="h-7 w-7" />
                             </div>
-                            <div class="flex flex-col">
-                                <span class="text-xs font-bold text-slate-800">On Credit (Receivable)</span>
-                                <span class="text-[11px] font-semibold text-slate-500">Customer will pay later</span>
+                            <div class="text-center">
+                                <span class="co-pay-title block text-sm font-black text-slate-900 leading-tight">GCash</span>
+                                <span class="co-pay-subtitle block text-[11px] font-semibold text-slate-600 leading-tight mt-0.5">Paid thru Gcash</span>
+                            </div>
+                        </label>
+
+                        <label
+                            class="co-pay-option co-pay-credit group flex flex-col items-center justify-center gap-3 px-4 py-5 rounded-3xl border border-slate-200 bg-white text-slate-900 cursor-pointer hover:border-slate-300 hover:bg-slate-50/40 transition-all">
+                            <input type="radio" name="co-payment" value="credit" class="hidden">
+                            <div class="co-pay-icon h-14 w-14 rounded-full bg-white border border-slate-200 text-slate-700 flex items-center justify-center shrink-0 shadow-sm">
+                                <i class="fa-solid fa-hand-holding-dollar text-lg text-slate-700"></i>
+                            </div>
+                            <div class="text-center">
+                                <span class="co-pay-title block text-sm font-black text-slate-900 leading-tight">Receivable</span>
+                                <span class="co-pay-subtitle block text-[11px] font-semibold text-slate-600 leading-tight mt-0.5">Pay later</span>
                             </div>
                         </label>
                     </div>
@@ -371,7 +383,7 @@ try {
                             Customer Name
                         </label>
                         <input type="text" id="co-credit-name"
-                            class="w-full text-sm px-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-amber-500/40"
+                            class="w-full text-sm px-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-orange-500/40"
                             placeholder="e.g. Juan Dela Cruz">
                     </div>
                 </div>
@@ -404,6 +416,25 @@ try {
                     class="h-8 w-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 flex items-center justify-center transition-colors cursor-pointer">
                     <i class="fa-solid fa-xmark"></i>
                 </button>
+            </div>
+            <div id="confirm-pay-method-wrapper" class="hidden">
+                <p class="text-[11px] font-black uppercase tracking-[0.2em] text-slate-500 mb-2">Payment Method</p>
+                <div class="grid grid-cols-2 gap-2">
+                    <label class="confirm-pay-option confirm-pay-cash flex items-center justify-center gap-2 px-3 py-2 rounded-xl border border-slate-200 bg-white cursor-pointer hover:border-emerald-300 transition-colors">
+                        <input type="radio" name="confirm-pay-method" value="cash" class="hidden" checked>
+                        <span class="h-7 w-7 rounded-full bg-emerald-50 border border-emerald-100 text-emerald-700 flex items-center justify-center">
+                            <i class="fa-solid fa-money-bill-1 text-[12px]"></i>
+                        </span>
+                        <span class="text-sm font-black text-slate-800">Cash</span>
+                    </label>
+                    <label class="confirm-pay-option confirm-pay-gcash flex items-center justify-center gap-2 px-3 py-2 rounded-xl border border-slate-200 bg-white cursor-pointer hover:border-sky-300 transition-colors">
+                        <input type="radio" name="confirm-pay-method" value="gcash" class="hidden">
+                        <span class="h-7 w-7 rounded-full bg-sky-50 border border-sky-100 flex items-center justify-center">
+                            <img src="assets/images/gcash.svg" alt="GCash" class="h-4 w-4" />
+                        </span>
+                        <span class="text-sm font-black text-slate-800">GCash</span>
+                    </label>
+                </div>
             </div>
             <div class="flex justify-end gap-2 mt-2">
                 <button id="confirm-action-cancel"
@@ -1230,11 +1261,16 @@ try {
 
                 // Reset step 2 fields (payment type)
                 $('input[name="co-payment"][value="cash"]').prop('checked', true);
-                $('#co-payment-options .dot').addClass('hidden');
-                $('.co-pay-cash .dot').removeClass('hidden');
+                $('#co-payment-options .co-pay-option')
+                    .removeClass('ring-2 ring-emerald-400/70 border-emerald-400/60 ring-2 ring-sky-400/70 border-sky-400/60 ring-2 ring-orange-400/70 border-orange-400/60 bg-emerald-500/10 bg-sky-500/10 bg-orange-500/10')
+                    .addClass('border-slate-200 bg-white');
+                $('.co-pay-cash')
+                    .removeClass('border-slate-200 bg-white')
+                    .addClass('ring-2 ring-emerald-400/70 border-emerald-400/60');
 
                 // Reset credit name
                 $('#co-credit-name').val('');
+                $('#co-credit-name-wrapper').addClass('hidden');
 
                 setCheckoutStep(1);
                 $checkoutModal.removeClass('hidden').addClass('flex');
@@ -1252,11 +1288,13 @@ try {
 
                 const paymentType = $('input[name="co-payment"]:checked').val();
                 const isCredit = paymentType === 'credit';
+                const isGcash = paymentType === 'gcash';
                 const customerName = isCredit ? ($('#co-credit-name').val() || '').trim() : '';
 
                 const payload = {
                     customer: customerName,
                     is_unpaid: isCredit,
+                    is_gcash: isGcash,
                     cart: cart
                 };
 
@@ -1303,6 +1341,7 @@ try {
                     customer: payload.customer || 'Walk-in',
                     total_amount: String((payload.cart || []).reduce((s, ci) => s + ((parseFloat(ci.price) || 0) * (parseInt(ci.qty, 10) || 0)), 0)),
                     is_unpaid: payload.is_unpaid ? 1 : 0,
+                    is_gcash: payload.is_gcash ? 1 : 0,
                     void_date: null,
                     settle_date: null,
                     created_at: nowIso,
@@ -1409,10 +1448,19 @@ try {
             $('#co-payment-options').on('click', '.co-pay-option', function () {
                 const radio = $(this).find('input[type="radio"]');
                 radio.prop('checked', true);
-                $('#co-payment-options .dot').addClass('hidden');
-                $(this).find('.dot').removeClass('hidden');
+                $('#co-payment-options .co-pay-option')
+                    .removeClass('ring-2 ring-emerald-400/70 border-emerald-400/60 ring-2 ring-sky-400/70 border-sky-400/60 ring-2 ring-orange-400/70 border-orange-400/60 bg-emerald-500/10 bg-sky-500/10 bg-orange-500/10')
+                    .addClass('border-slate-200 bg-white');
 
                 const paymentType = radio.val();
+                if (paymentType === 'gcash') {
+                    $(this).removeClass('border-slate-200 bg-white').addClass('ring-2 ring-sky-400/70 border-sky-400/60');
+                } else if (paymentType === 'credit') {
+                    $(this).removeClass('border-slate-200 bg-white').addClass('ring-2 ring-orange-400/70 border-orange-400/60');
+                } else {
+                    $(this).removeClass('border-slate-200 bg-white').addClass('ring-2 ring-emerald-400/70 border-emerald-400/60');
+                }
+
                 if (paymentType === 'credit') {
                     $('#co-credit-name-wrapper').removeClass('hidden');
                 } else {
@@ -1424,6 +1472,26 @@ try {
             // Enable/disable confirm based on credit customer name
             $('#co-credit-name').on('input', function () {
                 updateConfirmButtonState();
+            });
+
+            // Pay-receivable modal: highlight selected pay method (cash / gcash)
+            function setConfirmPayMethod(method) {
+                const $options = $('#confirm-pay-method-wrapper .confirm-pay-option');
+                $options
+                    .removeClass('ring-2 ring-emerald-400/70 border-emerald-400/60 ring-2 ring-sky-400/70 border-sky-400/60')
+                    .addClass('border-slate-200');
+
+                if (method === 'gcash') {
+                    $('.confirm-pay-gcash').removeClass('border-slate-200').addClass('ring-2 ring-sky-400/70 border-sky-400/60');
+                } else {
+                    $('.confirm-pay-cash').removeClass('border-slate-200').addClass('ring-2 ring-emerald-400/70 border-emerald-400/60');
+                }
+            }
+
+            $('#confirm-pay-method-wrapper').on('click', '.confirm-pay-option', function () {
+                const $radio = $(this).find('input[type="radio"]');
+                $radio.prop('checked', true);
+                setConfirmPayMethod($radio.val());
             });
 
 
@@ -1440,6 +1508,7 @@ try {
                         const isVoided = !!t.void_date;
                         const isSettledReceivable = !!t.settle_date;
                         const isPending = (t && t._sync === 'pending') || String(t.transaction_number || '').toUpperCase() === 'PENDING';
+                        const isGcashPaid = parseInt(t.is_gcash) === 1;
                         const customer = t.customer || 'Walk-in';
                         const primaryLabel = isUnpaid
                             ? (customer || 'Walk-in')
@@ -1455,6 +1524,11 @@ try {
                             : (isSettledReceivable
                                 ? `<span class="bg-emerald-100 text-emerald-700 text-[10px] px-2 py-0.5 rounded font-black uppercase tracking-widest">From Receivable</span>`
                                 : '');
+                        const paymentBadge = (!isUnpaid && !isVoided)
+                            ? (isGcashPaid
+                                ? `<span class="bg-sky-100 text-sky-700 text-[10px] px-2 py-0.5 rounded font-black uppercase tracking-widest">GCash</span>`
+                                : `<span class="bg-emerald-100 text-emerald-700 text-[10px] px-2 py-0.5 rounded font-black uppercase tracking-widest">Cash</span>`)
+                            : '';
 
                         const syncBadge = isPending
                             ? `<span class="inline-flex items-center justify-center bg-teal-50 text-teal-700 text-[10px] px-2 py-0.5 rounded font-black uppercase tracking-widest" title="Pending sync">
@@ -1471,6 +1545,7 @@ try {
                                         <p class="text-sm font-bold text-slate-800">${primaryLabel}</p>
                                         ${syncBadge}
                                         ${statusBadge}
+                                        ${paymentBadge}
                                     </div>
                                     ${itemsSummary ? `<p class="text-xs text-slate-500 leading-snug">${itemsSummary}</p>` : ''}
                                 </div>
@@ -1551,6 +1626,9 @@ try {
                 if (isUnpaid) {
                     $('#confirm-action-title').text('Pay Receivable');
                     $('#confirm-action-message').text('Mark this receivable as fully paid?');
+                    $('#confirm-pay-method-wrapper').removeClass('hidden');
+                    $('input[name="confirm-pay-method"][value="cash"]').prop('checked', true);
+                    setConfirmPayMethod('cash');
                     $('#confirm-action-confirm')
                         .removeClass('bg-red-600 hover:bg-red-700 shadow-red-200')
                         .addClass('bg-emerald-600 hover:bg-emerald-700 shadow-emerald-200')
@@ -1558,6 +1636,7 @@ try {
                 } else {
                     $('#confirm-action-title').text('Void Sale');
                     $('#confirm-action-message').text('WARNING: Are you sure you want to void this transaction? Stock will be restored.');
+                    $('#confirm-pay-method-wrapper').addClass('hidden');
                     $('#confirm-action-confirm')
                         .removeClass('bg-emerald-600 hover:bg-emerald-700 shadow-emerald-200')
                         .addClass('bg-red-600 hover:bg-red-700 shadow-red-200')
@@ -1570,6 +1649,7 @@ try {
             function closeConfirmModal() {
                 $confirmModal.addClass('hidden').removeClass('flex');
                 pendingAction = null;
+                $('#confirm-pay-method-wrapper').addClass('hidden');
                 $('#confirm-action-confirm').prop('disabled', false);
                 $('#confirm-action-cancel').prop('disabled', false);
                 $('#confirm-action-close').prop('disabled', false);
@@ -1601,6 +1681,8 @@ try {
                 $closeBtn.prop('disabled', true);
 
                 const { isUnpaid, uuid } = pendingAction;
+                const payMethod = $('input[name="confirm-pay-method"]:checked').val() || 'cash';
+                const isGcash = payMethod === 'gcash';
                 closeConfirmModal();
 
                 if (isUnpaid) {
@@ -1621,6 +1703,7 @@ try {
                     }
                     if (paidTxn) {
                         paidTxn.is_unpaid = 0;
+                        paidTxn.is_gcash = isGcash ? 1 : 0;
                         paidTxn.settle_date = today;
                         paidTxn._sync = 'pending';
                         if (todaysTransactions && Array.isArray(todaysTransactions.transactions)) {
@@ -1635,7 +1718,7 @@ try {
                         url: 'includes/pay_receivable.php',
                         type: 'POST',
                         contentType: 'application/json',
-                        data: JSON.stringify({ uuid }),
+                        data: JSON.stringify({ uuid, is_gcash: isGcash }),
                         success: function (res) {
                             if (res.success) {
                                 // Mark as synced (remove pending flag)
