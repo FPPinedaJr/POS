@@ -1044,7 +1044,7 @@ if (!isset($_SESSION['user_id'])) {
 
             $container.html('<div class="p-8 text-center text-sm font-bold text-fuchsia-400 animate-pulse"><i class="fa-solid fa-circle-notch fa-spin mr-2"></i> Fetching payables...</div>');
 
-            $.post('includes/fetch_payables.php', { start_date: startDate, end_date: endDate }, function (res) {
+            $.post('includes/fetch_payables_report.php', { start_date: startDate, end_date: endDate }, function (res) {
                 if (res.success) {
                     $container.empty();
                     const m = res.metrics;
