@@ -28,13 +28,14 @@ $iconClass = $theme === 'teal'
 
         <div class="flex items-center gap-3 shrink-0">
             <?php if ($currentPage === 'portal.php'): ?>
-                <a href="#" onclick="window.location.reload(); return false;" class="flex items-center focus:outline-none" aria-label="Refresh portal">
-            <?php else: ?>
-                <a href="portal.php" class="flex items-center focus:outline-none" aria-label="Go to portal">
-            <?php endif; ?>
-                <img src="assets/images/header.png" alt="Venda Track"
-                    class="h-10 w-auto max-w-[200px] sm:max-w-[240px] object-contain">
-            </a>
+                <a href="#" onclick="window.location.reload(); return false;" class="flex items-center focus:outline-none"
+                    aria-label="Refresh portal">
+                <?php else: ?>
+                    <a href="portal.php" class="flex items-center focus:outline-none" aria-label="Go to portal">
+                    <?php endif; ?>
+                    <img src="assets/images/header.png" alt="SMILE"
+                        class="h-10 w-auto max-w-[200px] sm:max-w-[240px] object-contain">
+                </a>
         </div>
 
         <div class="flex items-center gap-2 sm:gap-4 shrink-0">
@@ -94,8 +95,7 @@ $iconClass = $theme === 'teal'
                                                     </p>
                                                     <p class="text-xs text-slate-600 mt-0.5">
                                                         Remaining stock:
-                                                        <span
-                                                            class="font-semibold text-sky-600"><?php echo $current; ?></span>
+                                                        <span class="font-semibold text-sky-600"><?php echo $current; ?></span>
                                                     </p>
                                                     <p class="text-[11px] text-red-500 mt-0.5 font-semibold">
                                                         Stock is at or below its alert level.
@@ -138,13 +138,16 @@ $iconClass = $theme === 'teal'
                         <div id="googleMenu"
                             class="hidden absolute right-0 mt-3 w-80 bg-white/95 backdrop-blur-2xl rounded-3xl shadow-2xl border border-white z-50 overflow-hidden">
                             <div class="p-6 flex flex-col items-center text-center relative">
-                                <div class="absolute inset-0 linear-gradient-to-br from-indigo-500/5 to-purple-500/5"></div>
+                                <div class="absolute inset-0 linear-gradient-to-br from-indigo-500/5 to-purple-500/5">
+                                </div>
                                 <div class="relative mb-3 z-10">
                                     <img class="h-24 w-24 rounded-full object-cover border-4 border-white shadow-lg"
                                         src="<?php echo htmlspecialchars($_SESSION['user_picture']); ?>" alt="User">
                                 </div>
-                                <h2 class="text-xl text-slate-900 font-bold z-10">Hi, <?php echo htmlspecialchars($_SESSION['user_name']); ?>!</h2>
-                                <p class="text-sm font-medium text-slate-500 mb-4 z-10"><?php echo htmlspecialchars($_SESSION['user_email']); ?></p>
+                                <h2 class="text-xl text-slate-900 font-bold z-10">Hi,
+                                    <?php echo htmlspecialchars($_SESSION['user_name']); ?>!</h2>
+                                <p class="text-sm font-medium text-slate-500 mb-4 z-10">
+                                    <?php echo htmlspecialchars($_SESSION['user_email']); ?></p>
 
                                 <?php if (empty($_SESSION['google_id'])): ?>
                                     <button id="openPassModal"
@@ -182,7 +185,7 @@ $iconClass = $theme === 'teal'
                                     <span>Sign out</span>
                                 </a>
                             </div>
-                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
