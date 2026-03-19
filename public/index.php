@@ -1,6 +1,10 @@
 <?php
 require_once 'includes/gClienAuth.php';
 
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+
 if (isset($_SESSION['user_id'])) {
     header('Location: portal.php');
     exit;
@@ -12,7 +16,8 @@ if (isset($_SESSION['user_id'])) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Welcome | Inventory Tracker</title>
+    <title>SMILE | Welcome</title>
+    <link rel="icon" type="image/x-icon" href="assets/images/favicon.ico">
     <link rel="stylesheet" href="assets/css/output.css">
     <link rel="stylesheet" href="assets/fontawesome/css/all.min.css">
     <style>

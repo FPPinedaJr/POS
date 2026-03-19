@@ -37,17 +37,31 @@ if (isset($_GET['code'])) {
         $picture = $google_account_info->picture;
 
         // --- Database Logic ---
-        $stmt = $pdo->prepare("SELECT id FROM users WHERE google_id = :google_id");
-        $stmt->execute(['google_id' => $google_id]);
+
+        // 1. Check if user exists by EMAIL instead of google_id
+        $stmt = $pdo->prepare("SELECT id, google_id FROM users WHERE email = :email");
+        $stmt->execute(['email' => $email]);
         $user = $stmt->fetch();
 
         if ($user) {
+            // User already exists (either via standard signup or previous Google login)
             $userId = $user['id'];
+
+            // 2. If they exist but don't have a google_id linked yet, link them now!
+            if (empty($user['google_id'])) {
+                $updateStmt = $pdo->prepare("UPDATE users SET google_id = :google_id, picture = :picture WHERE id = :id");
+                $updateStmt->execute([
+                    'google_id' => $google_id,
+                    'picture' => $picture, // Optional: update their profile picture to the Google one
+                    'id' => $userId
+                ]);
+            }
         } else {
+            // 3. User does not exist at all. Proceed with fresh account creation.
             try {
                 $pdo->beginTransaction();
 
-                // 1. Insert New User
+                // Insert New User
                 $stmt = $pdo->prepare("INSERT INTO users (google_id, name, email, picture) VALUES (:google_id, :name, :email, :picture)");
                 $stmt->execute([
                     'google_id' => $google_id,
@@ -57,7 +71,7 @@ if (isset($_GET['code'])) {
                 ]);
                 $userId = $pdo->lastInsertId();
 
-                // 2. Insert Default Categories
+                // Insert Default Categories
                 $defaultCategories = ['Supplies', 'Equipment', 'Furniture'];
                 $catStmt = $pdo->prepare("INSERT INTO category (user_id, category_name, is_deleted) VALUES (:user_id, :cat_name, 0)");
 
@@ -90,7 +104,7 @@ if (isset($_GET['code'])) {
         $_SESSION['toast'] = ['type' => 'success', 'message' => 'Successfully logged in with Google!'];
 
         // Redirect to dashboard to strip the ?code= parameter from the URL
-        header('Location: portal.php');
+        header('Location: dashboard.php');
         exit;
     }
 }

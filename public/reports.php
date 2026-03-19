@@ -12,7 +12,8 @@ if (!isset($_SESSION['user_id'])) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>POS Terminal - Venda Track</title>
+    <title>SMILE | Reports</title>
+    <link rel="icon" type="image/x-icon" href="assets/images/favicon.ico">
     <link rel="stylesheet" href="assets/css/output.css">
     <link rel="stylesheet" href="assets/fontawesome/css/all.min.css">
 </head>
@@ -134,20 +135,7 @@ if (!isset($_SESSION['user_id'])) {
 <script src="./assets/js/jquery-4.0.0.min.js"></script>
 <script>
     $(document).ready(function () {
-        const $profileBtn = $('#profileTrigger');
-        const $profileMenu = $('#googleMenu');
-
-        // Header Profile Dropdown
-        $profileBtn.on('click', function (e) {
-            e.stopPropagation();
-            $profileMenu.toggleClass('hidden');
-        });
-
-        $(document).on('click', function (e) {
-            if (!$profileMenu.is(e.target) && $profileMenu.has(e.target).length === 0 && !$profileBtn.is(e.target)) {
-                $profileMenu.addClass('hidden');
-            }
-        });
+        // Header profile dropdown is handled globally by `includes/partial/header.php`
 
         // 1. GLOBAL HELPERS & DEFAULTS
         const formatMoney = (amount) => {

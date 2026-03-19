@@ -28,13 +28,14 @@ $iconClass = $theme === 'teal'
 
         <div class="flex items-center gap-3 shrink-0">
             <?php if ($currentPage === 'portal.php'): ?>
-                <a href="#" onclick="window.location.reload(); return false;" class="flex items-center focus:outline-none" aria-label="Refresh portal">
-            <?php else: ?>
-                <a href="portal.php" class="flex items-center focus:outline-none" aria-label="Go to portal">
-            <?php endif; ?>
-                <img src="assets/images/header.png" alt="Venda Track"
-                    class="h-10 w-auto max-w-[200px] sm:max-w-[240px] object-contain">
-            </a>
+                <a href="#" onclick="window.location.reload(); return false;" class="flex items-center focus:outline-none"
+                    aria-label="Refresh portal">
+                <?php else: ?>
+                    <a href="portal.php" class="flex items-center focus:outline-none" aria-label="Go to portal">
+                    <?php endif; ?>
+                    <img src="assets/images/header.png" alt="SMILE"
+                        class="h-10 w-auto max-w-[200px] sm:max-w-[240px] object-contain">
+                </a>
         </div>
 
         <div class="flex items-center gap-2 sm:gap-4 shrink-0">
@@ -94,8 +95,7 @@ $iconClass = $theme === 'teal'
                                                     </p>
                                                     <p class="text-xs text-slate-600 mt-0.5">
                                                         Remaining stock:
-                                                        <span
-                                                            class="font-semibold text-sky-600"><?php echo $current; ?></span>
+                                                        <span class="font-semibold text-sky-600"><?php echo $current; ?></span>
                                                     </p>
                                                     <p class="text-[11px] text-red-500 mt-0.5 font-semibold">
                                                         Stock is at or below its alert level.
@@ -138,13 +138,16 @@ $iconClass = $theme === 'teal'
                         <div id="googleMenu"
                             class="hidden absolute right-0 mt-3 w-80 bg-white/95 backdrop-blur-2xl rounded-3xl shadow-2xl border border-white z-50 overflow-hidden">
                             <div class="p-6 flex flex-col items-center text-center relative">
-                                <div class="absolute inset-0 linear-gradient-to-br from-indigo-500/5 to-purple-500/5"></div>
+                                <div class="absolute inset-0 linear-gradient-to-br from-indigo-500/5 to-purple-500/5">
+                                </div>
                                 <div class="relative mb-3 z-10">
                                     <img class="h-24 w-24 rounded-full object-cover border-4 border-white shadow-lg"
                                         src="<?php echo htmlspecialchars($_SESSION['user_picture']); ?>" alt="User">
                                 </div>
-                                <h2 class="text-xl text-slate-900 font-bold z-10">Hi, <?php echo htmlspecialchars($_SESSION['user_name']); ?>!</h2>
-                                <p class="text-sm font-medium text-slate-500 mb-4 z-10"><?php echo htmlspecialchars($_SESSION['user_email']); ?></p>
+                                <h2 class="text-xl text-slate-900 font-bold z-10">Hi,
+                                    <?php echo htmlspecialchars($_SESSION['user_name']); ?>!</h2>
+                                <p class="text-sm font-medium text-slate-500 mb-4 z-10">
+                                    <?php echo htmlspecialchars($_SESSION['user_email']); ?></p>
 
                                 <?php if (empty($_SESSION['google_id'])): ?>
                                     <button id="openPassModal"
@@ -160,6 +163,11 @@ $iconClass = $theme === 'teal'
                                         class="w-full hover:cursor-pointer flex items-center gap-3 px-4 py-3 text-sm font-bold text-slate-700 hover:bg-white <?php echo $hoverTextClass; ?> hover:shadow-sm rounded-2xl transition-all">
                                         <i class="fa-solid fa-clock-rotate-left <?php echo $iconClass; ?>"></i>
                                         <span>Inventory History</span>
+                                    </button>
+                                    <button id="open-payables"
+                                        class="w-full hover:cursor-pointer flex items-center gap-3 px-4 py-3 text-sm font-bold text-slate-700 hover:bg-white <?php echo $hoverTextClass; ?> hover:shadow-sm rounded-2xl transition-all mt-1">
+                                        <i class="fa-solid fa-file-invoice-dollar <?php echo $iconClass; ?>"></i>
+                                        <span>Payables</span>
                                     </button>
                                 <?php endif; ?>
 
@@ -182,10 +190,50 @@ $iconClass = $theme === 'teal'
                                     <span>Sign out</span>
                                 </a>
                             </div>
-                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 </header>
+
+<script>
+    (function () {
+        if (window.__VENDA_HEADER_PROFILE_BOUND__) return;
+        window.__VENDA_HEADER_PROFILE_BOUND__ = true;
+
+        function ready(fn) {
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', fn, { once: true });
+            } else {
+                fn();
+            }
+        }
+
+        ready(function () {
+            var btn = document.getElementById('profileTrigger');
+            var menu = document.getElementById('googleMenu');
+            if (!btn || !menu) return;
+
+            function open() { menu.classList.remove('hidden'); }
+            function close() { menu.classList.add('hidden'); }
+            function toggle() { menu.classList.toggle('hidden'); }
+
+            btn.addEventListener('click', function (e) {
+                e.stopPropagation();
+                toggle();
+            });
+
+            document.addEventListener('click', function (e) {
+                if (menu.classList.contains('hidden')) return;
+                if (menu.contains(e.target) || btn.contains(e.target)) return;
+                close();
+            });
+
+            document.addEventListener('keydown', function (e) {
+                if (e.key === 'Escape') close();
+            });
+        });
+    })();
+</script>

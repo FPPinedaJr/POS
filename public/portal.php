@@ -23,7 +23,8 @@ $greeting = "Welcome back";
     <meta charset="UTF-8">
     <meta name="referrer" content="no-referrer">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Venda Track Portal</title>
+    <title>SMILE | Portal</title>
+    <link rel="icon" type="image/x-icon" href="assets/images/favicon.ico">
     <link rel="stylesheet" href="assets/css/output.css">
     <link rel="stylesheet" href="assets/fontawesome/css/all.min.css">
 </head>
@@ -107,24 +108,7 @@ $greeting = "Welcome back";
 
     </main>
 
-       <?php include_once("includes/partial/footer.php"); ?>
-
-
-    <script>
-        const profileTrigger = document.getElementById('profileTrigger');
-        const googleMenu = document.getElementById('googleMenu');
-
-        profileTrigger.addEventListener('click', (e) => {
-            e.stopPropagation();
-            googleMenu.classList.toggle('hidden');
-        });
-
-        document.addEventListener('click', (e) => {
-            if (!googleMenu.contains(e.target) && !profileTrigger.contains(e.target)) {
-                googleMenu.classList.add('hidden');
-            }
-        });
-    </script>
+    <?php include_once("includes/partial/footer.php"); ?>
 
 </body>
 
