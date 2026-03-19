@@ -1,7 +1,6 @@
 <?php
 /**
  * Database connection bootstrap.
- * Loads environment variables from ../.env and exposes a global $pdo instance.
  */
 
 if (!function_exists('loadEnv')) {
@@ -13,33 +12,43 @@ if (!function_exists('loadEnv')) {
 
         $lines = file($path, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
         foreach ($lines as $line) {
-            if (strpos(trim($line), '#') === 0) {
+            if (strpos(trim($line), '#') === 0)
                 continue;
+
+            // Handle lines that might not have an '='
+            if (strpos($line, '=') !== false) {
+                [$key, $value] = explode('=', trim($line), 2);
+                $_ENV[trim($key)] = trim($value);
             }
-
-            // Added trim() to prevent hidden whitespace/carriage return issues
-            [$key, $value] = explode('=', trim($line), 2);
-
-            // Use $_ENV instead of putenv() to bypass InfinityFree restrictions
-            $_ENV[$key] = $value;
         }
     }
 }
 
-// .env is placed in the public directory (one level above this includes folder)
+// Load the .env file
 loadEnv(__DIR__ . '/../.env');
 
 date_default_timezone_set("Asia/Manila");
 
-// Retrieve using $_ENV instead of getenv()
-$hostname = $_ENV['DB_HOST'] ?? '';
-$port = $_ENV['DB_PORT'] ?? '3306';
-$username = $_ENV['DB_USER'] ?? '';
-$password = $_ENV['DB_PASS'] ?? '';
-$defaultSchema = $_ENV['DB_NAME'] ?? '';
-$charset = $_ENV['DB_CHARSET'] ?? 'utf8mb4';
+// 1. Determine Environment from $_ENV
+$isDev = isset($_ENV['IS_DEV']) && $_ENV['IS_DEV'] == "1";
 
-$dsn = "mysql:host={$hostname};dbname={$defaultSchema};charset={$charset};port={$port}";
+// 2. Map the correct keys from $_ENV based on the environment
+if ($isDev) {
+    $host = $_ENV['DEV_DB_HOST'] ?? 'localhost';
+    $db = $_ENV['DEV_DB_NAME'] ?? '';
+    $user = $_ENV['DEV_DB_USER'] ?? '';
+    $pass = $_ENV['DEV_DB_PASS'] ?? '';
+    $port = $_ENV['DEV_DB_PORT'] ?? '3306';
+} else {
+    $host = $_ENV['PROD_DB_HOST'] ?? '';
+    $db = $_ENV['PROD_DB_NAME'] ?? '';
+    $user = $_ENV['PROD_DB_USER'] ?? '';
+    $pass = $_ENV['PROD_DB_PASS'] ?? '';
+    $port = $_ENV['PROD_DB_PORT'] ?? '3306';
+}
+
+// 3. Construct the DSN (Fixed the curly braces and variable names)
+$dsn = "mysql:host=$host;dbname=$db;port=$port;charset=utf8mb4";
 
 $options = [
     PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
@@ -47,8 +56,14 @@ $options = [
     PDO::ATTR_EMULATE_PREPARES => false,
 ];
 
-// Reuse existing connection in same request
+// 4. Create the Global PDO instance
 global $pdo;
 if (!isset($pdo) || !($pdo instanceof PDO)) {
-    $pdo = new PDO($dsn, $username, $password, $options);
+    try {
+        $pdo = new PDO($dsn, $user, $pass, $options);
+    } catch (PDOException $e) {
+        // Log error and stop execution
+        error_log("Connection failed: " . $e->getMessage());
+        exit("Database connection error. Please check your configuration.");
+    }
 }
