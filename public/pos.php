@@ -89,14 +89,19 @@ try {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>POS Terminal - Venda Track</title>
+    <title>SMILE | POS Terminal</title>
+    <link rel="icon" type="image/x-icon" href="assets/images/favicon.ico">
     <link rel="stylesheet" href="assets/css/output.css">
     <link rel="stylesheet" href="assets/fontawesome/css/all.min.css">
 </head>
 
 <body class="h-screen bg-slate-100 flex flex-col font-sans text-slate-800 overflow-hidden">
-    <div class="fixed inset-0 z-[-2] bg-gradient-to-br from-teal-500/10 via-emerald-500/5 to-cyan-500/10 pointer-events-none"></div>
-    <div class="fixed inset-0 z-[-1] bg-[linear-gradient(to_right,#cbd5e1_1px,transparent_1px),linear-gradient(to_bottom,#cbd5e1_1px,transparent_1px)] bg-[size:32px_32px] opacity-30 pointer-events-none [mask-image:linear-gradient(to_bottom,black_40%,transparent_100%)]"></div>
+    <div
+        class="fixed inset-0 z-[-2] bg-gradient-to-br from-teal-500/10 via-emerald-500/5 to-cyan-500/10 pointer-events-none">
+    </div>
+    <div
+        class="fixed inset-0 z-[-1] bg-[linear-gradient(to_right,#cbd5e1_1px,transparent_1px),linear-gradient(to_bottom,#cbd5e1_1px,transparent_1px)] bg-[size:32px_32px] opacity-30 pointer-events-none [mask-image:linear-gradient(to_bottom,black_40%,transparent_100%)]">
+    </div>
 
     <?php include 'includes/partial/header.php'; ?>
 
@@ -104,12 +109,11 @@ try {
         <?php if ($currentPage === 'pos.php'): ?>
             <div class="pt-4 pb-3">
                 <div class="max-w-2xl relative">
-                <i
-                    class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 transition-colors pointer-events-none"
-                    id="pos-search-icon"></i>
-                <input type="search" id="pos-search"
-                    class="w-full bg-white/70 border border-white/60 rounded-2xl pl-10 pr-4 py-2.5 focus:bg-white focus:ring-4 focus:ring-teal-500/15 focus:border-teal-200 transition-all font-medium text-slate-800 placeholder-slate-400/80 shadow-sm shadow-slate-200"
-                    placeholder="Search inventory..." autocomplete="off">
+                    <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 transition-colors pointer-events-none"
+                        id="pos-search-icon"></i>
+                    <input type="search" id="pos-search"
+                        class="w-full bg-white/70 border border-white/60 rounded-2xl pl-10 pr-4 py-2.5 focus:bg-white focus:ring-4 focus:ring-teal-500/15 focus:border-teal-200 transition-all font-medium text-slate-800 placeholder-slate-400/80 shadow-sm shadow-slate-200"
+                        placeholder="Search inventory..." autocomplete="off">
                 </div>
             </div>
         <?php endif; ?>
@@ -125,8 +129,10 @@ try {
                             <div id="pos-products-header"
                                 class="sticky top-0 z-20 px-4 sm:px-5 py-4 bg-white/95 backdrop-blur-md border-b border-slate-200 flex items-center justify-between gap-3">
                                 <div class="space-y-1">
-                                    <h2 class="text-lg sm:text-xl font-black text-slate-900 tracking-tight">Products</h2>
-                                    <p class="text-xs sm:text-sm text-slate-500 font-medium leading-snug">Tap an item to add it to the order.</p>
+                                    <h2 class="text-lg sm:text-xl font-black text-slate-900 tracking-tight">Products
+                                    </h2>
+                                    <p class="text-xs sm:text-sm text-slate-500 font-medium leading-snug">Tap an item to
+                                        add it to the order.</p>
                                 </div>
                             </div>
 
@@ -155,7 +161,8 @@ try {
     <!-- Item quantity & price selection modal -->
     <div id="item-select-modal"
         class="fixed inset-0 z-[55] hidden items-center justify-center bg-slate-900/40 backdrop-blur-sm p-4 transition-all">
-        <div class="bg-white/95 backdrop-blur-xl w-full max-w-sm rounded-3xl shadow-2xl flex flex-col max-h-[90vh] overflow-hidden border border-white">
+        <div
+            class="bg-white/95 backdrop-blur-xl w-full max-w-sm rounded-3xl shadow-2xl flex flex-col max-h-[90vh] overflow-hidden border border-white">
             <div class="p-5 border-b border-teal-100/60 flex justify-between items-center shrink-0">
                 <div>
                     <p class="text-[11px] font-black uppercase tracking-[0.2em] text-teal-500">Add to order</p>
@@ -198,28 +205,26 @@ try {
                         <label
                             class="price-option-retail flex items-center gap-2 px-3 py-2 rounded-xl border border-slate-200 cursor-pointer hover:border-teal-400 hover:bg-teal-50/40">
                             <input type="radio" name="item-select-price" value="retail" class="hidden" checked>
-                            <div
-                                class="h-4 w-4 rounded-full border border-slate-300 flex items-center justify-center">
+                            <div class="h-4 w-4 rounded-full border border-slate-300 flex items-center justify-center">
                                 <span class="dot h-2 w-2 rounded-full bg-teal-500 hidden"></span>
                             </div>
                             <div class="flex flex-col">
                                 <span class="text-xs font-bold text-slate-800">Retail</span>
-                                <span id="item-select-retail"
-                                    class="text-[11px] font-semibold text-slate-500">₱ 0.00</span>
+                                <span id="item-select-retail" class="text-[11px] font-semibold text-slate-500">₱
+                                    0.00</span>
                             </div>
                         </label>
 
                         <label
                             class="price-option-wholesale flex items-center gap-2 px-3 py-2 rounded-xl border border-slate-200 cursor-pointer hover:border-amber-400 hover:bg-amber-50/40">
                             <input type="radio" name="item-select-price" value="wholesale" class="hidden">
-                            <div
-                                class="h-4 w-4 rounded-full border border-slate-300 flex items-center justify-center">
+                            <div class="h-4 w-4 rounded-full border border-slate-300 flex items-center justify-center">
                                 <span class="dot h-2 w-2 rounded-full bg-amber-500 hidden"></span>
                             </div>
                             <div class="flex flex-col">
                                 <span class="text-xs font-bold text-slate-800">Wholesale</span>
-                                <span id="item-select-wholesale"
-                                    class="text-[11px] font-semibold text-slate-500">₱ 0.00</span>
+                                <span id="item-select-wholesale" class="text-[11px] font-semibold text-slate-500">₱
+                                    0.00</span>
                             </div>
                         </label>
                     </div>
@@ -248,7 +253,8 @@ try {
     <!-- QR Scanner modal -->
     <div id="pos-qr-scan-modal"
         class="fixed inset-0 z-[65] hidden items-center justify-center bg-slate-900/40 backdrop-blur-sm p-4 transition-all">
-        <div class="bg-white/95 backdrop-blur-xl w-full max-w-md rounded-3xl shadow-2xl border border-white overflow-hidden">
+        <div
+            class="bg-white/95 backdrop-blur-xl w-full max-w-md rounded-3xl shadow-2xl border border-white overflow-hidden">
             <div class="px-5 pt-5 border-b border-slate-100 flex justify-between items-center shrink-0">
                 <div>
                     <p class="text-[11px] font-black uppercase tracking-[0.2em] text-teal-600">Scanner</p>
@@ -262,7 +268,8 @@ try {
             </div>
 
             <div class="p-5 space-y-3">
-                <div id="pos-qr-reader" class="w-full overflow-hidden rounded-2xl border border-slate-100 bg-white"></div>
+                <div id="pos-qr-reader" class="w-full overflow-hidden rounded-2xl border border-slate-100 bg-white">
+                </div>
                 <p class="text-xs text-slate-500 font-medium">
                     Allow camera access, then point it at the item QR code.
                 </p>
@@ -273,7 +280,8 @@ try {
     <!-- Floating checkout button (appears when cart has items) -->
     <button id="floating-checkout"
         class="hidden fixed bottom-4 right-4 z-40 bg-teal-500 hover:bg-teal-600 text-white rounded-full shadow-lg shadow-teal-200/80 px-5 py-3 flex items-center gap-3 text-sm font-black tracking-widest uppercase cursor-pointer">
-        <span class="inline-flex items-center justify-center h-7 w-7 rounded-full bg-white/10 border border-white/30 text-[11px]"
+        <span
+            class="inline-flex items-center justify-center h-7 w-7 rounded-full bg-white/10 border border-white/30 text-[11px]"
             id="floating-checkout-count">0</span>
         <div class="flex flex-col items-start leading-tight">
             <span>Checkout</span>
@@ -356,10 +364,12 @@ try {
                     <div id="co-pay-sections" class="min-h-[260px]">
                         <div id="co-pay-now-wrapper" class="space-y-3">
                             <div class="space-y-3" id="co-payment-options">
-                                <label class="co-pay-option co-pay-cash flex items-center justify-between gap-4 p-4 rounded-2xl border border-slate-200 bg-white cursor-pointer hover:border-slate-300 transition-colors">
+                                <label
+                                    class="co-pay-option co-pay-cash flex items-center justify-between gap-4 p-4 rounded-2xl border border-slate-200 bg-white cursor-pointer hover:border-slate-300 transition-colors">
                                     <input type="radio" name="co-payment" value="cash" class="hidden" checked>
                                     <div class="flex items-center gap-3 min-w-0">
-                                        <div class="h-12 w-12 rounded-2xl bg-slate-50 border border-slate-200 text-slate-700 flex items-center justify-center shrink-0">
+                                        <div
+                                            class="h-12 w-12 rounded-2xl bg-slate-50 border border-emerald-200 text-emerald-700 flex items-center justify-center shrink-0">
                                             <i class="fa-solid fa-money-bill-1 text-lg"></i>
                                         </div>
                                         <div class="min-w-0">
@@ -367,39 +377,48 @@ try {
                                             <div class="text-sm font-semibold text-slate-500 truncate">Paid</div>
                                         </div>
                                     </div>
-                                    <div class="co-pay-radio h-9 w-9 rounded-full border-2 border-slate-300 flex items-center justify-center shrink-0">
+                                    <div
+                                        class="co-pay-radio h-9 w-9 rounded-full border-2 border-slate-300 flex items-center justify-center shrink-0">
                                         <div class="co-pay-dot hidden h-5 w-5 rounded-full bg-emerald-500"></div>
                                     </div>
                                 </label>
 
-                                <label class="co-pay-option co-pay-gcash flex items-center justify-between gap-4 p-4 rounded-2xl border border-slate-200 bg-white cursor-pointer hover:border-slate-300 transition-colors">
+                                <label
+                                    class="co-pay-option co-pay-gcash flex items-center justify-between gap-4 p-4 rounded-2xl border border-slate-200 bg-white cursor-pointer hover:border-slate-300 transition-colors">
                                     <input type="radio" name="co-payment" value="gcash" class="hidden">
                                     <div class="flex items-center gap-3 min-w-0">
-                                        <div class="h-12 w-12 rounded-2xl bg-slate-50 border border-slate-200 flex items-center justify-center shrink-0">
+                                        <div
+                                            class="h-12 w-12 rounded-2xl bg-slate-50 border border-slate-200 flex items-center justify-center shrink-0">
                                             <img src="assets/images/gcash.svg" alt="GCash" class="h-7 w-7" />
                                         </div>
                                         <div class="min-w-0">
                                             <div class="text-base font-black text-slate-900 truncate">GCash</div>
-                                            <div class="text-sm font-semibold text-slate-500 truncate">Paid thru Gcash</div>
+                                            <div class="text-sm font-semibold text-slate-500 truncate">Paid thru Gcash
+                                            </div>
                                         </div>
                                     </div>
-                                    <div class="co-pay-radio h-9 w-9 rounded-full border-2 border-slate-300 flex items-center justify-center shrink-0">
+                                    <div
+                                        class="co-pay-radio h-9 w-9 rounded-full border-2 border-slate-300 flex items-center justify-center shrink-0">
                                         <div class="co-pay-dot hidden h-5 w-5 rounded-full bg-sky-500"></div>
                                     </div>
                                 </label>
 
-                                <label class="co-pay-option co-pay-bank flex items-center justify-between gap-4 p-4 rounded-2xl border border-slate-200 bg-white cursor-pointer hover:border-slate-300 transition-colors">
+                                <label
+                                    class="co-pay-option co-pay-bank flex items-center justify-between gap-4 p-4 rounded-2xl border border-slate-200 bg-white cursor-pointer hover:border-slate-300 transition-colors">
                                     <input type="radio" name="co-payment" value="bank" class="hidden">
                                     <div class="flex items-center gap-3 min-w-0">
-                                        <div class="h-12 w-12 rounded-2xl bg-slate-50 border border-slate-200 text-slate-700 flex items-center justify-center shrink-0">
+                                        <div
+                                            class="h-12 w-12 rounded-2xl bg-slate-50 border border-indigo-200 text-indigo-700 flex items-center justify-center shrink-0">
                                             <i class="fa-solid fa-building-columns text-lg"></i>
                                         </div>
                                         <div class="min-w-0">
                                             <div class="text-base font-black text-slate-900 truncate">Bank</div>
-                                            <div class="text-sm font-semibold text-slate-500 truncate">Paid via Bank</div>
+                                            <div class="text-sm font-semibold text-slate-500 truncate">Paid via Bank
+                                            </div>
                                         </div>
                                     </div>
-                                    <div class="co-pay-radio h-9 w-9 rounded-full border-2 border-slate-300 flex items-center justify-center shrink-0">
+                                    <div
+                                        class="co-pay-radio h-9 w-9 rounded-full border-2 border-slate-300 flex items-center justify-center shrink-0">
                                         <div class="co-pay-dot hidden h-5 w-5 rounded-full bg-indigo-500"></div>
                                     </div>
                                 </label>
@@ -407,7 +426,8 @@ try {
                         </div>
 
                         <div id="co-pay-later-wrapper" class="hidden space-y-2">
-                            <input type="radio" name="co-payment" value="credit" class="hidden" id="co-payment-credit-hidden">
+                            <input type="radio" name="co-payment" value="credit" class="hidden"
+                                id="co-payment-credit-hidden">
                             <label class="block text-xs font-bold text-slate-500 uppercase tracking-[0.2em]">
                                 Customer Name
                             </label>
@@ -417,15 +437,15 @@ try {
                         </div>
                     </div>
 
-                    <div class="mt-4 rounded-2xl border border-slate-100 bg-slate-50 px-4 py-3 flex justify-between items-center">
+                    <div
+                        class="mt-4 rounded-2xl border border-slate-100 bg-slate-50 px-4 py-3 flex justify-between items-center">
                         <div class="text-xs font-bold text-slate-500 uppercase tracking-[0.2em]">Total Amount</div>
                         <div class="text-2xl font-black text-slate-900" id="co-total-2">₱ 0.00</div>
                     </div>
                 </div>
             </div>
 
-            <div
-                class="p-4 border-t border-slate-100 bg-slate-50/80 flex justify-end items-center gap-3 shrink-0">
+            <div class="p-4 border-t border-slate-100 bg-slate-50/80 flex justify-end items-center gap-3 shrink-0">
                 <button id="co-next"
                     class="px-4 py-2 rounded-xl bg-teal-500 hover:bg-teal-600 text-white text-sm font-black tracking-[0.2em] uppercase shadow-md shadow-teal-200 cursor-pointer">
                     Next
@@ -444,7 +464,8 @@ try {
         <div class="bg-white w-full max-w-xs sm:max-w-sm rounded-2xl shadow-2xl p-4 sm:p-5 flex flex-col gap-3">
             <div class="flex items-start justify-between gap-3">
                 <div>
-                    <p id="confirm-action-title" class="text-base sm:text-lg font-black text-slate-900">Confirm Action</p>
+                    <p id="confirm-action-title" class="text-base sm:text-lg font-black text-slate-900">Confirm Action
+                    </p>
                     <p id="confirm-action-message" class="mt-0.5 text-sm text-slate-600"></p>
                 </div>
                 <button id="confirm-action-close"
@@ -455,10 +476,12 @@ try {
             <div id="confirm-pay-method-wrapper" class="hidden">
                 <p class="text-[11px] font-black uppercase tracking-[0.2em] text-slate-500 mb-2">Payment Method</p>
                 <div class="space-y-3" id="confirm-pay-method-options">
-                    <label class="confirm-pay-option confirm-pay-cash flex items-center justify-between gap-3 p-3 rounded-2xl border border-slate-200 bg-white cursor-pointer hover:border-slate-300 transition-colors">
+                    <label
+                        class="confirm-pay-option confirm-pay-cash flex items-center justify-between gap-3 p-3 rounded-2xl border border-slate-200 bg-white cursor-pointer hover:border-slate-300 transition-colors">
                         <input type="radio" name="confirm-pay-method" value="cash" class="hidden" checked>
                         <div class="flex items-center gap-3 min-w-0">
-                            <div class="h-10 w-10 rounded-2xl bg-slate-50 border border-slate-200 text-slate-700 flex items-center justify-center shrink-0">
+                            <div
+                                class="h-10 w-10 rounded-2xl bg-slate-50 border border-emerald-200 text-emerald-700 flex items-center justify-center shrink-0">
                                 <i class="fa-solid fa-money-bill-1 text-lg"></i>
                             </div>
                             <div class="min-w-0">
@@ -466,15 +489,18 @@ try {
                                 <div class="text-[12px] font-semibold text-slate-500 truncate">Paid</div>
                             </div>
                         </div>
-                        <div class="confirm-pay-radio h-8 w-8 rounded-full border-2 border-slate-300 flex items-center justify-center shrink-0">
+                        <div
+                            class="confirm-pay-radio h-8 w-8 rounded-full border-2 border-slate-300 flex items-center justify-center shrink-0">
                             <div class="confirm-pay-dot hidden h-4 w-4 rounded-full bg-emerald-500"></div>
                         </div>
                     </label>
 
-                    <label class="confirm-pay-option confirm-pay-gcash flex items-center justify-between gap-3 p-3 rounded-2xl border border-slate-200 bg-white cursor-pointer hover:border-slate-300 transition-colors">
+                    <label
+                        class="confirm-pay-option confirm-pay-gcash flex items-center justify-between gap-3 p-3 rounded-2xl border border-slate-200 bg-white cursor-pointer hover:border-slate-300 transition-colors">
                         <input type="radio" name="confirm-pay-method" value="gcash" class="hidden">
                         <div class="flex items-center gap-3 min-w-0">
-                            <div class="h-10 w-10 rounded-2xl bg-slate-50 border border-slate-200 flex items-center justify-center shrink-0">
+                            <div
+                                class="h-10 w-10 rounded-2xl bg-slate-50 border border-slate-200 flex items-center justify-center shrink-0">
                                 <img src="assets/images/gcash.svg" alt="GCash" class="h-6 w-6" />
                             </div>
                             <div class="min-w-0">
@@ -482,28 +508,33 @@ try {
                                 <div class="text-[12px] font-semibold text-slate-500 truncate">Paid thru Gcash</div>
                             </div>
                         </div>
-                        <div class="confirm-pay-radio h-8 w-8 rounded-full border-2 border-slate-300 flex items-center justify-center shrink-0">
+                        <div
+                            class="confirm-pay-radio h-8 w-8 rounded-full border-2 border-slate-300 flex items-center justify-center shrink-0">
                             <div class="confirm-pay-dot hidden h-4 w-4 rounded-full bg-sky-500"></div>
                         </div>
                     </label>
 
-                    <label class="confirm-pay-option confirm-pay-bank flex items-center justify-between gap-3 p-3 rounded-2xl border border-slate-200 bg-white cursor-pointer hover:border-slate-300 transition-colors">
+                    <label
+                        class="confirm-pay-option confirm-pay-bank flex items-center justify-between gap-3 p-3 rounded-2xl border border-slate-200 bg-white cursor-pointer hover:border-slate-300 transition-colors">
                         <input type="radio" name="confirm-pay-method" value="bank" class="hidden">
                         <div class="flex items-center gap-3 min-w-0">
-                            <div class="h-10 w-10 rounded-2xl bg-slate-50 border border-slate-200 text-slate-700 flex items-center justify-center shrink-0">
+                            <div
+                                class="h-10 w-10 rounded-2xl bg-slate-50 border border-indigo-200 text-indigo-700 flex items-center justify-center shrink-0">
                                 <i class="fa-solid fa-building-columns text-lg"></i>
                             </div>
                             <div class="min-w-0">
-                                <div class="text-sm font-black text-slate-900 truncate">Bank</div>
-                                <div class="text-[12px] font-semibold text-slate-500 truncate">Paid via Bank</div>
+                                <div class="text-sm font-black text-slate-900 truncate">In Bank</div>
+                                <div class="text-[12px] font-semibold text-slate-500 truncate">Paid in bank</div>
                             </div>
                         </div>
-                        <div class="confirm-pay-radio h-8 w-8 rounded-full border-2 border-slate-300 flex items-center justify-center shrink-0">
+                        <div
+                            class="confirm-pay-radio h-8 w-8 rounded-full border-2 border-slate-300 flex items-center justify-center shrink-0">
                             <div class="confirm-pay-dot hidden h-4 w-4 rounded-full bg-indigo-500"></div>
                         </div>
                     </label>
                 </div>
-                <div class="mt-3 rounded-2xl border border-slate-100 bg-slate-50 px-3 py-2.5 flex justify-between items-center">
+                <div
+                    class="mt-3 rounded-2xl border border-slate-100 bg-slate-50 px-3 py-2.5 flex justify-between items-center">
                     <div class="text-xs font-bold text-slate-500 uppercase tracking-[0.2em]">Total Amount</div>
                     <div class="text-xl font-black text-slate-900" id="confirm-pay-total">₱ 0.00</div>
                 </div>
@@ -565,26 +596,7 @@ try {
             }
 
             // Header Profile Dropdown
-            $profileBtn.on('click', function (e) {
-                e.stopPropagation();
-                $profileMenu.toggleClass('hidden');
-            });
-
-            $(document).on('click', function (e) {
-                // If the click is inside any modal/backdrop, don't auto-close the account menu.
-                // This prevents "close modal" clicks from also closing the google menu.
-                if ($(e.target).closest('#sales-history-modal, #item-select-modal, #checkout-wizard-modal, #confirm-action-modal').length > 0) {
-                    return;
-                }
-
-                if (
-                    !$profileMenu.is(e.target) &&
-                    $profileMenu.has(e.target).length === 0 &&
-                    !$profileBtn.is(e.target)
-                ) {
-                    $profileMenu.addClass('hidden');
-                }
-            });
+            // Handled globally by the shared header (includes/partial/header.php)
 
 
             // ------------------------------------------
@@ -659,11 +671,11 @@ try {
                             <div class="aspect-square w-full bg-slate-50 relative shrink-0">
                                 ${imageHtml}
                                 ${parseInt(item.item_count, 10) > 0
-                                    ? `<div class="absolute top-2 right-2 bg-white/90 backdrop-blur-sm px-2 py-1 rounded-lg text-[10px] font-black text-slate-700 shadow-sm">
+                            ? `<div class="absolute top-2 right-2 bg-white/90 backdrop-blur-sm px-2 py-1 rounded-lg text-[10px] font-black text-slate-700 shadow-sm">
                                             Qty: ${item.item_count}
                                        </div>`
-                                    : ''
-                                }
+                            : ''
+                        }
                             </div>
                             <div class="p-3 flex-1 flex flex-col justify-center">
                                 <h3 class="text-sm font-bold text-slate-800 truncate group-hover:text-teal-700 transition-colors">${item.item_name}</h3>
@@ -826,9 +838,9 @@ try {
                                 <div class="flex items-center gap-3 flex-1 pr-3">
                                     <div class="h-12 w-12 rounded-xl overflow-hidden bg-slate-100 flex-shrink-0 flex items-center justify-center">
                                         ${hasImage
-                                            ? '<img src="' + item.image + '" class="h-full w-full object-cover" loading="lazy">'
-                                            : '<span class="text-sm font-black text-slate-400">' + imageInitial + '</span>'
-                                        }
+                                ? '<img src="' + item.image + '" class="h-full w-full object-cover" loading="lazy">'
+                                : '<span class="text-sm font-black text-slate-400">' + imageInitial + '</span>'
+                            }
                                     </div>
                                     <div class="min-w-0">
                                         <div class="flex flex-col gap-1 min-w-0">
@@ -845,8 +857,8 @@ try {
                                             data-id="${item.id}" 
                                             data-action="${canDecreaseToDelete ? 'remove' : 'decrease'}">
                                             ${canDecreaseToDelete
-                                                ? '<i class="fa-solid fa-trash-can text-[11px]"></i>'
-                                                : '<i class="fa-solid fa-minus text-[11px]"></i>'}
+                                ? '<i class="fa-solid fa-trash-can text-[11px]"></i>'
+                                : '<i class="fa-solid fa-minus text-[11px]"></i>'}
                                         </button>
                                         <span class="text-xs font-black w-4 text-center">${item.qty}</span>
                                         <button 
@@ -1312,9 +1324,9 @@ try {
                             <div class="flex items-center gap-3 flex-1 pr-3">
                                 <div class="h-12 w-12 rounded-xl overflow-hidden bg-slate-100 flex-shrink-0 flex items-center justify-center">
                                     ${hasImage
-                                        ? `<img src="${item.image}" class="h-full w-full object-cover" loading="lazy">`
-                                        : `<span class="text-sm font-black text-slate-400">${imageInitial}</span>`
-                                    }
+                            ? `<img src="${item.image}" class="h-full w-full object-cover" loading="lazy">`
+                            : `<span class="text-sm font-black text-slate-400">${imageInitial}</span>`
+                        }
                                 </div>
                                 <div class="min-w-0">
                                     <div class="flex flex-col gap-1 min-w-0">
@@ -1331,8 +1343,8 @@ try {
                                         data-id="${item.id}" 
                                         data-action="${canDecreaseToDelete ? 'remove' : 'decrease'}">
                                         ${canDecreaseToDelete
-                                            ? '<i class="fa-solid fa-trash-can text-[11px]"></i>'
-                                            : '<i class="fa-solid fa-minus text-[11px]"></i>'}
+                            ? '<i class="fa-solid fa-trash-can text-[11px]"></i>'
+                            : '<i class="fa-solid fa-minus text-[11px]"></i>'}
                                     </button>
                                     <span class="text-xs font-black w-4 text-center">${item.qty}</span>
                                     <button 
@@ -1716,7 +1728,7 @@ try {
                                 : '');
                         const paymentBadge = (!isUnpaid && !isVoided)
                             ? (isBankPaid
-                                ? `<span class="bg-indigo-100 text-indigo-700 text-[10px] px-2 py-0.5 rounded font-black uppercase tracking-widest">Bank</span>`
+                                ? `<span class="bg-indigo-100 text-indigo-700 text-[10px] px-2 py-0.5 rounded font-black uppercase tracking-widest">In Bank</span>`
                                 : (isGcashPaid
                                     ? `<span class="bg-sky-100 text-sky-700 text-[10px] px-2 py-0.5 rounded font-black uppercase tracking-widest">GCash</span>`
                                     : `<span class="bg-emerald-100 text-emerald-700 text-[10px] px-2 py-0.5 rounded font-black uppercase tracking-widest">Cash</span>`))
@@ -1744,14 +1756,14 @@ try {
                                 <div class="flex flex-col sm:items-end items-start gap-2">
                                     <p class="text-lg font-black text-slate-900 sm:text-right">₱ ${parseFloat(t.total_amount).toFixed(2)}</p>
                                     ${isVoided
-                                        ? ''
-                                        : `<button 
+                                ? ''
+                                : `<button 
                                             class="inline-void-transaction text-[11px] font-black uppercase tracking-widest px-3 py-1.5 rounded-full cursor-pointer shadow-sm ${btnColorClasses}"
                                             data-uuid="${t.transaction_uuid}"
                                             data-is-unpaid="${isUnpaid ? '1' : '0'}">
                                             ${btnLabel}
                                         </button>`
-                                    }
+                            }
                                 </div>
                             </div>
                         `;

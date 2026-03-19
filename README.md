@@ -1,4 +1,4 @@
-# Venda Track POS / Inventory System
+# SMILE POS / Inventory System
 
 A PHP + MySQL **POS (Point of Sale)** and **Inventory Management** web app designed to run locally on **XAMPP** (or any PHP server), with a modern Tailwind UI, item image uploads, receivables, reports, and PDF export.
 
@@ -234,6 +234,7 @@ This repo does not ship a `.sql` dump; below is the schema implied by the SQL qu
 ### Seed behavior
 
 On successful registration / first Google login, default categories are inserted for the user:
+
 - `Supplies`, `Equipment`, `Furniture`
 
 ---
@@ -282,6 +283,7 @@ npm run dev
 ```
 
 `npm run dev` watches:
+
 - `public/assets/css/input.css` → builds to `public/assets/css/output.css`
 
 ### 5) Configure `.env`
@@ -315,6 +317,7 @@ Make sure XAMPP/PHP has write permission to `public/storage/uploads/`.
 ## UI/Theming notes
 
 The header applies page-based theme accents:
+
 - POS: teal
 - Inventory: indigo
 - Reports: fuchsia
