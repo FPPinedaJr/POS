@@ -23,9 +23,10 @@ try {
     $posItems = [];
 }
 
-// Preload today's transactions (created today OR settled today) + all receivables
+// Preload today's transactions (created today OR settled today) + all receivables + all payables
 $todaysTransactions = [];
 $allReceivables = [];
+$allPayables = [];
 try {
     $stmtToday = $pdo->prepare("
         SELECT 
@@ -78,9 +79,37 @@ try {
     ");
     $stmtRecv->execute(['user_id' => $userId]);
     $allReceivables = $stmtRecv->fetchAll(PDO::FETCH_ASSOC) ?: [];
+
+    // Payables: unpaid supplier purchases
+    $stmtPayables = $pdo->prepare("
+        SELECT
+            ip.purchase_id,
+            ip.user_id,
+            ip.item_id,
+            ip.qty,
+            ip.value,
+            ip.total_amount,
+            ip.is_unpaid,
+            ip.is_gcash,
+            ip.is_bank,
+            ip.supplier,
+            ip.due_date,
+            ip.settle_date,
+            ip.created_at,
+            CONCAT(ip.qty, 'x ', i.item_name) AS items_summary
+        FROM item_purchase ip
+        LEFT JOIN item i ON ip.item_id = i.item_id
+        WHERE ip.user_id = :user_id
+          AND ip.is_unpaid = 1
+          AND ip.settle_date IS NULL
+        ORDER BY ip.created_at DESC
+    ");
+    $stmtPayables->execute(['user_id' => $userId]);
+    $allPayables = $stmtPayables->fetchAll(PDO::FETCH_ASSOC) ?: [];
 } catch (Throwable $e) {
     $todaysTransactions = [];
     $allReceivables = [];
+    $allPayables = [];
 }
 ?>
 <!DOCTYPE html>
@@ -359,7 +388,7 @@ try {
                                 <label class="co-pay-option co-pay-cash flex items-center justify-between gap-4 p-4 rounded-2xl border border-slate-200 bg-white cursor-pointer hover:border-slate-300 transition-colors">
                                     <input type="radio" name="co-payment" value="cash" class="hidden" checked>
                                     <div class="flex items-center gap-3 min-w-0">
-                                        <div class="h-12 w-12 rounded-2xl bg-slate-50 border border-emerald-200 text-emerald-700 flex items-center justify-center shrink-0">
+                                        <div class="h-12 w-12 rounded-2xl bg-slate-50 border border-slate-200 text-slate-700 flex items-center justify-center shrink-0">
                                             <i class="fa-solid fa-money-bill-1 text-lg"></i>
                                         </div>
                                         <div class="min-w-0">
@@ -391,7 +420,7 @@ try {
                                 <label class="co-pay-option co-pay-bank flex items-center justify-between gap-4 p-4 rounded-2xl border border-slate-200 bg-white cursor-pointer hover:border-slate-300 transition-colors">
                                     <input type="radio" name="co-payment" value="bank" class="hidden">
                                     <div class="flex items-center gap-3 min-w-0">
-                                        <div class="h-12 w-12 rounded-2xl bg-slate-50 border border-indigo-200 text-indigo-700 flex items-center justify-center shrink-0">
+                                        <div class="h-12 w-12 rounded-2xl bg-slate-50 border border-slate-200 text-slate-700 flex items-center justify-center shrink-0">
                                             <i class="fa-solid fa-building-columns text-lg"></i>
                                         </div>
                                         <div class="min-w-0">
@@ -458,7 +487,7 @@ try {
                     <label class="confirm-pay-option confirm-pay-cash flex items-center justify-between gap-3 p-3 rounded-2xl border border-slate-200 bg-white cursor-pointer hover:border-slate-300 transition-colors">
                         <input type="radio" name="confirm-pay-method" value="cash" class="hidden" checked>
                         <div class="flex items-center gap-3 min-w-0">
-                            <div class="h-10 w-10 rounded-2xl bg-slate-50 border border-emerald-200 text-emerald-700 flex items-center justify-center shrink-0">
+                            <div class="h-10 w-10 rounded-2xl bg-slate-50 border border-slate-200 text-slate-700 flex items-center justify-center shrink-0">
                                 <i class="fa-solid fa-money-bill-1 text-lg"></i>
                             </div>
                             <div class="min-w-0">
@@ -490,7 +519,7 @@ try {
                     <label class="confirm-pay-option confirm-pay-bank flex items-center justify-between gap-3 p-3 rounded-2xl border border-slate-200 bg-white cursor-pointer hover:border-slate-300 transition-colors">
                         <input type="radio" name="confirm-pay-method" value="bank" class="hidden">
                         <div class="flex items-center gap-3 min-w-0">
-                            <div class="h-10 w-10 rounded-2xl bg-slate-50 border border-indigo-200 text-indigo-700 flex items-center justify-center shrink-0">
+                            <div class="h-10 w-10 rounded-2xl bg-slate-50 border border-slate-200 text-slate-700 flex items-center justify-center shrink-0">
                                 <i class="fa-solid fa-building-columns text-lg"></i>
                             </div>
                             <div class="min-w-0">
@@ -529,6 +558,7 @@ try {
         window.__POS_ITEMS__ = <?php echo json_encode($posItems, JSON_UNESCAPED_SLASHES); ?>;
         window.__TODAYS_TRANSACTIONS__ = <?php echo json_encode($todaysTransactions, JSON_UNESCAPED_SLASHES); ?>;
         window.__ALL_RECEIVABLES__ = <?php echo json_encode($allReceivables, JSON_UNESCAPED_SLASHES); ?>;
+        window.__ALL_PAYABLES__ = <?php echo json_encode($allPayables, JSON_UNESCAPED_SLASHES); ?>;
     </script>
     <script>
         $(document).ready(function () {
@@ -542,9 +572,10 @@ try {
             let checkoutStep = 1;
             let selectedItemForCart = null;
             let checkoutTotal = 0;
-            let pendingAction = null;
+            let pendingAction = null; // { type: 'receivable'|'transaction'|'payable', uuid?, purchase_id?, isUnpaid? }
             let todaysTransactions = { success: true, transactions: Array.isArray(window.__TODAYS_TRANSACTIONS__) ? window.__TODAYS_TRANSACTIONS__ : [] };
             let allReceivables = { success: true, transactions: Array.isArray(window.__ALL_RECEIVABLES__) ? window.__ALL_RECEIVABLES__ : [] };
+            let allPayables = { success: true, purchases: Array.isArray(window.__ALL_PAYABLES__) ? window.__ALL_PAYABLES__ : [] };
 
             const $grid = $('#pos-item-grid');
             const $loader = $('#pos-loading');
@@ -1760,6 +1791,43 @@ try {
                 $('#ui-transaction-list').html(listHtml);
             }
 
+            function renderPayablesList(purchases, emptyMessage) {
+                let listHtml = '';
+                if (!purchases || purchases.length === 0) {
+                    listHtml = `<div class="text-center py-6 text-slate-400 text-sm font-medium">${emptyMessage}</div>`;
+                } else {
+                    purchases.forEach(p => {
+                        const supplier = (p && p.supplier) ? String(p.supplier) : 'Supplier';
+                        const itemsSummary = p.items_summary || '';
+                        const total = parseFloat(p.total_amount || 0) || 0;
+                        const id = String(p.purchase_id || '');
+
+                        listHtml += `
+                            <div class="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-3 p-4 bg-white border border-slate-200 rounded-xl hover:border-teal-300 hover:shadow-md transition-all">
+                                <div class="sm:pr-4">
+                                    <div class="flex items-center gap-2 mb-1 flex-wrap">
+                                        <p class="text-sm font-bold text-slate-800">${supplier}</p>
+                                        <span class="inline-flex items-center justify-center bg-orange-50 text-orange-700 text-[10px] px-2 py-0.5 rounded font-black uppercase tracking-widest">Payable</span>
+                                    </div>
+                                    ${itemsSummary ? `<p class="text-xs text-slate-500 leading-snug">${itemsSummary}</p>` : ''}
+                                    ${p.due_date ? `<p class="text-[11px] text-slate-400 font-semibold mt-1">Due: ${String(p.due_date)}</p>` : ''}
+                                </div>
+                                <div class="flex flex-col sm:items-end items-start gap-2">
+                                    <p class="text-lg font-black text-slate-900 sm:text-right">₱ ${total.toFixed(2)}</p>
+                                    <button
+                                        class="inline-payable-pay text-[11px] font-black uppercase tracking-widest px-3 py-1.5 rounded-full cursor-pointer shadow-sm text-emerald-700 bg-emerald-50 hover:bg-emerald-100"
+                                        data-purchase-id="${id}"
+                                        data-total="${total}">
+                                        Pay
+                                    </button>
+                                </div>
+                            </div>
+                        `;
+                    });
+                }
+                $('#ui-transaction-list').html(listHtml);
+            }
+
             function rerenderTransactionsIfOpen() {
                 if (!$salesModal.hasClass('flex')) return;
                 const title = ($('#sales-history-modal h2').text() || '').toLowerCase();
@@ -1767,6 +1835,9 @@ try {
                 if (title.indexOf('receivables') !== -1) {
                     const useData = allReceivables;
                     renderTransactionsList((useData && useData.transactions) ? useData.transactions : [], 'No receivables found.');
+                } else if (title.indexOf('payables') !== -1) {
+                    const useData = allPayables;
+                    renderPayablesList((useData && useData.purchases) ? useData.purchases : [], 'No payables found.');
                 } else {
                     const useData = todaysTransactions;
                     const onlyPaid = (useData && useData.transactions)
@@ -1809,11 +1880,24 @@ try {
                 }
             });
 
+            $('#open-payables').on('click', function () {
+                $('#sales-history-modal h2').text("Payables");
+                $('#ui-transaction-list').html('<div class="text-center py-4"><i class="fa-solid fa-spinner fa-spin text-slate-400"></i></div>');
+                $salesModal.removeClass('hidden').addClass('flex');
+
+                const useData = allPayables;
+                if (useData && useData.success) {
+                    renderPayablesList(useData.purchases || [], 'No payables found.');
+                } else {
+                    renderPayablesList([], 'No payables found.');
+                }
+            });
+
             $(document).on('click', '.inline-void-transaction', function () {
                 const isUnpaid = $(this).data('is-unpaid') === 1 || $(this).data('is-unpaid') === '1';
                 const uuid = $(this).data('uuid');
 
-                pendingAction = { isUnpaid, uuid };
+                pendingAction = { type: isUnpaid ? 'receivable' : 'transaction', isUnpaid, uuid };
 
                 if (isUnpaid) {
                     $('#confirm-action-title').text('Pay Receivable');
@@ -1882,13 +1966,13 @@ try {
                 $cancelBtn.prop('disabled', true);
                 $closeBtn.prop('disabled', true);
 
-                const { isUnpaid, uuid } = pendingAction;
+                const { type, isUnpaid, uuid, purchase_id } = pendingAction;
                 const payMethod = $('input[name="confirm-pay-method"]:checked').val() || 'cash';
                 const isGcash = payMethod === 'gcash';
                 const isBank = payMethod === 'bank';
                 closeConfirmModal();
 
-                if (isUnpaid) {
+                if (type === 'receivable') {
                     // Optimistic UI: remove from receivables, add to today's as paid-from-receivable
                     const snapshot = {
                         todays: JSON.parse(JSON.stringify(todaysTransactions || {})),
@@ -1954,6 +2038,36 @@ try {
                         },
                         complete: function () { }
                     });
+                } else if (type === 'payable') {
+                    // Optimistic UI: remove from payables list
+                    const snapshot = {
+                        payables: JSON.parse(JSON.stringify(allPayables || {})),
+                    };
+
+                    if (allPayables && Array.isArray(allPayables.purchases)) {
+                        allPayables.purchases = allPayables.purchases.filter(p => String(p.purchase_id) !== String(purchase_id));
+                    }
+                    rerenderTransactionsIfOpen();
+                    if (typeof showToast === 'function') showToast('success', 'Payable Paid!');
+
+                    $.ajax({
+                        url: 'includes/pay_payable.php',
+                        type: 'POST',
+                        contentType: 'application/json',
+                        data: JSON.stringify({ purchase_id, is_gcash: isGcash, is_bank: isBank }),
+                        success: function (res) {
+                            if (!res.success) {
+                                allPayables = snapshot.payables;
+                                rerenderTransactionsIfOpen();
+                                if (typeof showToast === 'function') showToast('error', res.message || 'Unable to pay payable.');
+                            }
+                        },
+                        error: function () {
+                            allPayables = snapshot.payables;
+                            rerenderTransactionsIfOpen();
+                            if (typeof showToast === 'function') showToast('error', 'Server error while paying payable.');
+                        }
+                    });
                 } else {
                     // Optimistic UI: mark voided / remove from receivables list
                     const snapshot = {
@@ -2012,6 +2126,25 @@ try {
                         complete: function () { }
                     });
                 }
+            });
+
+            $(document).on('click', '.inline-payable-pay', function () {
+                const pid = String($(this).data('purchase-id') || '');
+                const total = parseFloat($(this).data('total') || 0) || 0;
+                if (!pid) return;
+
+                pendingAction = { type: 'payable', purchase_id: pid };
+                $('#confirm-action-title').text('Pay Payable');
+                $('#confirm-action-message').text('Mark this payable as fully paid?');
+                $('#confirm-pay-method-wrapper').removeClass('hidden');
+                $('input[name="confirm-pay-method"][value="cash"]').prop('checked', true);
+                setConfirmPayMethod('cash');
+                $('#confirm-pay-total').text('₱ ' + total.toFixed(2));
+                $('#confirm-action-confirm')
+                    .removeClass('bg-red-600 hover:bg-red-700 shadow-red-200')
+                    .addClass('bg-emerald-600 hover:bg-emerald-700 shadow-emerald-200')
+                    .text('Pay');
+                $confirmModal.removeClass('hidden').addClass('flex');
             });
 
             $('.close-sales-modal').on('click', () => $salesModal.addClass('hidden').removeClass('flex'));

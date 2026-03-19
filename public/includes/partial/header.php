@@ -32,7 +32,7 @@ $iconClass = $theme === 'teal'
             <?php else: ?>
                 <a href="portal.php" class="flex items-center focus:outline-none" aria-label="Go to portal">
             <?php endif; ?>
-                <img src="assets/images/header.png" alt="Venda Track"
+                <img src="assets/images/logo.png" alt="Venda Track"
                     class="h-10 w-auto max-w-[200px] sm:max-w-[240px] object-contain">
             </a>
         </div>
@@ -173,6 +173,11 @@ $iconClass = $theme === 'teal'
                                         class="w-full hover:cursor-pointer flex items-center gap-3 px-4 py-3 text-sm font-bold text-slate-700 hover:bg-white <?php echo $hoverTextClass; ?> hover:shadow-sm rounded-2xl transition-all mb-1">
                                         <i class="fa-solid fa-hand-holding-dollar <?php echo $iconClass; ?>"></i>
                                         <span>Receivables</span>
+                                    </button>
+                                    <button id="open-payables"
+                                        class="w-full hover:cursor-pointer flex items-center gap-3 px-4 py-3 text-sm font-bold text-slate-700 hover:bg-white <?php echo $hoverTextClass; ?> hover:shadow-sm rounded-2xl transition-all mb-1">
+                                        <i class="fa-solid fa-file-invoice-dollar <?php echo $iconClass; ?>"></i>
+                                        <span>Payables</span>
                                     </button>
                                 <?php endif; ?>
 
