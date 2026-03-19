@@ -53,7 +53,7 @@ if ($reportType === 'sales') {
                 <p class="subtitle">Period: ' . $displayStartDate . ' to ' . $displayEndDate . '</p>
               </div>';
 
-    // 1. Fetch Transactions WITH Items
+    // 1. Fetch Transactions WITH Items (Added is_bank)
     $stmt = $pdo->prepare("
         SELECT 
             th.transaction_uuid, 
@@ -62,6 +62,7 @@ if ($reportType === 'sales') {
             th.total_amount, 
             th.is_unpaid, 
             th.is_gcash,
+            th.is_bank, /* <-- ADDED is_bank HERE */
             th.settle_date, 
             th.created_at,
             ti.quantity, 
@@ -84,6 +85,7 @@ if ($reportType === 'sales') {
     $grandTotal = 0;
     $totalCash = 0;
     $totalGCash = 0;
+    $totalBank = 0; // <-- Added Bank Tracker
     $totalCredit = 0;
 
     foreach ($results as $row) {
@@ -93,11 +95,14 @@ if ($reportType === 'sales') {
             $amt = (float) $row['total_amount'];
             $isUnpaid = (int) $row['is_unpaid'] === 1;
             $isGcash = (int) $row['is_gcash'] === 1;
+            $isBank = (int) $row['is_bank'] === 1; // <-- Captured Bank Flag
 
             // Calculate Subtotals
             $grandTotal += $amt;
             if ($isUnpaid) {
                 $totalCredit += $amt;
+            } elseif ($isBank) {
+                $totalBank += $amt;
             } elseif ($isGcash) {
                 $totalGCash += $amt;
             } else {
@@ -110,6 +115,7 @@ if ($reportType === 'sales') {
                 'total' => $amt,
                 'is_unpaid' => $isUnpaid,
                 'is_gcash' => $isGcash,
+                'is_bank' => $isBank, // <-- Saved to transaction
                 'created_at' => date('M d, Y', strtotime($row['created_at'])),
                 'items' => []
             ];
@@ -147,6 +153,10 @@ if ($reportType === 'sales') {
                     <td class="text-right" style="padding: 8px 20px; font-weight: bold; color: #334155;">P ' . number_format($totalGCash, 2) . '</td>
                 </tr>
                 <tr>
+                    <td style="padding: 8px 20px; color: #475569;">Bank Transfer</td>
+                    <td class="text-right" style="padding: 8px 20px; font-weight: bold; color: #334155;">P ' . number_format($totalBank, 2) . '</td>
+                </tr>
+                <tr>
                     <td style="padding: 8px 20px; color: #475569;">Credit Sales (Unpaid)</td>
                     <td class="text-right" style="padding: 8px 20px; font-weight: bold; color: #334155;">P ' . number_format($totalCredit, 2) . '</td>
                 </tr>
@@ -174,9 +184,11 @@ if ($reportType === 'sales') {
                 <tbody>';
 
     foreach ($transactions as $txn) {
-        // Formal Text Status
+        // Formal Text Status (Added Bank)
         if ($txn['is_unpaid']) {
             $status = '<strong>Unpaid</strong>';
+        } elseif ($txn['is_bank']) {
+            $status = 'Paid (Bank)';
         } elseif ($txn['is_gcash']) {
             $status = 'Paid (GCash)';
         } else {

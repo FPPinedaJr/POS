@@ -57,6 +57,14 @@ if (!isset($_SESSION['user_id'])) {
                 class="tab-btn px-5 py-3 text-sm font-bold border-b-2 border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300 transition-all whitespace-nowrap">
                 <i class="fa-solid fa-clipboard-list mr-1.5"></i> Inventory
             </button>
+            <button data-target="#tab-purchases"
+                class="tab-btn px-5 py-3 text-sm font-bold border-b-2 border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300 transition-all whitespace-nowrap">
+                <i class="fa-solid fa-cart-shopping mr-1.5"></i> Item Purchases
+            </button>
+            <button data-target="#tab-payables"
+                class="tab-btn px-5 py-3 text-sm font-bold border-b-2 border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300 transition-all whitespace-nowrap">
+                <i class="fa-solid fa-file-invoice mr-1.5"></i> Payables
+            </button>
         </div>
 
         <div
@@ -110,6 +118,13 @@ if (!isset($_SESSION['user_id'])) {
                 <div id="inventory-report-container"></div>
             </div>
 
+            <div id="tab-purchases" class="tab-content hidden">
+                <div id="purchases-report-container"></div>
+            </div>
+
+            <div id="tab-payables" class="tab-content hidden">
+                <div id="payables-report-container"></div>
+            </div>
         </div>
     </main>
 
@@ -168,6 +183,7 @@ if (!isset($_SESSION['user_id'])) {
                     let grandTotal = 0;
                     let totalCash = 0;
                     let totalGCash = 0;
+                    let totalBank = 0;
                     let totalCredit = 0;
 
                     res.data.forEach(txn => {
@@ -176,6 +192,8 @@ if (!isset($_SESSION['user_id'])) {
 
                         if (txn.is_unpaid) {
                             totalCredit += amount;
+                        } else if (txn.is_bank) {
+                            totalBank += amount;
                         } else if (txn.is_gcash) {
                             totalGCash += amount;
                         } else {
@@ -185,6 +203,7 @@ if (!isset($_SESSION['user_id'])) {
 
                     let totalTransactions = res.data.length;
 
+                    // Updated Summary HTML
                     let summaryHtml = `
                     <div class="bg-white border border-slate-200 rounded-[1.25rem] p-5 sm:p-6 mb-6 shadow-sm flex flex-col lg:flex-row lg:items-center justify-between gap-5">
                         
@@ -201,9 +220,9 @@ if (!isset($_SESSION['user_id'])) {
                             </div>
                         </div>
 
-                        <div class="flex flex-row items-center justify-between sm:justify-start gap-4 sm:gap-6 text-xs font-bold border-t lg:border-t-0 border-slate-100 pt-4 lg:pt-0">
+                        <div class="flex flex-row items-center justify-between sm:justify-start gap-4 sm:gap-6 text-xs font-bold border-t lg:border-t-0 border-slate-100 pt-4 lg:pt-0 overflow-x-auto hide-scrollbar">
                             
-                            <div class="flex flex-col gap-1">
+                            <div class="flex flex-col gap-1 shrink-0">
                                 <span class="text-[9px] uppercase tracking-widest text-slate-400 flex items-center gap-1.5">
                                     <i class="fa-solid fa-money-bill-wave text-emerald-400"></i> Cash
                                 </span>
@@ -212,16 +231,25 @@ if (!isset($_SESSION['user_id'])) {
                             
                             <div class="w-px h-6 bg-slate-200 hidden sm:block"></div>
                             
-                            <div class="flex flex-col gap-1">
+                            <div class="flex flex-col gap-1 shrink-0">
                                 <span class="text-[9px] uppercase tracking-widest text-slate-400 flex items-center gap-1.5">
                                     <i class="fa-solid fa-mobile-screen text-blue-400"></i> GCash
                                 </span>
                                 <span class="text-sm text-slate-700">${formatMoney(totalGCash)}</span>
                             </div>
+
+                            <div class="w-px h-6 bg-slate-200 hidden sm:block"></div>
+
+                            <div class="flex flex-col gap-1 shrink-0">
+                                <span class="text-[9px] uppercase tracking-widest text-slate-400 flex items-center gap-1.5">
+                                    <i class="fa-solid fa-building-columns text-indigo-400"></i> Bank
+                                </span>
+                                <span class="text-sm text-slate-700">${formatMoney(totalBank)}</span>
+                            </div>
                             
                             <div class="w-px h-6 bg-slate-200 hidden sm:block"></div>
                             
-                            <div class="flex flex-col gap-1">
+                            <div class="flex flex-col gap-1 shrink-0">
                                 <span class="text-[9px] uppercase tracking-widest text-slate-400 flex items-center gap-1.5">
                                     <i class="fa-solid fa-clock text-rose-400"></i> Credit
                                 </span>
@@ -229,7 +257,6 @@ if (!isset($_SESSION['user_id'])) {
                             </div>
 
                         </div>
-                        
                     </div>`;
                     $container.append(summaryHtml);
 
@@ -246,10 +273,15 @@ if (!isset($_SESSION['user_id'])) {
                         let customerHtml = '';
                         let statusHtml = '';
 
-                        // Handle GCash Badge Logic
-                        let methodBadge = txn.is_gcash
-                            ? `<div class="bg-blue-50 text-blue-600 px-2 py-1 text-[10px] font-bold border-l border-emerald-100">GCash</div>`
-                            : `<div class="bg-emerald-50/40 text-emerald-600 px-2 py-1 text-[10px] font-bold border-l border-emerald-100">Cash</div>`;
+                        // Handle Badge Logic (Added Bank)
+                        let methodBadge = '';
+                        if (txn.is_bank) {
+                            methodBadge = `<div class="bg-violet-50 text-violet-700 px-2 py-1 text-[10px] font-bold border-l border-emerald-100">Bank</div>`;
+                        } else if (txn.is_gcash) {
+                            methodBadge = `<div class="bg-blue-50 text-blue-600 px-2 py-1 text-[10px] font-bold border-l border-emerald-100">GCash</div>`;
+                        } else {
+                            methodBadge = `<div class="bg-emerald-50/40 text-emerald-600 px-2 py-1 text-[10px] font-bold border-l border-emerald-100">Cash</div>`;
+                        }
 
                         if (txn.is_unpaid) {
                             borderLeft = 'border-l-rose-400';
@@ -272,7 +304,7 @@ if (!isset($_SESSION['user_id'])) {
                             </div>`;
                             statusHtml = `
                             <div class="inline-flex items-center border border-emerald-100 rounded-md overflow-hidden shadow-sm">
-                                <div class="bg-emerald-50 text-emerald-600 px-2 py-1 text-[10px] font-bold flex items-center gap-1.5"><i class="fa-solid fa-check"></i> Paid</div>
+                                <div class="bg-emerald-50 text-emerald-600 px-2 py-1 text-[10px] font-bold flex items-center gap-1.5"><i class="fa-solid fa-check"></i>Settled</div>
                                 ${methodBadge}
                                 <div class="bg-slate-50 text-slate-500 px-2 py-1 text-[10px] font-semibold border-l border-emerald-100">${txn.settle_date}</div>
                             </div>`;
@@ -790,6 +822,267 @@ if (!isset($_SESSION['user_id'])) {
             });
         }
 
+        function loadPurchasesReport() {
+            const startDate = $('#filter_start').val();
+            const endDate = $('#filter_end').val();
+            const $container = $('#purchases-report-container');
+
+            $container.html('<div class="p-8 text-center text-sm font-bold text-fuchsia-400 animate-pulse"><i class="fa-solid fa-circle-notch fa-spin mr-2"></i> Loading purchases...</div>');
+
+            $.post('includes/fetch_purchases.php', { start_date: startDate, end_date: endDate }, function (res) {
+                if (res.success) {
+                    $container.empty();
+
+                    if (res.data.length === 0) {
+                        $container.html('<div class="p-8 text-center text-sm font-bold text-slate-400 border-2 border-dashed border-slate-200 rounded-2xl">No purchases found for this date range.</div>');
+                        return;
+                    }
+
+                    // Calculate Subtotals
+                    let grandTotal = 0;
+                    let totalCash = 0;
+                    let totalGCash = 0;
+                    let totalBank = 0;
+                    let totalPayable = 0;
+
+                    res.data.forEach(item => {
+                        let amount = parseFloat(item.total_amount);
+                        grandTotal += amount;
+
+                        if (parseInt(item.is_unpaid) === 1) {
+                            totalPayable += amount;
+                        } else if (parseInt(item.is_bank) === 1) {
+                            totalBank += amount;
+                        } else if (parseInt(item.is_gcash) === 1) {
+                            totalGCash += amount;
+                        } else {
+                            totalCash += amount;
+                        }
+                    });
+
+                    // 1. Sleek Minimalist Summary Card
+                    let summaryHtml = `
+                    <div class="bg-white border border-slate-200 rounded-[1.25rem] p-5 sm:p-6 mb-6 shadow-sm flex flex-col lg:flex-row lg:items-center justify-between gap-5">
+                        <div class="flex items-center gap-4">
+                            <div class="h-11 w-11 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center text-slate-500 shadow-sm shrink-0">
+                                <i class="fa-solid fa-cart-shopping text-lg"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-0.5">Total Purchases</h3>
+                                <div class="flex items-baseline gap-2">
+                                    <p class="text-2xl sm:text-3xl font-black text-slate-800 leading-none">${formatMoney(grandTotal)}</p>
+                                    <span class="text-[10px] font-bold text-slate-400">/ ${res.data.length} items</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex flex-row items-center justify-between sm:justify-start gap-4 sm:gap-6 text-xs font-bold border-t lg:border-t-0 border-slate-100 pt-4 lg:pt-0 overflow-x-auto hide-scrollbar pb-2 lg:pb-0">
+                            <div class="flex flex-col gap-1 shrink-0">
+                                <span class="text-[9px] uppercase tracking-widest text-slate-400 flex items-center gap-1.5"><i class="fa-solid fa-money-bill-wave text-emerald-400"></i> Cash</span>
+                                <span class="text-sm text-slate-700">${formatMoney(totalCash)}</span>
+                            </div>
+                            <div class="w-px h-6 bg-slate-200 hidden sm:block"></div>
+                            <div class="flex flex-col gap-1 shrink-0">
+                                <span class="text-[9px] uppercase tracking-widest text-slate-400 flex items-center gap-1.5"><i class="fa-solid fa-mobile-screen text-blue-400"></i> GCash</span>
+                                <span class="text-sm text-slate-700">${formatMoney(totalGCash)}</span>
+                            </div>
+                            <div class="w-px h-6 bg-slate-200 hidden sm:block"></div>
+                            <div class="flex flex-col gap-1 shrink-0">
+                                <span class="text-[9px] uppercase tracking-widest text-slate-400 flex items-center gap-1.5"><i class="fa-solid fa-building-columns text-teal-400"></i> Bank</span>
+                                <span class="text-sm text-slate-700">${formatMoney(totalBank)}</span>
+                            </div>
+                            <div class="w-px h-6 bg-slate-200 hidden sm:block"></div>
+                            <div class="flex flex-col gap-1 shrink-0">
+                                <span class="text-[9px] uppercase tracking-widest text-slate-400 flex items-center gap-1.5"><i class="fa-solid fa-file-invoice text-rose-400"></i> Payable</span>
+                                <span class="text-sm text-rose-600">${formatMoney(totalPayable)}</span>
+                            </div>
+                        </div>
+                    </div>`;
+                    $container.append(summaryHtml);
+
+                    // 2. Table Headers
+                    $container.append(`
+                    <div class="hidden sm:flex items-center px-4 pb-2 mb-2 text-[10px] font-black text-slate-400 uppercase tracking-widest border-b border-slate-100">
+                        <div class="w-1/3">Item Details</div>
+                        <div class="w-1/6 text-center">Qty / Unit</div>
+                        <div class="w-1/6 text-center">Unit Cost</div>
+                        <div class="w-1/6 text-center">Status</div>
+                        <div class="w-1/6 text-right pr-4">Total Amount</div>
+                    </div>`);
+
+                    // 3. Flat Rows
+                    res.data.forEach(item => {
+                        let statusHtml = '';
+                        let borderLeft = 'border-l-slate-200';
+
+                        if (parseInt(item.is_unpaid) === 1) {
+                            borderLeft = 'border-l-rose-400';
+                            statusHtml = `<div class="bg-rose-50 text-rose-600 px-2.5 py-1 text-[10px] font-bold rounded shadow-sm border border-rose-100">Payable</div>`;
+                        } else if (parseInt(item.is_bank) === 1) {
+                            borderLeft = 'border-l-teal-400';
+                            statusHtml = `<div class="bg-teal-50 text-teal-600 px-2.5 py-1 text-[10px] font-bold rounded shadow-sm border border-teal-100">Paid (Bank)</div>`;
+                        } else if (parseInt(item.is_gcash) === 1) {
+                            borderLeft = 'border-l-blue-400';
+                            statusHtml = `<div class="bg-blue-50 text-blue-600 px-2.5 py-1 text-[10px] font-bold rounded shadow-sm border border-blue-100">Paid (GCash)</div>`;
+                        } else {
+                            borderLeft = 'border-l-emerald-400';
+                            statusHtml = `<div class="bg-emerald-50 text-emerald-600 px-2.5 py-1 text-[10px] font-bold rounded shadow-sm border border-emerald-100">Paid (Cash)</div>`;
+                        }
+
+                        let supplierHtml = item.supplier ? `<span class="ml-2 text-slate-400 font-medium text-[10px] truncate max-w-[100px] inline-block align-bottom">- ${item.supplier}</span>` : '';
+
+                        let rowHtml = `
+                        <div class="bg-white border border-slate-200 rounded-[1rem] shadow-sm mb-3 transition-all duration-200 border-l-4 ${borderLeft}">
+                            <div class="flex flex-col sm:flex-row sm:items-center justify-between p-4 sm:p-3.5 gap-3 sm:gap-0">
+                                
+                                <div class="w-full sm:w-1/3 flex items-center justify-between sm:block">
+                                    <div>
+                                        <h4 class="text-sm font-black text-slate-800 tracking-wide">${item.item_name} ${supplierHtml}</h4>
+                                        <span class="text-[10px] font-bold text-slate-400">${item.created_at_formatted}</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="w-full sm:w-1/6 flex items-center justify-between sm:justify-center">
+                                    <span class="sm:hidden text-[10px] font-bold text-slate-400 uppercase tracking-widest">Qty</span>
+                                    <span class="text-sm font-black text-slate-700">${item.qty} <span class="text-[10px] text-slate-400 uppercase">${item.unit}</span></span>
+                                </div>
+
+                                <div class="w-full sm:w-1/6 flex items-center justify-between sm:justify-center">
+                                    <span class="sm:hidden text-[10px] font-bold text-slate-400 uppercase tracking-widest">Unit Cost</span>
+                                    <span class="text-xs font-bold text-slate-500">${formatMoney(item.unit_cost)}</span>
+                                </div>
+
+                                <div class="w-full sm:w-1/6 flex items-center justify-between sm:justify-center">
+                                    <span class="sm:hidden text-[10px] font-bold text-slate-400 uppercase tracking-widest">Status</span>
+                                    ${statusHtml}
+                                </div>
+
+                                <div class="w-full sm:w-1/6 flex items-center justify-between sm:justify-end pr-0 sm:pr-4 pt-3 sm:pt-0 border-t border-slate-100 sm:border-t-0 mt-1 sm:mt-0">
+                                    <span class="sm:hidden text-xs font-black text-slate-500 uppercase tracking-widest">Total</span>
+                                    <span class="text-base font-black text-slate-900">${formatMoney(item.total_amount)}</span>
+                                </div>
+                                
+                            </div>
+                        </div>`;
+                        $container.append(rowHtml);
+                    });
+                } else {
+                    $container.html(`<div class="p-8 text-center text-sm font-bold text-red-500 bg-red-50 rounded-2xl border border-red-100">Error: ${res.message}</div>`);
+                }
+            }, 'json').fail(function () {
+                $container.html('<div class="p-8 text-center text-sm font-bold text-red-500 bg-red-50 rounded-2xl border border-red-100">Network or Server Error fetching Purchases.</div>');
+            });
+        }
+
+        function loadPayablesReport() {
+            const startDate = $('#filter_start').val();
+            const endDate = $('#filter_end').val();
+            const $container = $('#payables-report-container');
+
+            $container.html('<div class="p-8 text-center text-sm font-bold text-fuchsia-400 animate-pulse"><i class="fa-solid fa-circle-notch fa-spin mr-2"></i> Fetching payables...</div>');
+
+            $.post('includes/fetch_payables.php', { start_date: startDate, end_date: endDate }, function (res) {
+                if (res.success) {
+                    $container.empty();
+                    const m = res.metrics;
+
+                    // 1. Payables Summary Card
+                    let summaryHtml = `
+                    <div class="bg-rose-50/30 border border-rose-200/50 rounded-[1.25rem] p-5 sm:p-6 mb-6 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-5">
+                        <div class="flex items-center gap-4">
+                            <div class="h-11 w-11 rounded-full bg-white border border-rose-100 flex items-center justify-center text-rose-500 shadow-sm shrink-0">
+                                <i class="fa-solid fa-file-invoice text-lg"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-[10px] font-black text-rose-400 uppercase tracking-widest mb-0.5">Total Unpaid Purchases</h3>
+                                <div class="flex items-baseline gap-2">
+                                    <span class="text-sm font-bold text-slate-700">${m.total_items} Pending Item${m.total_items !== 1 ? 's' : ''}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="text-left sm:text-right border-t border-rose-100/50 sm:border-0 pt-4 sm:pt-0 mt-2 sm:mt-0">
+                            <h3 class="text-[10px] font-black text-rose-400 uppercase tracking-widest mb-0.5">Total Amount Payable</h3>
+                            <p class="text-3xl font-black text-rose-600 leading-none">${formatMoney(m.total_amount)}</p>
+                        </div>
+                    </div>`;
+                    $container.append(summaryHtml);
+
+                    if (res.data.length === 0) {
+                        $container.append('<div class="p-8 text-center text-sm font-bold text-slate-400 border-2 border-dashed border-slate-200 rounded-2xl">No unpaid purchases found for this date range.</div>');
+                        return;
+                    }
+
+                    // 2. Table Headers
+                    $container.append(`
+                    <div class="hidden sm:flex items-center px-4 pb-2 mb-2 text-[10px] font-black text-slate-400 uppercase tracking-widest border-b border-slate-100">
+                        <div class="w-1/3">Item Details</div>
+                        <div class="w-1/6 text-center">Qty / Unit</div>
+                        <div class="w-1/6 text-center">Unit Cost</div>
+                        <div class="w-1/6 text-center">Overdue Status</div>
+                        <div class="w-1/6 text-right pr-4">Total Payable</div>
+                    </div>`);
+
+                    // 3. Flat Rows
+                    res.data.forEach(item => {
+                        let agingBadge = '';
+                        const days = parseInt(item.days_outstanding);
+
+                        if (days === 0) {
+                            agingBadge = `<span class="inline-flex items-center px-2.5 py-1 rounded shadow-sm text-[10px] font-bold bg-slate-50 text-slate-600 border border-slate-200">Today</span>`;
+                        } else if (days >= 1 && days <= 30) {
+                            agingBadge = `<span class="inline-flex items-center px-2.5 py-1 rounded shadow-sm text-[10px] font-bold bg-amber-50 text-amber-600 border border-amber-200">1–30 days</span>`;
+                        } else if (days >= 31 && days <= 60) {
+                            agingBadge = `<span class="inline-flex items-center px-2.5 py-1 rounded shadow-sm text-[10px] font-bold bg-orange-50 text-orange-600 border border-orange-200">31–60 days</span>`;
+                        } else if (days >= 61 && days <= 90) {
+                            agingBadge = `<span class="inline-flex items-center px-2.5 py-1 rounded shadow-sm text-[10px] font-black bg-rose-400 text-white border border-rose-500">61–90 days</span>`;
+                        } else {
+                            agingBadge = `<span class="inline-flex items-center px-2.5 py-1 rounded shadow-sm text-[10px] font-black bg-red-500 text-white border border-red-600">91+ days</span>`;
+                        }
+
+                        let supplierHtml = item.supplier ? `<span class="ml-2 text-slate-400 font-medium text-[10px] truncate max-w-[100px] inline-block align-bottom">- ${item.supplier}</span>` : '';
+
+                        let rowHtml = `
+                        <div class="bg-white border border-slate-200 rounded-[1rem] shadow-sm mb-3 transition-all duration-200 border-l-4 border-l-rose-400">
+                            <div class="flex flex-col sm:flex-row sm:items-center justify-between p-4 sm:p-3.5 gap-3 sm:gap-0">
+                                
+                                <div class="w-full sm:w-1/3 flex items-center justify-between sm:block">
+                                    <div>
+                                        <h4 class="text-sm font-black text-slate-800 tracking-wide">${item.item_name} ${supplierHtml}</h4>
+                                        <span class="text-[10px] font-bold text-slate-400">${item.created_at_formatted}</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="w-full sm:w-1/6 flex items-center justify-between sm:justify-center">
+                                    <span class="sm:hidden text-[10px] font-bold text-slate-400 uppercase tracking-widest">Qty</span>
+                                    <span class="text-sm font-black text-slate-700">${item.qty} <span class="text-[10px] text-slate-400 uppercase">${item.unit}</span></span>
+                                </div>
+
+                                <div class="w-full sm:w-1/6 flex items-center justify-between sm:justify-center">
+                                    <span class="sm:hidden text-[10px] font-bold text-slate-400 uppercase tracking-widest">Unit Cost</span>
+                                    <span class="text-xs font-bold text-slate-500">${formatMoney(item.unit_cost)}</span>
+                                </div>
+
+                                <div class="w-full sm:w-1/6 flex items-center justify-between sm:justify-center">
+                                    <span class="sm:hidden text-[10px] font-bold text-slate-400 uppercase tracking-widest">Age</span>
+                                    ${agingBadge}
+                                </div>
+
+                                <div class="w-full sm:w-1/6 flex items-center justify-between sm:justify-end pr-0 sm:pr-4 pt-3 sm:pt-0 border-t border-slate-100 sm:border-t-0 mt-1 sm:mt-0">
+                                    <span class="sm:hidden text-xs font-black text-slate-500 uppercase tracking-widest">Total Payable</span>
+                                    <span class="text-base font-black text-rose-600">${formatMoney(item.total_amount)}</span>
+                                </div>
+                                
+                            </div>
+                        </div>`;
+                        $container.append(rowHtml);
+                    });
+                } else {
+                    $container.html(`<div class="p-8 text-center text-sm font-bold text-red-500 bg-red-50 rounded-2xl border border-red-100">Error: ${res.message}</div>`);
+                }
+            }, 'json').fail(function () {
+                $container.html('<div class="p-8 text-center text-sm font-bold text-red-500 bg-red-50 rounded-2xl border border-red-100">Network or Server Error fetching Payables.</div>');
+            });
+        }
+
         // 3. EVENT LISTENERS
 
         loadDashboardOverview();
@@ -797,12 +1090,17 @@ if (!isset($_SESSION['user_id'])) {
         loadIncomeReport();
         loadReceivablesReport();
         loadInventoryReport();
+        loadPurchasesReport();
+        loadPayablesReport()
 
         $('#btn_apply_filters').on('click', function () {
             loadSalesReport();
             loadIncomeReport();
             loadReceivablesReport();
             loadInventoryReport();
+            loadPurchasesReport();
+            loadPayablesReport()
+
         });
 
         $('#export-btn').on('click', function () {

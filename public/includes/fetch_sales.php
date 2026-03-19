@@ -21,7 +21,8 @@ try {
             th.customer, 
             th.total_amount, 
             th.is_unpaid, 
-            th.is_gcash, /* <-- ADDED is_gcash HERE */
+            th.is_gcash, 
+            th.is_bank, /* <-- ADDED is_bank HERE */
             th.settle_date, 
             th.created_at,
             ti.quantity, 
@@ -57,7 +58,8 @@ try {
                 'customer' => !empty($row['customer']) ? $row['customer'] : 'Walk-in Customer',
                 'total' => (float) $row['total_amount'],
                 'is_unpaid' => (int) $row['is_unpaid'] === 1,
-                'is_gcash' => (int) $row['is_gcash'] === 1, /* <-- ADDED is_gcash HERE */
+                'is_gcash' => (int) $row['is_gcash'] === 1,
+                'is_bank' => (int) $row['is_bank'] === 1, 
                 'created_at' => date('M d, Y', strtotime($row['created_at'])),
                 'settle_date' => $row['settle_date'] ? date('M d, Y', strtotime($row['settle_date'])) : null,
                 'items' => []
