@@ -494,8 +494,8 @@ try {
                                 <i class="fa-solid fa-building-columns text-lg"></i>
                             </div>
                             <div class="min-w-0">
-                                <div class="text-sm font-black text-slate-900 truncate">Bank</div>
-                                <div class="text-[12px] font-semibold text-slate-500 truncate">Paid via Bank</div>
+                                <div class="text-sm font-black text-slate-900 truncate">In Bank</div>
+                                <div class="text-[12px] font-semibold text-slate-500 truncate">Paid in bank</div>
                             </div>
                         </div>
                         <div class="confirm-pay-radio h-8 w-8 rounded-full border-2 border-slate-300 flex items-center justify-center shrink-0">
@@ -565,26 +565,7 @@ try {
             }
 
             // Header Profile Dropdown
-            $profileBtn.on('click', function (e) {
-                e.stopPropagation();
-                $profileMenu.toggleClass('hidden');
-            });
-
-            $(document).on('click', function (e) {
-                // If the click is inside any modal/backdrop, don't auto-close the account menu.
-                // This prevents "close modal" clicks from also closing the google menu.
-                if ($(e.target).closest('#sales-history-modal, #item-select-modal, #checkout-wizard-modal, #confirm-action-modal').length > 0) {
-                    return;
-                }
-
-                if (
-                    !$profileMenu.is(e.target) &&
-                    $profileMenu.has(e.target).length === 0 &&
-                    !$profileBtn.is(e.target)
-                ) {
-                    $profileMenu.addClass('hidden');
-                }
-            });
+            // Handled globally by the shared header (includes/partial/header.php)
 
 
             // ------------------------------------------
@@ -1716,7 +1697,7 @@ try {
                                 : '');
                         const paymentBadge = (!isUnpaid && !isVoided)
                             ? (isBankPaid
-                                ? `<span class="bg-indigo-100 text-indigo-700 text-[10px] px-2 py-0.5 rounded font-black uppercase tracking-widest">Bank</span>`
+                                ? `<span class="bg-indigo-100 text-indigo-700 text-[10px] px-2 py-0.5 rounded font-black uppercase tracking-widest">In Bank</span>`
                                 : (isGcashPaid
                                     ? `<span class="bg-sky-100 text-sky-700 text-[10px] px-2 py-0.5 rounded font-black uppercase tracking-widest">GCash</span>`
                                     : `<span class="bg-emerald-100 text-emerald-700 text-[10px] px-2 py-0.5 rounded font-black uppercase tracking-widest">Cash</span>`))

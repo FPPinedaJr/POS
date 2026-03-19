@@ -1237,6 +1237,121 @@ try {
         </div>
     </div>
 
+    <!-- PAYABLES MODAL (unpaid purchases) -->
+    <div id="payables-modal"
+        class="fixed inset-0 z-[70] hidden items-center justify-center bg-slate-900/40 backdrop-blur-sm p-4 transition-all">
+        <div class="bg-white/95 backdrop-blur-xl w-full max-w-2xl rounded-[2rem] shadow-2xl border border-white overflow-hidden flex flex-col max-h-[85vh]">
+            <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between relative">
+                <div>
+                    <p class="text-[11px] font-black uppercase tracking-[0.2em] text-indigo-500">Accounts</p>
+                    <h2 class="text-xl font-black text-slate-900 tracking-tight mt-1">Payables</h2>
+                    <p class="text-xs font-medium text-slate-500 mt-0.5">Unpaid supplier purchases. Settle as cash, GCash, or in bank.</p>
+                </div>
+                <button id="payables-close"
+                    class="h-10 w-10 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 flex items-center justify-center transition-colors cursor-pointer"
+                    type="button" aria-label="Close payables">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <div class="p-6 overflow-y-auto">
+                <div id="payables-loading"
+                    class="hidden mb-3 text-xs font-bold text-slate-400 uppercase tracking-widest">
+                    <i class="fa-solid fa-spinner fa-spin mr-2"></i>Loading...
+                </div>
+                <div id="payables-list" class="space-y-3">
+                    <div class="hidden text-center py-8 text-slate-400 text-sm font-medium" id="payables-empty">No payables found.</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- CONFIRM PAYABLE (payment method picker) -->
+    <div id="confirm-payable-modal"
+        class="fixed inset-0 z-[80] hidden items-center justify-center bg-slate-900/50 backdrop-blur-sm p-4 transition-all">
+        <div class="bg-white w-full max-w-xs sm:max-w-sm rounded-2xl shadow-2xl p-4 sm:p-5 flex flex-col gap-3">
+            <div class="flex items-start justify-between gap-3">
+                <div>
+                    <p class="text-base sm:text-lg font-black text-slate-900" id="confirm-payable-title">Pay Payable</p>
+                    <p class="mt-0.5 text-sm text-slate-600">Mark this payable as fully paid?</p>
+                </div>
+                <button id="confirm-payable-close"
+                    class="h-8 w-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 flex items-center justify-center transition-colors cursor-pointer"
+                    type="button">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <div>
+                <p class="text-[11px] font-black uppercase tracking-[0.2em] text-slate-500 mb-2">Payment Method</p>
+                <div class="space-y-3" id="confirm-payable-method-options">
+                    <label class="confirm-payable-option confirm-payable-cash flex items-center justify-between gap-3 p-3 rounded-2xl border border-slate-200 bg-white cursor-pointer hover:border-slate-300 transition-colors">
+                        <input type="radio" name="confirm-payable-method" value="cash" class="hidden" checked>
+                        <div class="flex items-center gap-3 min-w-0">
+                            <div class="h-10 w-10 rounded-2xl bg-slate-50 border border-emerald-200 text-emerald-700 flex items-center justify-center shrink-0">
+                                <i class="fa-solid fa-money-bill-1 text-lg"></i>
+                            </div>
+                            <div class="min-w-0">
+                                <div class="text-sm font-black text-slate-900 truncate">Cash</div>
+                                <div class="text-[12px] font-semibold text-slate-500 truncate">Paid</div>
+                            </div>
+                        </div>
+                        <div class="confirm-payable-radio h-8 w-8 rounded-full border-2 border-slate-300 flex items-center justify-center shrink-0">
+                            <div class="confirm-payable-dot hidden h-4 w-4 rounded-full bg-emerald-500"></div>
+                        </div>
+                    </label>
+
+                    <label class="confirm-payable-option confirm-payable-gcash flex items-center justify-between gap-3 p-3 rounded-2xl border border-slate-200 bg-white cursor-pointer hover:border-slate-300 transition-colors">
+                        <input type="radio" name="confirm-payable-method" value="gcash" class="hidden">
+                        <div class="flex items-center gap-3 min-w-0">
+                            <div class="h-10 w-10 rounded-2xl bg-slate-50 border border-slate-200 flex items-center justify-center shrink-0">
+                                <img src="assets/images/gcash.svg" alt="GCash" class="h-6 w-6" />
+                            </div>
+                            <div class="min-w-0">
+                                <div class="text-sm font-black text-slate-900 truncate">GCash</div>
+                                <div class="text-[12px] font-semibold text-slate-500 truncate">Paid thru Gcash</div>
+                            </div>
+                        </div>
+                        <div class="confirm-payable-radio h-8 w-8 rounded-full border-2 border-slate-300 flex items-center justify-center shrink-0">
+                            <div class="confirm-payable-dot hidden h-4 w-4 rounded-full bg-sky-500"></div>
+                        </div>
+                    </label>
+
+                    <label class="confirm-payable-option confirm-payable-bank flex items-center justify-between gap-3 p-3 rounded-2xl border border-slate-200 bg-white cursor-pointer hover:border-slate-300 transition-colors">
+                        <input type="radio" name="confirm-payable-method" value="bank" class="hidden">
+                        <div class="flex items-center gap-3 min-w-0">
+                            <div class="h-10 w-10 rounded-2xl bg-slate-50 border border-indigo-200 text-indigo-700 flex items-center justify-center shrink-0">
+                                <i class="fa-solid fa-building-columns text-lg"></i>
+                            </div>
+                            <div class="min-w-0">
+                                <div class="text-sm font-black text-slate-900 truncate">In Bank</div>
+                                <div class="text-[12px] font-semibold text-slate-500 truncate">Paid in bank</div>
+                            </div>
+                        </div>
+                        <div class="confirm-payable-radio h-8 w-8 rounded-full border-2 border-slate-300 flex items-center justify-center shrink-0">
+                            <div class="confirm-payable-dot hidden h-4 w-4 rounded-full bg-indigo-500"></div>
+                        </div>
+                    </label>
+                </div>
+                <div class="mt-3 rounded-2xl border border-slate-100 bg-slate-50 px-3 py-2.5 flex justify-between items-center">
+                    <div class="text-xs font-bold text-slate-500 uppercase tracking-[0.2em]">Total Amount</div>
+                    <div class="text-xl font-black text-slate-900" id="confirm-payable-total">₱ 0.00</div>
+                </div>
+            </div>
+            <div class="flex justify-end gap-2 mt-2">
+                <button id="confirm-payable-cancel"
+                    class="px-4 py-2 rounded-xl border border-slate-200 text-sm font-bold text-slate-600 hover:bg-white hover:border-slate-300 transition-colors cursor-pointer"
+                    type="button">
+                    Cancel
+                </button>
+                <button id="confirm-payable-confirm"
+                    class="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-black tracking-[0.2em] uppercase shadow-md shadow-emerald-200 cursor-pointer"
+                    type="button">
+                    Pay
+                </button>
+            </div>
+        </div>
+    </div>
+
     <div id="toast-container" class="fixed top-6 right-6 z-80 space-y-3 pointer-events-none"></div>
 
     <?php include_once("includes/partial/footer.php"); ?>
@@ -1264,9 +1379,13 @@ try {
             const $addQtyInput = $('#item_count');
             const $passModal = $('#passModal');
             const $sidebar = $('#historySidebar');
+            const $payablesModal = $('#payables-modal');
+            const $confirmPayableModal = $('#confirm-payable-modal');
 
             let hOffset = 0;
             const hLimit = 24;
+            let payablesSnapshot = null;
+            let pendingPayable = null; // { purchase_id, total_amount }
 
             $(document).on('click', function (e) {
                 if ($stockNotifPanel.length && !$stockNotifPanel.is(e.target) && $stockNotifPanel.has(e.target).length === 0 && !$stockNotifBtn.is(e.target)) {
@@ -1402,12 +1521,7 @@ try {
             });
 
             // --- Profile Dropdown Logic ---
-            $profileBtn.on('click', function (e) {
-                e.stopPropagation();
-                // Only one menu open at a time
-                if ($stockNotifPanel.length) $stockNotifPanel.addClass('hidden');
-                $profileMenu.toggleClass('hidden');
-            });
+            // Handled globally by the shared header (includes/partial/header.php)
 
             // --- PASSWORD UPDATE ---
             $(document).on('click', '.toggle-pass', function () {
@@ -2398,6 +2512,8 @@ try {
                     if ($stockNotifPanel.length) {
                         $stockNotifPanel.addClass('hidden');
                     }
+                    if ($payablesModal.length) $payablesModal.addClass('hidden').removeClass('flex');
+                    if ($confirmPayableModal.length) $confirmPayableModal.addClass('hidden').removeClass('flex');
                 }
             });
 
@@ -2434,6 +2550,237 @@ try {
 
             $('#closeSidebar').on('click', function () {
                 $('#historySidebar').addClass('translate-x-full');
+            });
+
+            // --- PAYABLES MODAL (from avatar menu) ---
+            function setConfirmPayableMethod(method) {
+                $('#confirm-payable-method-options .confirm-payable-option')
+                    .removeClass('border-2 border-emerald-500 border-sky-500 border-indigo-500')
+                    .addClass('border border-slate-200');
+                $('#confirm-payable-method-options .confirm-payable-radio')
+                    .removeClass('border-emerald-400 border-sky-400 border-indigo-400')
+                    .addClass('border-slate-300');
+                $('#confirm-payable-method-options .confirm-payable-dot').addClass('hidden');
+
+                const $active = method === 'gcash'
+                    ? $('.confirm-payable-gcash')
+                    : (method === 'bank' ? $('.confirm-payable-bank') : $('.confirm-payable-cash'));
+
+                if (method === 'gcash') {
+                    $active.removeClass('border border-slate-200').addClass('border-2 border-sky-500');
+                    $active.find('.confirm-payable-radio').removeClass('border-slate-300').addClass('border-sky-400');
+                } else if (method === 'bank') {
+                    $active.removeClass('border border-slate-200').addClass('border-2 border-indigo-500');
+                    $active.find('.confirm-payable-radio').removeClass('border-slate-300').addClass('border-indigo-400');
+                } else {
+                    $active.removeClass('border border-slate-200').addClass('border-2 border-emerald-500');
+                    $active.find('.confirm-payable-radio').removeClass('border-slate-300').addClass('border-emerald-400');
+                }
+                $active.find('.confirm-payable-dot').removeClass('hidden');
+            }
+
+            $('#confirm-payable-method-options').on('click', '.confirm-payable-option', function () {
+                const $radio = $(this).find('input[type="radio"]');
+                $radio.prop('checked', true);
+                setConfirmPayableMethod($radio.val());
+            });
+
+            function renderPayables(rows) {
+                const $list = $('#payables-list');
+                if (!rows || rows.length === 0) {
+                    $('#payables-empty').removeClass('hidden');
+                    // Keep container clean; show the empty state element.
+                    $list.find(':not(#payables-empty)').remove();
+                    return;
+                }
+
+                $('#payables-empty').addClass('hidden');
+                const sortedRows = [...(rows || [])].sort((a, b) => {
+                    // Sort primarily by due_date (earliest first). Null due dates last.
+                    const ad = a.due_date ? String(a.due_date) : '';
+                    const bd = b.due_date ? String(b.due_date) : '';
+                    const aNull = !ad;
+                    const bNull = !bd;
+                    if (aNull && bNull) {
+                        // If both have no due date, show unpaid first.
+                        const aUnpaid = parseInt(a.is_unpaid, 10) === 1 ? 1 : 0;
+                        const bUnpaid = parseInt(b.is_unpaid, 10) === 1 ? 1 : 0;
+                        return bUnpaid - aUnpaid;
+                    }
+                    if (aNull) return 1;
+                    if (bNull) return -1;
+
+                    if (ad !== bd) return ad.localeCompare(bd);
+
+                    // Tie-breaker: unpaid first when due dates match
+                    const aUnpaid = parseInt(a.is_unpaid, 10) === 1 ? 1 : 0;
+                    const bUnpaid = parseInt(b.is_unpaid, 10) === 1 ? 1 : 0;
+                    return bUnpaid - aUnpaid;
+                });
+
+                const html = sortedRows.map(r => {
+                    const id = parseInt(r.purchase_id, 10) || 0;
+                    const isUnpaid = parseInt(r.is_unpaid, 10) === 1;
+                    const supplier = r.supplier || 'Unknown';
+                    const itemName = r.item_name || 'Item';
+                    const qty = parseInt(r.qty || 0, 10) || 0;
+                    const total = parseFloat(r.total || 0) || 0;
+                    const due = r.due_date || null;
+                    const daysFromDue = (r.days_from_due === null || typeof r.days_from_due === 'undefined')
+                        ? null
+                        : (parseInt(r.days_from_due, 10) || 0);
+
+                    const dueBadge = (!isUnpaid || daysFromDue === null)
+                        ? ''
+                        : (daysFromDue > 0
+                            ? `<span class="bg-red-100 text-red-700 text-[10px] px-2 py-0.5 rounded font-black uppercase tracking-widest">${daysFromDue}d overdue</span>`
+                            : (daysFromDue === 0
+                                ? `<span class="bg-amber-100 text-amber-700 text-[10px] px-2 py-0.5 rounded font-black uppercase tracking-widest">Due today</span>`
+                                : `<span class="bg-emerald-100 text-emerald-700 text-[10px] px-2 py-0.5 rounded font-black uppercase tracking-widest">${Math.abs(daysFromDue)}d left</span>`));
+
+                    const paidBadge = isUnpaid
+                        ? ''
+                        : `<span class="bg-slate-200 text-slate-700 text-[10px] px-2 py-0.5 rounded font-black uppercase tracking-widest">Paid</span>`;
+
+                    const cardClasses = isUnpaid
+                        ? 'rounded-2xl border border-slate-200 bg-white p-4 hover:border-indigo-300 hover:shadow-md transition-all'
+                        : 'rounded-2xl border border-slate-200 bg-slate-50 p-4';
+
+                    return `
+                        <div class="${cardClasses}">
+                            <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
+                                <div class="min-w-0">
+                                    <div class="flex items-center gap-2 flex-wrap">
+                                        <div class="text-sm font-black text-slate-900 truncate">${supplier}</div>
+                                        ${dueBadge}
+                                        ${paidBadge}
+                                    </div>
+                                    <div class="mt-1 text-xs text-slate-500 font-semibold">Due: ${due ? due : '—'}</div>
+                                    <div class="mt-0.5 text-xs text-slate-500 font-semibold">Item: ${itemName}</div>
+                                    <div class="mt-0.5 text-xs text-slate-500 font-semibold">Qty: ${qty}</div>
+                                </div>
+                                <div class="flex flex-col sm:items-end gap-2">
+                                    <div class="text-lg font-black text-slate-900">₱ ${total.toFixed(2)}</div>
+                                    ${isUnpaid
+                                        ? `<button class="btn-pay-payable text-[11px] font-black uppercase tracking-widest px-3 py-1.5 rounded-full cursor-pointer shadow-sm text-emerald-700 bg-emerald-50 hover:bg-emerald-100"
+                                            data-id="${id}" data-total="${total}">
+                                            Pay
+                                        </button>`
+                                        : ``
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+
+                $list.html(`<div class="space-y-3">${html}</div>`);
+            }
+
+            function fetchPayables() {
+                const $loading = $('#payables-loading');
+                if ($loading.length) $loading.removeClass('hidden');
+                $('#payables-empty').addClass('hidden');
+                // Remove prior list content while loading (prevents "No payables found" flashing).
+                $('#payables-list').html('<div class="space-y-3"></div>');
+
+                const end = new Date();
+                const start = new Date();
+                start.setDate(end.getDate() - 30);
+                const pad2 = (n) => String(n).padStart(2, '0');
+                const fmt = (d) => d.getFullYear() + '-' + pad2(d.getMonth() + 1) + '-' + pad2(d.getDate());
+
+                $.post('includes/fetch_payables.php', { start_date: fmt(start), end_date: fmt(end) }, function (res) {
+                    if (res && res.success) {
+                        const total = parseFloat(res.metrics?.total_amount || 0) || 0;
+                        const count = parseInt(res.metrics?.total_bills || 0, 10) || 0;
+                        payablesSnapshot = res;
+                        renderPayables(res.data || []);
+                    } else {
+                        $('#payables-list').html('<div class="text-center py-8 text-red-500 text-sm font-semibold">' + (res?.message || 'Unable to load payables.') + '</div>');
+                    }
+                }, 'json').always(function () {
+                    if ($loading.length) $loading.addClass('hidden');
+                });
+            }
+
+            function openPayablesModal() {
+                $profileMenu.addClass('hidden');
+                $payablesModal.removeClass('hidden').addClass('flex');
+                fetchPayables();
+            }
+
+            function closePayablesModal() {
+                $payablesModal.addClass('hidden').removeClass('flex');
+            }
+
+            function openConfirmPayable(purchaseId, amount) {
+                pendingPayable = { purchase_id: parseInt(purchaseId, 10) || 0, total_amount: parseFloat(amount || 0) || 0 };
+                $('#confirm-payable-total').text('₱ ' + pendingPayable.total_amount.toFixed(2));
+                $('input[name="confirm-payable-method"][value="cash"]').prop('checked', true);
+                setConfirmPayableMethod('cash');
+                $confirmPayableModal.removeClass('hidden').addClass('flex');
+            }
+
+            function closeConfirmPayable() {
+                $confirmPayableModal.addClass('hidden').removeClass('flex');
+                pendingPayable = null;
+                $('#confirm-payable-total').text('₱ 0.00');
+            }
+
+            $('#open-payables').on('click', function (e) {
+                e.preventDefault();
+                e.stopPropagation();
+                openPayablesModal();
+            });
+
+            $('#payables-close').on('click', closePayablesModal);
+            $('#payables-modal').on('click', function (e) {
+                if ($(e.target).is($('#payables-modal'))) closePayablesModal();
+            });
+
+            $('#payables-list').on('click', '.btn-pay-payable', function () {
+                const id = $(this).data('id');
+                const total = $(this).data('total');
+                openConfirmPayable(id, total);
+            });
+
+            $('#confirm-payable-close, #confirm-payable-cancel').on('click', closeConfirmPayable);
+
+            $('#confirm-payable-confirm').on('click', function () {
+                if (!pendingPayable || !pendingPayable.purchase_id) {
+                    closeConfirmPayable();
+                    return;
+                }
+
+                const method = $('input[name="confirm-payable-method"]:checked').val() || 'cash';
+                const isGcash = method === 'gcash';
+                const isBank = method === 'bank';
+
+                const $btn = $('#confirm-payable-confirm');
+                $btn.prop('disabled', true).addClass('opacity-60');
+
+                $.ajax({
+                    url: 'includes/pay_payable.php',
+                    type: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify({ purchase_id: pendingPayable.purchase_id, is_gcash: isGcash, is_bank: isBank }),
+                    success: function (res) {
+                        if (res && res.success) {
+                            if (typeof showToast === 'function') showToast('success', 'Payable paid.');
+                            closeConfirmPayable();
+                            fetchPayables();
+                        } else {
+                            if (typeof showToast === 'function') showToast('error', res?.message || 'Unable to pay payable.');
+                        }
+                    },
+                    error: function () {
+                        if (typeof showToast === 'function') showToast('error', 'Server error while paying payable.');
+                    },
+                    complete: function () {
+                        $btn.prop('disabled', false).removeClass('opacity-60');
+                    }
+                });
             });
         });
     </script>

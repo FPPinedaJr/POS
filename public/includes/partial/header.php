@@ -161,6 +161,11 @@ $iconClass = $theme === 'teal'
                                         <i class="fa-solid fa-clock-rotate-left <?php echo $iconClass; ?>"></i>
                                         <span>Inventory History</span>
                                     </button>
+                                    <button id="open-payables"
+                                        class="w-full hover:cursor-pointer flex items-center gap-3 px-4 py-3 text-sm font-bold text-slate-700 hover:bg-white <?php echo $hoverTextClass; ?> hover:shadow-sm rounded-2xl transition-all mt-1">
+                                        <i class="fa-solid fa-file-invoice-dollar <?php echo $iconClass; ?>"></i>
+                                        <span>Payables</span>
+                                    </button>
                                 <?php endif; ?>
 
                                 <?php if ($currentPage === 'pos.php'): ?>
@@ -189,3 +194,43 @@ $iconClass = $theme === 'teal'
         </div>
     </div>
 </header>
+
+<script>
+    (function () {
+        if (window.__VENDA_HEADER_PROFILE_BOUND__) return;
+        window.__VENDA_HEADER_PROFILE_BOUND__ = true;
+
+        function ready(fn) {
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', fn, { once: true });
+            } else {
+                fn();
+            }
+        }
+
+        ready(function () {
+            var btn = document.getElementById('profileTrigger');
+            var menu = document.getElementById('googleMenu');
+            if (!btn || !menu) return;
+
+            function open() { menu.classList.remove('hidden'); }
+            function close() { menu.classList.add('hidden'); }
+            function toggle() { menu.classList.toggle('hidden'); }
+
+            btn.addEventListener('click', function (e) {
+                e.stopPropagation();
+                toggle();
+            });
+
+            document.addEventListener('click', function (e) {
+                if (menu.classList.contains('hidden')) return;
+                if (menu.contains(e.target) || btn.contains(e.target)) return;
+                close();
+            });
+
+            document.addEventListener('keydown', function (e) {
+                if (e.key === 'Escape') close();
+            });
+        });
+    })();
+</script>
