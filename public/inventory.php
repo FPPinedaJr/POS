@@ -810,7 +810,7 @@ try {
                                 quantity</label>
                             <div class="flex items-center justify-center gap-6">
                                 <button type="button" id="qty-btn-minus"
-                                    class="text-indigo-400 hover:text-indigo-600 hover:bg-white w-10 h-10 rounded-full flex items-center justify-center transition-all outline-none shadow-sm border border-slate-100 bg-slate-50">
+                                    class="cursor-pointer text-indigo-400 hover:text-indigo-600 hover:bg-white w-10 h-10 rounded-full flex items-center justify-center transition-all outline-none shadow-sm border border-slate-100 bg-slate-50">
                                     <i class="fa-solid fa-minus"></i>
                                 </button>
 
@@ -822,7 +822,7 @@ try {
                                 </div>
 
                                 <button type="button" id="qty-btn-plus"
-                                    class="text-indigo-400 hover:text-indigo-600 hover:bg-white w-10 h-10 rounded-full flex items-center justify-center transition-all outline-none shadow-sm border border-slate-100 bg-slate-50">
+                                    class="cursor-pointer text-indigo-400 hover:text-indigo-600 hover:bg-white w-10 h-10 rounded-full flex items-center justify-center transition-all outline-none shadow-sm border border-slate-100 bg-slate-50">
                                     <i class="fa-solid fa-plus"></i>
                                 </button>
                             </div>
