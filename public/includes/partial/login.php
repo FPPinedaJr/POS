@@ -5,7 +5,7 @@
         <img src="assets/images/logo_xs.png" alt="SMILE Logo" class="w-16 h-16 object-contain">
     </div>
 
-    <h2 class="text-2xl shrink-0 font-extrabold text-slate-800 mb-1">Welcome to SMILE</h2>
+    <h2 class="pb-3 text-2xl shrink-0 font-extrabold text-slate-800 mb-1">Welcome to SMILE</h2>
 
     <form action="./includes/login.php" method="POST" class="w-full flex flex-col shrink-0">
 

@@ -110,23 +110,6 @@ $greeting = "Welcome back";
 
     <?php include_once("includes/partial/footer.php"); ?>
 
-
-    <script>
-        const profileTrigger = document.getElementById('profileTrigger');
-        const googleMenu = document.getElementById('googleMenu');
-
-        profileTrigger.addEventListener('click', (e) => {
-            e.stopPropagation();
-            googleMenu.classList.toggle('hidden');
-        });
-
-        document.addEventListener('click', (e) => {
-            if (!googleMenu.contains(e.target) && !profileTrigger.contains(e.target)) {
-                googleMenu.classList.add('hidden');
-            }
-        });
-    </script>
-
 </body>
 
 </html>

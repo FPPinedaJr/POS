@@ -1863,7 +1863,11 @@ try {
 
             function formatCurrencyPHP(n) {
                 const v = Number.isFinite(n) ? n : 0;
-                return '₱' + v.toFixed(2);
+                try {
+                    return '₱ ' + new Intl.NumberFormat('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(v);
+                } catch (e) {
+                    return '₱ ' + v.toFixed(2);
+                }
             }
 
             function updatePurchaseTotal() {
@@ -2835,7 +2839,6 @@ try {
             }
 
             $(document).on('click', function (e) {
-                if (!$profileMenu.is(e.target) && $profileMenu.has(e.target).length === 0 && !$profileBtn.is(e.target)) $profileMenu.addClass('hidden');
                 if ($(e.target).is($addItemModal)) hideAddModal();
                 if ($(e.target).is($editItemModal)) hideEditModal();
                 if ($(e.target).is($deleteConfirmModal)) $deleteConfirmModal.removeClass('flex').addClass('hidden');
@@ -3011,7 +3014,7 @@ try {
                                     <div class="mt-0.5 text-xs text-slate-500 font-semibold">Qty: ${qty}</div>
                                 </div>
                                 <div class="flex flex-col sm:items-end gap-2">
-                                    <div class="text-lg font-black text-slate-900">₱ ${total.toFixed(2)}</div>
+                                    <div class="text-lg font-black text-slate-900">${formatCurrencyPHP(total)}</div>
                                     ${isUnpaid
                                         ? `<button class="btn-pay-payable text-[11px] font-black uppercase tracking-widest px-3 py-1.5 rounded-full cursor-pointer shadow-sm text-emerald-700 bg-emerald-50 hover:bg-emerald-100"
                                             data-id="${id}" data-total="${total}">
@@ -3067,7 +3070,7 @@ try {
 
             function openConfirmPayable(purchaseId, amount) {
                 pendingPayable = { purchase_id: parseInt(purchaseId, 10) || 0, total_amount: parseFloat(amount || 0) || 0 };
-                $('#confirm-payable-total').text('₱ ' + pendingPayable.total_amount.toFixed(2));
+                $('#confirm-payable-total').text(formatCurrencyPHP(pendingPayable.total_amount));
                 $('input[name="confirm-payable-method"][value="cash"]').prop('checked', true);
                 setConfirmPayableMethod('cash');
                 $confirmPayableModal.removeClass('hidden').addClass('flex');

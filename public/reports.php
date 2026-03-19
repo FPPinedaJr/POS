@@ -120,20 +120,7 @@ if (!isset($_SESSION['user_id'])) {
 <script src="./assets/js/jquery-4.0.0.min.js"></script>
 <script>
     $(document).ready(function () {
-        const $profileBtn = $('#profileTrigger');
-        const $profileMenu = $('#googleMenu');
-
-        // Header Profile Dropdown
-        $profileBtn.on('click', function (e) {
-            e.stopPropagation();
-            $profileMenu.toggleClass('hidden');
-        });
-
-        $(document).on('click', function (e) {
-            if (!$profileMenu.is(e.target) && $profileMenu.has(e.target).length === 0 && !$profileBtn.is(e.target)) {
-                $profileMenu.addClass('hidden');
-            }
-        });
+        // Header profile dropdown is handled globally by `includes/partial/header.php`
 
         // 1. GLOBAL HELPERS & DEFAULTS
         const formatMoney = (amount) => {
