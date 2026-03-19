@@ -2412,6 +2412,9 @@
   .whitespace-nowrap {
     white-space: nowrap;
   }
+  .text-\[\#60C5C5\] {
+    color: #60C5C5;
+  }
   .text-amber-500 {
     color: var(--color-amber-500);
   }
@@ -2692,18 +2695,6 @@
     --tw-shadow-color: oklch(87% 0.065 274.039);
     @supports (color: color-mix(in lab, red, red)) {
       --tw-shadow-color: color-mix(in oklab, var(--color-indigo-200) var(--tw-shadow-alpha), transparent);
-    }
-  }
-  .shadow-indigo-200\/50 {
-    --tw-shadow-color: color-mix(in srgb, oklch(87% 0.065 274.039) 50%, transparent);
-    @supports (color: color-mix(in lab, red, red)) {
-      --tw-shadow-color: color-mix(in oklab, color-mix(in oklab, var(--color-indigo-200) 50%, transparent) var(--tw-shadow-alpha), transparent);
-    }
-  }
-  .shadow-red-100 {
-    --tw-shadow-color: oklch(93.6% 0.032 17.717);
-    @supports (color: color-mix(in lab, red, red)) {
-      --tw-shadow-color: color-mix(in oklab, var(--color-red-100) var(--tw-shadow-alpha), transparent);
     }
   }
   .shadow-red-100\/50 {
@@ -3357,13 +3348,6 @@
       }
     }
   }
-  .hover\:bg-indigo-600 {
-    &:hover {
-      @media (hover: hover) {
-        background-color: var(--color-indigo-600);
-      }
-    }
-  }
   .hover\:bg-indigo-700 {
     &:hover {
       @media (hover: hover) {
@@ -3484,17 +3468,17 @@
       }
     }
   }
-  .hover\:text-blue-600 {
+  .hover\:text-\[\#4da0a0\] {
     &:hover {
       @media (hover: hover) {
-        color: var(--color-blue-600);
+        color: #4da0a0;
       }
     }
   }
-  .hover\:text-blue-800 {
+  .hover\:text-\[\#60C5C5\] {
     &:hover {
       @media (hover: hover) {
-        color: var(--color-blue-800);
+        color: #60C5C5;
       }
     }
   }
@@ -3530,13 +3514,6 @@
     &:hover {
       @media (hover: hover) {
         color: var(--color-indigo-700);
-      }
-    }
-  }
-  .hover\:text-indigo-800 {
-    &:hover {
-      @media (hover: hover) {
-        color: var(--color-indigo-800);
       }
     }
   }
@@ -3600,6 +3577,13 @@
     &:hover {
       @media (hover: hover) {
         color: var(--color-teal-700);
+      }
+    }
+  }
+  .hover\:opacity-90 {
+    &:hover {
+      @media (hover: hover) {
+        opacity: 90%;
       }
     }
   }
@@ -3746,22 +3730,19 @@
       box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
     }
   }
-  .focus\:ring-amber-500\/40 {
+  .focus\:ring-\[\#60C5C5\] {
     &:focus {
-      --tw-ring-color: color-mix(in srgb, oklch(76.9% 0.188 70.08) 40%, transparent);
-      @supports (color: color-mix(in lab, red, red)) {
-        --tw-ring-color: color-mix(in oklab, var(--color-amber-500) 40%, transparent);
-      }
+      --tw-ring-color: #60C5C5;
     }
   }
-  .focus\:ring-blue-100 {
+  .focus\:ring-\[\#60C5C5\]\/20 {
     &:focus {
-      --tw-ring-color: var(--color-blue-100);
+      --tw-ring-color: color-mix(in oklab, #60C5C5 20%, transparent);
     }
   }
-  .focus\:ring-blue-400 {
+  .focus\:ring-\[\#60C5C5\]\/30 {
     &:focus {
-      --tw-ring-color: var(--color-blue-400);
+      --tw-ring-color: color-mix(in oklab, #60C5C5 30%, transparent);
     }
   }
   .focus\:ring-fuchsia-500\/20 {
@@ -3770,21 +3751,6 @@
       @supports (color: color-mix(in lab, red, red)) {
         --tw-ring-color: color-mix(in oklab, var(--color-fuchsia-500) 20%, transparent);
       }
-    }
-  }
-  .focus\:ring-indigo-100 {
-    &:focus {
-      --tw-ring-color: var(--color-indigo-100);
-    }
-  }
-  .focus\:ring-indigo-200 {
-    &:focus {
-      --tw-ring-color: var(--color-indigo-200);
-    }
-  }
-  .focus\:ring-indigo-400 {
-    &:focus {
-      --tw-ring-color: var(--color-indigo-400);
     }
   }
   .focus\:ring-indigo-500 {
