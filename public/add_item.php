@@ -48,6 +48,16 @@ try {
             <form action="includes/save_item.php" method="POST" enctype="multipart/form-data"
                 class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 space-y-6">
 
+                <div class="flex items-start justify-between gap-4">
+                    <div>
+                        <h2 class="text-base font-semibold text-gray-900">Step 1 of 2: Item details</h2>
+                        <p class="text-sm text-gray-500">Fill in the item first, then record its purchase.</p>
+                    </div>
+                    <div class="text-sm font-semibold text-gray-700 bg-gray-50 border border-gray-100 rounded-xl px-3 py-2">
+                        Total: <span id="purchase-total">₱0.00</span>
+                    </div>
+                </div>
+
                 <div class="space-y-1">
                     <label for="item_name" class="block text-sm font-medium text-gray-700">Item name</label>
                     <input type="text" name="item_name" id="item_name" required
@@ -118,6 +128,51 @@ try {
                     </div>
                 </div>
 
+                <div class="rounded-2xl border border-gray-100 bg-gray-50 p-4 space-y-4">
+                    <div>
+                        <h3 class="text-base font-semibold text-gray-900">Step 2 of 2: Purchase details</h3>
+                        <p class="text-sm text-gray-500">Record the purchase for this new item.</p>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="space-y-1">
+                            <label class="block text-sm font-medium text-gray-700">Payment</label>
+                            <div class="flex flex-wrap gap-3 pt-1" id="purchase-payment-simple">
+                                <label class="inline-flex items-center gap-2 text-sm text-gray-700">
+                                    <input type="radio" name="purchase_payment" value="cash" class="accent-indigo-600" checked>
+                                    Cash
+                                </label>
+                                <label class="inline-flex items-center gap-2 text-sm text-gray-700">
+                                    <input type="radio" name="purchase_payment" value="gcash" class="accent-indigo-600">
+                                    GCash
+                                </label>
+                                <label class="inline-flex items-center gap-2 text-sm text-gray-700">
+                                    <input type="radio" name="purchase_payment" value="bank" class="accent-indigo-600">
+                                    Bank
+                                </label>
+                                <label class="inline-flex items-center gap-2 text-sm text-gray-700">
+                                    <input type="radio" name="purchase_payment" value="unpaid" class="accent-indigo-600" id="purchase_payment_unpaid">
+                                    Unpaid
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="purchase-unpaid-fields-simple" class="grid grid-cols-1 md:grid-cols-2 gap-4 hidden">
+                        <div class="space-y-1">
+                            <label for="purchase_supplier" class="block text-sm font-medium text-gray-700">Supplier</label>
+                            <input type="text" name="purchase_supplier" id="purchase_supplier"
+                                class="mt-1 block w-full rounded-xl border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-sm"
+                                placeholder="Supplier name">
+                        </div>
+                        <div class="space-y-1">
+                            <label for="purchase_due_date" class="block text-sm font-medium text-gray-700">Due date</label>
+                            <input type="date" name="purchase_due_date" id="purchase_due_date"
+                                class="mt-1 block w-full rounded-xl border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-sm">
+                        </div>
+                    </div>
+                </div>
+
                 <div class="space-y-2">
                     <label for="item_image" class="block text-sm font-medium text-gray-700">Item image</label>
                     <p class="text-xs text-gray-500">Square-ish images work best. Max 5MB. JPEG, PNG, GIF or WebP.</p>
@@ -139,6 +194,44 @@ try {
             </form>
         </div>
     </main>
+
+    <script>
+        function fmt(n) {
+            const v = Number.isFinite(n) ? n : 0;
+            return '₱' + v.toFixed(2);
+        }
+        function updateTotal() {
+            const q = parseInt((document.getElementById('item_count') || {}).value || '0', 10);
+            const v = parseFloat((document.getElementById('value') || {}).value || '0');
+            const qty = Number.isFinite(q) ? Math.max(0, q) : 0;
+            const val = Number.isFinite(v) ? Math.max(0, v) : 0;
+            document.getElementById('purchase-total').textContent = fmt(qty * val);
+        }
+        function updateUnpaidFields() {
+            const unpaid = document.querySelector('input[name="purchase_payment"]:checked')?.value === 'unpaid';
+            const box = document.getElementById('purchase-unpaid-fields-simple');
+            if (!box) return;
+            box.classList.toggle('hidden', !unpaid);
+            if (!unpaid) {
+                const sup = document.getElementById('purchase_supplier');
+                const due = document.getElementById('purchase_due_date');
+                if (sup) sup.value = '';
+                if (due) due.value = '';
+            }
+        }
+        function syncDefaults() {
+            updateTotal();
+            updateUnpaidFields();
+        }
+        document.addEventListener('input', (e) => {
+            if (!e.target) return;
+            if (e.target.id === 'item_count' || e.target.id === 'value') updateTotal();
+        });
+        document.addEventListener('change', (e) => {
+            if (e.target && e.target.name === 'purchase_payment') updateUnpaidFields();
+        });
+        window.addEventListener('load', syncDefaults);
+    </script>
 </body>
 
 </html>

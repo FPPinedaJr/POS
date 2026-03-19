@@ -359,7 +359,7 @@ try {
                                 <label class="co-pay-option co-pay-cash flex items-center justify-between gap-4 p-4 rounded-2xl border border-slate-200 bg-white cursor-pointer hover:border-slate-300 transition-colors">
                                     <input type="radio" name="co-payment" value="cash" class="hidden" checked>
                                     <div class="flex items-center gap-3 min-w-0">
-                                        <div class="h-12 w-12 rounded-2xl bg-slate-50 border border-slate-200 text-slate-700 flex items-center justify-center shrink-0">
+                                        <div class="h-12 w-12 rounded-2xl bg-slate-50 border border-emerald-200 text-emerald-700 flex items-center justify-center shrink-0">
                                             <i class="fa-solid fa-money-bill-1 text-lg"></i>
                                         </div>
                                         <div class="min-w-0">
@@ -391,7 +391,7 @@ try {
                                 <label class="co-pay-option co-pay-bank flex items-center justify-between gap-4 p-4 rounded-2xl border border-slate-200 bg-white cursor-pointer hover:border-slate-300 transition-colors">
                                     <input type="radio" name="co-payment" value="bank" class="hidden">
                                     <div class="flex items-center gap-3 min-w-0">
-                                        <div class="h-12 w-12 rounded-2xl bg-slate-50 border border-slate-200 text-slate-700 flex items-center justify-center shrink-0">
+                                        <div class="h-12 w-12 rounded-2xl bg-slate-50 border border-indigo-200 text-indigo-700 flex items-center justify-center shrink-0">
                                             <i class="fa-solid fa-building-columns text-lg"></i>
                                         </div>
                                         <div class="min-w-0">
@@ -458,7 +458,7 @@ try {
                     <label class="confirm-pay-option confirm-pay-cash flex items-center justify-between gap-3 p-3 rounded-2xl border border-slate-200 bg-white cursor-pointer hover:border-slate-300 transition-colors">
                         <input type="radio" name="confirm-pay-method" value="cash" class="hidden" checked>
                         <div class="flex items-center gap-3 min-w-0">
-                            <div class="h-10 w-10 rounded-2xl bg-slate-50 border border-slate-200 text-slate-700 flex items-center justify-center shrink-0">
+                            <div class="h-10 w-10 rounded-2xl bg-slate-50 border border-emerald-200 text-emerald-700 flex items-center justify-center shrink-0">
                                 <i class="fa-solid fa-money-bill-1 text-lg"></i>
                             </div>
                             <div class="min-w-0">
@@ -490,7 +490,7 @@ try {
                     <label class="confirm-pay-option confirm-pay-bank flex items-center justify-between gap-3 p-3 rounded-2xl border border-slate-200 bg-white cursor-pointer hover:border-slate-300 transition-colors">
                         <input type="radio" name="confirm-pay-method" value="bank" class="hidden">
                         <div class="flex items-center gap-3 min-w-0">
-                            <div class="h-10 w-10 rounded-2xl bg-slate-50 border border-slate-200 text-slate-700 flex items-center justify-center shrink-0">
+                            <div class="h-10 w-10 rounded-2xl bg-slate-50 border border-indigo-200 text-indigo-700 flex items-center justify-center shrink-0">
                                 <i class="fa-solid fa-building-columns text-lg"></i>
                             </div>
                             <div class="min-w-0">
