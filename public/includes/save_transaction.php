@@ -30,6 +30,12 @@ if (empty($data['cart']) || !is_array($data['cart'])) {
 $customer = trim($data['customer']) ?: 'Walk-in';
 $isUnpaid = !empty($data['is_unpaid']) ? 1 : 0;
 $isGcash = !empty($data['is_gcash']) ? 1 : 0;
+$isBank = !empty($data['is_bank']) ? 1 : 0;
+if ($isBank === 1) {
+    $isGcash = 0;
+} elseif ($isGcash === 1) {
+    $isBank = 0;
+}
 $totalAmount = 0;
 $transactionUuid = generate_uuid();
 $transactionNumber = 'TRX-' . strtoupper(substr(uniqid(), -6)); // E.g., TRX-9A2F4B
@@ -67,8 +73,8 @@ try {
 
     // 2. Insert into transaction_header
     $stmtHeader = $pdo->prepare("
-        INSERT INTO transaction_header (transaction_uuid, transaction_number, customer, total_amount, is_unpaid, is_gcash, user_id)
-        VALUES (:uuid, :num, :customer, :total, :unpaid, :is_gcash, :user_id)
+        INSERT INTO transaction_header (transaction_uuid, transaction_number, customer, total_amount, is_unpaid, is_gcash, is_bank, user_id)
+        VALUES (:uuid, :num, :customer, :total, :unpaid, :is_gcash, :is_bank, :user_id)
     ");
     $stmtHeader->execute([
         'uuid' => $transactionUuid,
@@ -77,6 +83,7 @@ try {
         'total' => $totalAmount,
         'unpaid' => $isUnpaid,
         'is_gcash' => $isGcash,
+        'is_bank' => $isBank,
         'user_id' => $userId
     ]);
 
