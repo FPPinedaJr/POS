@@ -27,6 +27,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $stockThreshold = isset($_POST['stock_threshold']) ? (int) $_POST['stock_threshold'] : 0;
     $newCount = (int) ($_POST['item_count'] ?? 0);
 
+    // Optional purchase details (from edit modal)
+    $editPurchasePayment = trim($_POST['edit_purchase_payment'] ?? 'cash'); // cash | gcash | bank | unpaid
+    $editPurchaseSupplier = trim($_POST['edit_purchase_supplier'] ?? '');
+    $editPurchaseDueDate = trim($_POST['edit_purchase_due_date'] ?? ''); // optional
+
     if ($item_id <= 0 || $itemName === '') {
         echo json_encode(['success' => false, 'message' => 'Missing required fields: Item Name is required.']);
         exit;
@@ -34,6 +39,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if ($category_id <= 0) {
         $category_id = null;
+    }
+
+    if (!in_array($editPurchasePayment, ['cash', 'gcash', 'bank', 'unpaid'], true)) {
+        echo json_encode(['success' => false, 'message' => 'Invalid purchase payment method.']);
+        exit;
     }
 
     try {
@@ -58,6 +68,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         $currentCount = (int) ($currentItem['current_count'] ?? 0);
+        $delta = $newCount - $currentCount;
 
         $imageBasename = $currentItem['image_basename'];
         $imageThumbPath = $currentItem['image_thumb_path'];
@@ -138,6 +149,67 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 'item_id' => $item_id,
                 'item_count' => $newCount,
                 'description' => 'UPDATE: ' . $itemName,
+            ]);
+        }
+
+        // If stock increased, create a purchase record (qty = delta, value = current unit cost).
+        if ($delta > 0) {
+            if ($editPurchasePayment === 'unpaid' && $editPurchaseSupplier === '') {
+                throw new Exception('Supplier is required for unpaid purchases.');
+            }
+
+            $qty = (int) $delta;
+            $unitCost = (float) $value;
+            $totalAmount = round($qty * $unitCost, 2);
+
+            $isUnpaid = ($editPurchasePayment === 'unpaid') ? 1 : 0;
+            $isGcash = ($editPurchasePayment === 'gcash') ? 1 : 0;
+            $isBank = ($editPurchasePayment === 'bank') ? 1 : 0;
+
+            $dueDateSql = ($isUnpaid && $editPurchaseDueDate !== '') ? $editPurchaseDueDate : null;
+            $supplierSql = ($isUnpaid && $editPurchaseSupplier !== '') ? $editPurchaseSupplier : '';
+
+            $purchaseStmt = $pdo->prepare(
+                "INSERT INTO item_purchase (
+                    user_id,
+                    item_id,
+                    qty,
+                    value,
+                    total_amount,
+                    is_unpaid,
+                    is_gcash,
+                    is_bank,
+                    supplier,
+                    due_date,
+                    settle_date,
+                    created_at
+                ) VALUES (
+                    :user_id,
+                    :item_id,
+                    :qty,
+                    :value,
+                    :total_amount,
+                    :is_unpaid,
+                    :is_gcash,
+                    :is_bank,
+                    :supplier,
+                    :due_date,
+                    NULL,
+                    NOW()
+                )"
+            );
+
+            $purchaseStmt->execute([
+                'user_id' => $userId,
+                'item_id' => $item_id,
+                'qty' => $qty,
+                'value' => $unitCost,
+                'total_amount' => $totalAmount,
+                'is_unpaid' => $isUnpaid,
+                'is_gcash' => $isGcash,
+                'is_bank' => $isBank,
+                'supplier' => $supplierSql,
+                'due_date' => $dueDateSql,
             ]);
         }
 
