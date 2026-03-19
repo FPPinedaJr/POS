@@ -63,8 +63,8 @@ if (!in_array($purchasePayment, ['cash', 'gcash', 'bank', 'unpaid'], true)) {
 }
 
 if ($purchasePayment === 'unpaid') {
-    if ($purchaseSupplier === '' || $purchaseDueDate === '') {
-        echo json_encode(['success' => false, 'message' => 'Supplier and due date are required for unpaid purchases.']);
+    if ($purchaseSupplier === '') {
+        echo json_encode(['success' => false, 'message' => 'Supplier is required for unpaid purchases.']);
         exit;
     }
 }

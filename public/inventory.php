@@ -46,9 +46,9 @@ try {
                 $imgSrc = $thumbUrl ?: $previewUrl ?: null;
 
                 $lowStockItems[] = [
-                    'name'    => (string) ($it['item_name'] ?? ''),
+                    'name' => (string) ($it['item_name'] ?? ''),
                     'current' => $current,
-                    'image'   => $imgSrc ? (string) $imgSrc : null,
+                    'image' => $imgSrc ? (string) $imgSrc : null,
                 ];
             }
         }
@@ -154,11 +154,14 @@ try {
                                                 class="flex-1 rounded-lg border-white bg-white shadow-inner px-3 py-1.5 text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500/20 font-medium" />
                                             <button type="button" id="filter-category-add-btn" aria-label="Add category"
                                                 class="relative inline-flex items-center justify-center px-3 py-1.5 rounded-lg bg-indigo-600 text-xs font-bold text-white hover:bg-indigo-700 shadow-md overflow-hidden">
-                                                <span class="filter-category-add-sizer cursor-pointer invisible select-none">Add</span>
-                                                <span class="filter-category-add-label cursor-pointer absolute inset-0 flex items-center justify-center transition-opacity duration-150">
+                                                <span
+                                                    class="filter-category-add-sizer cursor-pointer invisible select-none">Add</span>
+                                                <span
+                                                    class="filter-category-add-label cursor-pointer absolute inset-0 flex items-center justify-center transition-opacity duration-150">
                                                     Add
                                                 </span>
-                                                <span class="filter-category-add-spinner cursor-pointer absolute inset-0 flex items-center justify-center opacity-0 invisible transition-opacity duration-150">
+                                                <span
+                                                    class="filter-category-add-spinner cursor-pointer absolute inset-0 flex items-center justify-center opacity-0 invisible transition-opacity duration-150">
                                                     <i class="fa-solid fa-spinner fa-spin text-[10px]"></i>
                                                 </span>
                                             </button>
@@ -649,182 +652,185 @@ try {
                     }
                 </style>
 
-                <div
-                    class="px-6 py-4 border-b border-slate-100 flex items-center justify-between relative overflow-hidden rounded-t-[2rem]">
-                    <div
-                        class="absolute top-0 right-0 w-32 h-32 bg-indigo-600/5 rounded-full blur-2xl -translate-y-1/2 translate-x-1/2 pointer-events-none">
+                <div class="p-5 border-b border-slate-100 flex justify-between items-center shrink-0 rounded-t-[2rem]">
+                    <div class="flex items-center gap-3">
+                        <button id="add-back-inline"
+                            class="hidden h-8 w-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 flex items-center justify-center transition-colors cursor-pointer"
+                            type="button" aria-label="Back">
+                            <i class="fa-solid fa-arrow-left"></i>
+                        </button>
+                        <div>
+                            <p class="text-[11px] font-black uppercase tracking-[0.2em] text-indigo-500">
+                                Step <span id="add-step-number">1</span> of 2
+                            </p>
+                            <h2 id="add-step-title" class="text-xl font-black text-slate-900 tracking-tight mt-1">Item
+                                details</h2>
+                        </div>
                     </div>
-
-                    <div class="relative z-10">
-                        <h2 class="text-xl font-black text-slate-900 tracking-tight">Add new item</h2>
-                        <p class="text-xs font-medium text-slate-500 mt-0.5">
-                            <span id="add-step-label">Step 1 of 2: Item details</span>
-                        </p>
-                    </div>
+                    <button id="close-add-item-modal"
+                        class="h-8 w-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 flex items-center justify-center transition-colors cursor-pointer"
+                        type="button" aria-label="Close">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
                 </div>
 
                 <form id="add-item-form" action="includes/save_item.php" method="POST" enctype="multipart/form-data"
                     class="px-6 py-4 space-y-4">
 
                     <div id="add-step-1" class="space-y-4">
-                    <div class="flex items-start gap-5">
-                        <div class="shrink-0 flex flex-col items-center space-y-1.5">
-                            <label for="item_image" class="cursor-pointer group relative block">
-                                <div id="image-preview-container"
-                                    class="w-32 h-28 md:w-36 md:h-32 rounded-[1.25rem] border-2 border-dashed border-slate-300 bg-slate-50/80 flex items-center justify-center overflow-hidden transition-all group-hover:bg-slate-100 group-hover:border-indigo-300 shadow-inner relative">
-                                    <i id="image-preview-icon"
-                                        class="fa-solid fa-camera text-slate-300 text-4xl group-hover:text-indigo-400 transition-colors"></i>
-                                    <img id="image-preview"
-                                        class="absolute inset-0 w-full h-full object-cover hidden z-10" alt="Preview">
-                                    <div
-                                        class="absolute inset-0 bg-slate-900/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity z-20">
-                                        <i class="fa-solid fa-pen text-white text-2xl"></i>
+                        <div class="flex items-start gap-5">
+                            <div class="shrink-0 flex flex-col items-center space-y-1.5">
+                                <label for="item_image" class="cursor-pointer group relative block">
+                                    <div id="image-preview-container"
+                                        class="w-32 h-28 md:w-36 md:h-32 rounded-[1.25rem] border-2 border-dashed border-slate-300 bg-slate-50/80 flex items-center justify-center overflow-hidden transition-all group-hover:bg-slate-100 group-hover:border-indigo-300 shadow-inner relative">
+                                        <i id="image-preview-icon"
+                                            class="fa-solid fa-camera text-slate-300 text-4xl group-hover:text-indigo-400 transition-colors"></i>
+                                        <img id="image-preview"
+                                            class="absolute inset-0 w-full h-full object-cover hidden z-10"
+                                            alt="Preview">
+                                        <div
+                                            class="absolute inset-0 bg-slate-900/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity z-20">
+                                            <i class="fa-solid fa-pen text-white text-2xl"></i>
+                                        </div>
+                                    </div>
+                                </label>
+                                <input type="file" name="item_image" id="item_image"
+                                    accept="image/jpeg, image/png, image/webp" class="hidden" />
+                                <p class="text-[10px] font-bold text-slate-400 mt-2">Max 5MB (JPEG/PNG)</p>
+                            </div>
+
+                            <div class="flex-1 flex flex-col space-y-2.5">
+                                <div class="space-y-0.5">
+                                    <label for="item_name"
+                                        class="block text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Item
+                                        name</label>
+                                    <input type="text" name="item_name" id="item_name" required
+                                        class="block w-full rounded-xl border-white bg-slate-50/80 shadow-inner px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:bg-white text-sm font-medium transition-all"
+                                        placeholder="e.g. Wireless Mouse">
+                                </div>
+
+                                <div class="space-y-0.5">
+                                    <label for="category_id"
+                                        class="block text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Category</label>
+                                    <div id="category-dd" class="relative">
+                                        <input type="hidden" name="category_id" id="category_id" value="">
+
+                                        <button type="button" id="category-dd-trigger"
+                                            class="w-full inline-flex items-center cursor-pointer justify-between rounded-xl border border-white bg-slate-50/80 shadow-inner px-4 py-2.5 text-sm font-medium hover:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all">
+                                            <span id="category-dd-label" class="truncate text-slate-500">Select</span>
+                                            <i id="category-dd-chevron"
+                                                class="fa-solid fa-chevron-down text-[10px] text-slate-400 bg-transparent transition-transform duration-300 ease-out"></i>
+                                        </button>
+
+                                        <div id="category-dd-menu"
+                                            class="hidden absolute left-0 mt-2 min-w-full sm:min-w-[16rem] max-w-[calc(100vw-4rem)] rounded-2xl border border-white bg-white/95 backdrop-blur-xl shadow-2xl z-[80] overflow-hidden">
+                                            <ul id="category-dd-options" class="max-h-48 overflow-y-auto p-2 ">
+                                                <?php foreach ($categories as $cat): ?>
+                                                    <li class="category-opt group flex items-center justify-between gap-2 rounded-lg  hover:bg-slate-50 cursor-pointer transition-colors"
+                                                        data-id="<?php echo (int) $cat['category_id']; ?>"
+                                                        data-name="<?php echo htmlspecialchars($cat['category_name'], ENT_QUOTES); ?>">
+                                                        <button type="button"
+                                                            class="category-select cursor-pointer flex-1 text-left text-xs font-bold px-3 py-2 text-slate-700 whitespace-normal break-words leading-snug">
+                                                            <?php echo htmlspecialchars($cat['category_name']); ?>
+                                                        </button>
+                                                    </li>
+                                                <?php endforeach; ?>
+                                            </ul>
+                                        </div>
                                     </div>
                                 </div>
-                            </label>
-                            <input type="file" name="item_image" id="item_image"
-                                accept="image/jpeg, image/png, image/webp" class="hidden" />
-                            <p class="text-[10px] font-bold text-slate-400 mt-2">Max 5MB (JPEG/PNG)</p>
+                            </div>
                         </div>
 
-                        <div class="flex-1 flex flex-col space-y-2.5">
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-2.5 mt-2">
                             <div class="space-y-0.5">
-                                <label for="item_name"
-                                    class="block text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Item
-                                    name</label>
-                                <input type="text" name="item_name" id="item_name" required
+                                <label for="value"
+                                    class="block text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Unit
+                                    Cost</label>
+                                <div class="relative rounded-xl shadow-inner bg-slate-50/80 border border-white">
+                                    <span
+                                        class="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-400 text-sm font-bold select-none z-10 pointer-events-none">₱</span>
+                                    <input type="number" step="0.01" min="0" name="value" id="value"
+                                        class="block w-full rounded-xl border-transparent bg-transparent pl-7 pr-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:bg-white text-sm font-medium transition-all"
+                                        placeholder="0.00">
+                                </div>
+                            </div>
+
+                            <div class="space-y-0.5">
+                                <label for="retail_price"
+                                    class="block text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Retail
+                                    price</label>
+                                <div class="relative rounded-xl shadow-inner bg-slate-50/80 border border-white">
+                                    <span
+                                        class="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-400 text-sm font-bold select-none z-10 pointer-events-none">₱</span>
+                                    <input type="number" step="0.01" min="0" name="retail_price" id="retail_price"
+                                        class="block w-full rounded-xl border-transparent bg-transparent pl-7 pr-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:bg-white text-sm font-medium transition-all"
+                                        placeholder="0.00">
+                                </div>
+                            </div>
+
+                            <div class="space-y-0.5">
+                                <label for="wholesale_price"
+                                    class="block text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Wholesale
+                                    price</label>
+                                <div class="relative rounded-xl shadow-inner bg-slate-50/80 border border-white">
+                                    <span
+                                        class="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-400 text-sm font-bold select-none z-10 pointer-events-none">₱</span>
+                                    <input type="number" step="0.01" min="0" name="wholesale_price" id="wholesale_price"
+                                        class="block w-full rounded-xl border-transparent bg-transparent pl-7 pr-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:bg-white text-sm font-medium transition-all"
+                                        placeholder="0.00">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-2.5 mt-1">
+                            <div class="space-y-0.5">
+                                <label for="unit"
+                                    class="block text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Base
+                                    Unit</label>
+                                <input type="text" name="unit" id="unit"
                                     class="block w-full rounded-xl border-white bg-slate-50/80 shadow-inner px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:bg-white text-sm font-medium transition-all"
-                                    placeholder="e.g. Wireless Mouse">
+                                    placeholder="e.g. pcs, box, kg">
                             </div>
 
                             <div class="space-y-0.5">
-                                <label for="category_id"
-                                    class="block text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Category</label>
-                                <div id="category-dd" class="relative">
-                                    <input type="hidden" name="category_id" id="category_id" value="">
+                                <label for="stock_threshold"
+                                    class="block text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Alert
+                                    Level</label>
+                                <input type="number" min="0" name="stock_threshold" id="stock_threshold"
+                                    class="block w-full rounded-xl border-white bg-slate-50/80 shadow-inner px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:bg-white text-sm font-medium transition-all"
+                                    placeholder="e.g. 10">
+                            </div>
+                        </div>
 
-                                    <button type="button" id="category-dd-trigger"
-                                        class="w-full inline-flex items-center cursor-pointer justify-between rounded-xl border border-white bg-slate-50/80 shadow-inner px-4 py-2.5 text-sm font-medium hover:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all">
-                                        <span id="category-dd-label" class="truncate text-slate-500">Select</span>
-                                        <i id="category-dd-chevron"
-                                            class="fa-solid fa-chevron-down text-[10px] text-slate-400 bg-transparent transition-transform duration-300 ease-out"></i>
-                                    </button>
+                        <div
+                            class="flex flex-col items-center justify-center bg-slate-50/80 py-4 rounded-2xl border border-white shadow-inner">
+                            <label
+                                class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2.5">Starting
+                                quantity</label>
+                            <div class="flex items-center justify-center gap-6">
+                                <button type="button" id="qty-btn-minus"
+                                    class="cursor-pointer text-indigo-400 hover:text-indigo-600 hover:bg-white w-10 h-10 rounded-full flex items-center justify-center transition-all outline-none shadow-sm border border-slate-100 bg-slate-50">
+                                    <i class="fa-solid fa-minus"></i>
+                                </button>
 
-                                    <div id="category-dd-menu"
-                                        class="hidden absolute left-0 mt-2 min-w-full sm:min-w-[16rem] max-w-[calc(100vw-4rem)] rounded-2xl border border-white bg-white/95 backdrop-blur-xl shadow-2xl z-[80] overflow-hidden">
-                                        <ul id="category-dd-options" class="max-h-48 overflow-y-auto p-2 ">
-                                            <?php foreach ($categories as $cat): ?>
-                                                <li class="category-opt group flex items-center justify-between gap-2 rounded-lg  hover:bg-slate-50 cursor-pointer transition-colors"
-                                                    data-id="<?php echo (int) $cat['category_id']; ?>"
-                                                    data-name="<?php echo htmlspecialchars($cat['category_name'], ENT_QUOTES); ?>">
-                                                    <button type="button"
-                                                        class="category-select cursor-pointer flex-1 text-left text-xs font-bold px-3 py-2 text-slate-700 whitespace-normal break-words leading-snug">
-                                                        <?php echo htmlspecialchars($cat['category_name']); ?>
-                                                    </button>
-                                                </li>
-                                            <?php endforeach; ?>
-                                        </ul>
-                                    </div>
+                                <div
+                                    class="min-w-[4.5rem] min-h-[4.5rem] px-2 bg-indigo-500 rounded-[1.25rem] flex items-center justify-center shadow-lg shadow-indigo-200 transition-all duration-200 ease-out">
+                                    <input type="number" min="0" name="item_count" id="item_count" value="0"
+                                        class="bg-transparent border-none text-center text-4xl font-black text-white focus:outline-none focus:ring-0 p-0 m-0 transition-all duration-200"
+                                        style="-moz-appearance: textfield; appearance: none; width: 1ch;">
                                 </div>
+
+                                <button type="button" id="qty-btn-plus"
+                                    class="cursor-pointer text-indigo-400 hover:text-indigo-600 hover:bg-white w-10 h-10 rounded-full flex items-center justify-center transition-all outline-none shadow-sm border border-slate-100 bg-slate-50">
+                                    <i class="fa-solid fa-plus"></i>
+                                </button>
                             </div>
                         </div>
-                    </div>
-
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-2.5 mt-2">
-                        <div class="space-y-0.5">
-                            <label for="value"
-                                class="block text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Unit Cost</label>
-                            <div class="relative rounded-xl shadow-inner bg-slate-50/80 border border-white">
-                                <span
-                                    class="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-400 text-sm font-bold select-none z-10 pointer-events-none">₱</span>
-                                <input type="number" step="0.01" min="0" name="value" id="value"
-                                    class="block w-full rounded-xl border-transparent bg-transparent pl-7 pr-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:bg-white text-sm font-medium transition-all"
-                                    placeholder="0.00">
-                            </div>
-                        </div>
-
-                        <div class="space-y-0.5">
-                            <label for="retail_price"
-                                class="block text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Retail
-                                price</label>
-                            <div class="relative rounded-xl shadow-inner bg-slate-50/80 border border-white">
-                                <span
-                                    class="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-400 text-sm font-bold select-none z-10 pointer-events-none">₱</span>
-                                <input type="number" step="0.01" min="0" name="retail_price" id="retail_price"
-                                    class="block w-full rounded-xl border-transparent bg-transparent pl-7 pr-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:bg-white text-sm font-medium transition-all"
-                                    placeholder="0.00">
-                            </div>
-                        </div>
-
-                        <div class="space-y-0.5">
-                            <label for="wholesale_price"
-                                class="block text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Wholesale
-                                price</label>
-                            <div class="relative rounded-xl shadow-inner bg-slate-50/80 border border-white">
-                                <span
-                                    class="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-400 text-sm font-bold select-none z-10 pointer-events-none">₱</span>
-                                <input type="number" step="0.01" min="0" name="wholesale_price" id="wholesale_price"
-                                    class="block w-full rounded-xl border-transparent bg-transparent pl-7 pr-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:bg-white text-sm font-medium transition-all"
-                                    placeholder="0.00">
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-2.5 mt-1">
-                        <div class="space-y-0.5">
-                            <label for="unit"
-                                class="block text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Base Unit</label>
-                            <input type="text" name="unit" id="unit"
-                                class="block w-full rounded-xl border-white bg-slate-50/80 shadow-inner px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:bg-white text-sm font-medium transition-all"
-                                placeholder="e.g. pcs, box, kg">
-                        </div>
-
-                        <div class="space-y-0.5">
-                            <label for="stock_threshold"
-                                class="block text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Alert Level</label>
-                            <input type="number" min="0" name="stock_threshold" id="stock_threshold"
-                                class="block w-full rounded-xl border-white bg-slate-50/80 shadow-inner px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:bg-white text-sm font-medium transition-all"
-                                placeholder="e.g. 10">
-                        </div>
-                    </div>
-
-                    <div
-                        class="flex flex-col items-center justify-center bg-slate-50/80 py-4 rounded-2xl border border-white shadow-inner">
-                        <label
-                            class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2.5">Starting quantity</label>
-                        <div class="flex items-center justify-center gap-6">
-                            <button type="button" id="qty-btn-minus"
-                                class="text-indigo-400 hover:text-indigo-600 hover:bg-white w-10 h-10 rounded-full flex items-center justify-center transition-all outline-none shadow-sm border border-slate-100 bg-slate-50">
-                                <i class="fa-solid fa-minus"></i>
-                            </button>
-
-                            <div
-                                class="min-w-[4.5rem] min-h-[4.5rem] px-2 bg-indigo-500 rounded-[1.25rem] flex items-center justify-center shadow-lg shadow-indigo-200 transition-all duration-200 ease-out">
-                                <input type="number" min="0" name="item_count" id="item_count" value="0"
-                                    class="bg-transparent border-none text-center text-4xl font-black text-white focus:outline-none focus:ring-0 p-0 m-0 transition-all duration-200"
-                                    style="-moz-appearance: textfield; appearance: none; width: 1ch;">
-                            </div>
-
-                            <button type="button" id="qty-btn-plus"
-                                class="text-indigo-400 hover:text-indigo-600 hover:bg-white w-10 h-10 rounded-full flex items-center justify-center transition-all outline-none shadow-sm border border-slate-100 bg-slate-50">
-                                <i class="fa-solid fa-plus"></i>
-                            </button>
-                        </div>
-                    </div>
                     </div>
 
                     <div id="add-step-2" class="space-y-4 hidden">
                         <div class="rounded-2xl border border-white bg-slate-50/80 shadow-inner p-4">
-                            <div class="flex items-start justify-between gap-4">
-                                <div>
-                                    <h3 class="text-sm font-black text-slate-800 tracking-tight">Purchase details</h3>
-                                    <p class="text-xs font-medium text-slate-500 mt-0.5">Record the item purchase for this new item.</p>
-                                </div>
-                                <div class="text-xs font-black text-slate-600 bg-white/70 border border-white rounded-xl px-3 py-2">
-                                    Total: <span id="purchase-total" class="text-slate-900">₱0.00</span>
-                                </div>
-                            </div>
-
                             <div class="mt-4">
                                 <div class="relative flex p-1 bg-slate-100/80 rounded-full w-full shadow-inner">
                                     <div id="purchase-tab-slider"
@@ -843,93 +849,125 @@ try {
 
                                 <div class="mt-3" id="purchase-pay-sections">
                                     <div id="purchase-pay-now-wrapper" class="space-y-3">
-                                        <p class="text-[11px] font-black uppercase tracking-[0.2em] text-slate-500 mb-2">Payment Method</p>
+                                        <p
+                                            class="text-[11px] font-black uppercase tracking-[0.2em] text-slate-500 mb-2">
+                                            Payment Method</p>
                                         <div class="space-y-3" id="purchase-payment-options">
-                                    <label class="purchase-pay-option purchase-pay-cash flex items-center justify-between gap-4 p-4 rounded-2xl border border-slate-200 bg-white cursor-pointer hover:border-slate-300 transition-colors">
-                                        <input type="radio" name="purchase_payment" value="cash" class="hidden" checked>
-                                        <div class="flex items-center gap-3 min-w-0">
-                                            <div class="h-12 w-12 rounded-2xl bg-slate-50 border border-emerald-200 text-emerald-700 flex items-center justify-center shrink-0">
-                                                <i class="fa-solid fa-money-bill-1 text-lg"></i>
-                                            </div>
-                                            <div class="min-w-0">
-                                                <div class="text-base font-black text-slate-900 truncate">Cash</div>
-                                                <div class="text-sm font-semibold text-slate-500 truncate">Paid</div>
-                                            </div>
-                                        </div>
-                                        <div class="purchase-pay-radio h-9 w-9 rounded-full border-2 border-slate-300 flex items-center justify-center shrink-0">
-                                            <div class="purchase-pay-dot hidden h-5 w-5 rounded-full bg-emerald-500"></div>
-                                        </div>
-                                    </label>
+                                            <label
+                                                class="purchase-pay-option purchase-pay-cash flex items-center justify-between gap-4 p-4 rounded-2xl border border-slate-200 bg-white cursor-pointer hover:border-slate-300 transition-colors">
+                                                <input type="radio" name="purchase_payment" value="cash" class="hidden"
+                                                    checked>
+                                                <div class="flex items-center gap-3 min-w-0">
+                                                    <div
+                                                        class="h-12 w-12 rounded-2xl bg-slate-50 border border-emerald-200 text-emerald-700 flex items-center justify-center shrink-0">
+                                                        <i class="fa-solid fa-money-bill-1 text-lg"></i>
+                                                    </div>
+                                                    <div class="min-w-0">
+                                                        <div class="text-base font-black text-slate-900 truncate">Cash
+                                                        </div>
+                                                        <div class="text-sm font-semibold text-slate-500 truncate">Paid
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div
+                                                    class="purchase-pay-radio h-9 w-9 rounded-full border-2 border-slate-300 flex items-center justify-center shrink-0">
+                                                    <div
+                                                        class="purchase-pay-dot hidden h-5 w-5 rounded-full bg-emerald-500">
+                                                    </div>
+                                                </div>
+                                            </label>
 
-                                    <label class="purchase-pay-option purchase-pay-gcash flex items-center justify-between gap-4 p-4 rounded-2xl border border-slate-200 bg-white cursor-pointer hover:border-slate-300 transition-colors">
-                                        <input type="radio" name="purchase_payment" value="gcash" class="hidden">
-                                        <div class="flex items-center gap-3 min-w-0">
-                                            <div class="h-12 w-12 rounded-2xl bg-slate-50 border border-slate-200 flex items-center justify-center shrink-0">
-                                                <img src="assets/images/gcash.svg" alt="GCash" class="h-7 w-7" />
-                                            </div>
-                                            <div class="min-w-0">
-                                                <div class="text-base font-black text-slate-900 truncate">GCash</div>
-                                                <div class="text-sm font-semibold text-slate-500 truncate">Paid thru Gcash</div>
-                                            </div>
-                                        </div>
-                                        <div class="purchase-pay-radio h-9 w-9 rounded-full border-2 border-slate-300 flex items-center justify-center shrink-0">
-                                            <div class="purchase-pay-dot hidden h-5 w-5 rounded-full bg-sky-500"></div>
-                                        </div>
-                                    </label>
+                                            <label
+                                                class="purchase-pay-option purchase-pay-gcash flex items-center justify-between gap-4 p-4 rounded-2xl border border-slate-200 bg-white cursor-pointer hover:border-slate-300 transition-colors">
+                                                <input type="radio" name="purchase_payment" value="gcash"
+                                                    class="hidden">
+                                                <div class="flex items-center gap-3 min-w-0">
+                                                    <div
+                                                        class="h-12 w-12 rounded-2xl bg-slate-50 border border-slate-200 flex items-center justify-center shrink-0">
+                                                        <img src="assets/images/gcash.svg" alt="GCash"
+                                                            class="h-7 w-7" />
+                                                    </div>
+                                                    <div class="min-w-0">
+                                                        <div class="text-base font-black text-slate-900 truncate">GCash
+                                                        </div>
+                                                        <div class="text-sm font-semibold text-slate-500 truncate">Paid
+                                                            thru Gcash</div>
+                                                    </div>
+                                                </div>
+                                                <div
+                                                    class="purchase-pay-radio h-9 w-9 rounded-full border-2 border-slate-300 flex items-center justify-center shrink-0">
+                                                    <div
+                                                        class="purchase-pay-dot hidden h-5 w-5 rounded-full bg-sky-500">
+                                                    </div>
+                                                </div>
+                                            </label>
 
-                                    <label class="purchase-pay-option purchase-pay-bank flex items-center justify-between gap-4 p-4 rounded-2xl border border-slate-200 bg-white cursor-pointer hover:border-slate-300 transition-colors">
-                                        <input type="radio" name="purchase_payment" value="bank" class="hidden">
-                                        <div class="flex items-center gap-3 min-w-0">
-                                            <div class="h-12 w-12 rounded-2xl bg-slate-50 border border-indigo-200 text-indigo-700 flex items-center justify-center shrink-0">
-                                                <i class="fa-solid fa-building-columns text-lg"></i>
-                                            </div>
-                                            <div class="min-w-0">
-                                                <div class="text-base font-black text-slate-900 truncate">Bank</div>
-                                                <div class="text-sm font-semibold text-slate-500 truncate">Paid via Bank</div>
-                                            </div>
+                                            <label
+                                                class="purchase-pay-option purchase-pay-bank flex items-center justify-between gap-4 p-4 rounded-2xl border border-slate-200 bg-white cursor-pointer hover:border-slate-300 transition-colors">
+                                                <input type="radio" name="purchase_payment" value="bank" class="hidden">
+                                                <div class="flex items-center gap-3 min-w-0">
+                                                    <div
+                                                        class="h-12 w-12 rounded-2xl bg-slate-50 border border-indigo-200 text-indigo-700 flex items-center justify-center shrink-0">
+                                                        <i class="fa-solid fa-building-columns text-lg"></i>
+                                                    </div>
+                                                    <div class="min-w-0">
+                                                        <div class="text-base font-black text-slate-900 truncate">Bank
+                                                        </div>
+                                                        <div class="text-sm font-semibold text-slate-500 truncate">Paid
+                                                            via Bank</div>
+                                                    </div>
+                                                </div>
+                                                <div
+                                                    class="purchase-pay-radio h-9 w-9 rounded-full border-2 border-slate-300 flex items-center justify-center shrink-0">
+                                                    <div
+                                                        class="purchase-pay-dot hidden h-5 w-5 rounded-full bg-indigo-500">
+                                                    </div>
+                                                </div>
+                                            </label>
                                         </div>
-                                        <div class="purchase-pay-radio h-9 w-9 rounded-full border-2 border-slate-300 flex items-center justify-center shrink-0">
-                                            <div class="purchase-pay-dot hidden h-5 w-5 rounded-full bg-indigo-500"></div>
-                                        </div>
-                                    </label>
-                                </div>
-                            </div>
-
-                            <div id="purchase-pay-later-wrapper" class="hidden space-y-3">
-                                <input type="radio" name="purchase_payment" value="unpaid" class="hidden" id="purchase-payment-unpaid-hidden">
-                                <div class="rounded-2xl border border-slate-100 bg-slate-50 px-4 py-3">
-                                    <div class="text-[11px] font-black uppercase tracking-[0.2em] text-orange-500">Payable</div>
-                                    <div class="text-sm font-bold text-slate-600 mt-1">This purchase will be saved as unpaid.</div>
-                                </div>
-
-                                <div id="purchase-unpaid-fields" class="grid grid-cols-1 md:grid-cols-2 gap-3">
-                                    <div class="space-y-0.5">
-                                        <label for="purchase_supplier" class="block text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Supplier</label>
-                                        <input type="text" name="purchase_supplier" id="purchase_supplier"
-                                            class="block w-full rounded-xl border-white bg-white/70 shadow-inner px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:bg-white text-sm font-medium transition-all"
-                                            placeholder="Supplier name">
                                     </div>
-                                    <div class="space-y-0.5">
-                                        <label for="purchase_due_date" class="block text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Due date</label>
-                                        <input type="date" name="purchase_due_date" id="purchase_due_date"
-                                            class="block w-full rounded-xl border-white bg-white/70 shadow-inner px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:bg-white text-sm font-medium transition-all">
+
+                                    <div id="purchase-pay-later-wrapper" class="hidden space-y-3">
+                                        <input type="radio" name="purchase_payment" value="unpaid" class="hidden"
+                                            id="purchase-payment-unpaid-hidden">
+                                        <div class="rounded-2xl border border-slate-100 bg-slate-50 px-4 py-3">
+                                            <div
+                                                class="text-[11px] font-black uppercase tracking-[0.2em] text-orange-500">
+                                                Payable</div>
+                                            <div class="text-sm font-bold text-slate-600 mt-1">This purchase will be
+                                                saved as unpaid.</div>
+                                        </div>
+
+                                        <div id="purchase-unpaid-fields" class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                            <div class="space-y-0.5">
+                                                <label for="purchase_supplier"
+                                                    class="block text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Supplier</label>
+                                                <input type="text" name="purchase_supplier" id="purchase_supplier"
+                                                    class="block w-full rounded-xl border-white bg-white/70 shadow-inner px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:bg-white text-sm font-medium transition-all"
+                                                    placeholder="Supplier name">
+                                            </div>
+                                            <div class="space-y-0.5">
+                                                <label for="purchase_due_date"
+                                                    class="block text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Due
+                                                    date</label>
+                                                <input type="date" name="purchase_due_date" id="purchase_due_date"
+                                                    class="block w-full rounded-xl border-white bg-white/70 shadow-inner px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:bg-white text-sm font-medium transition-all">
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div
+                                        class="mt-4 rounded-2xl border border-slate-100 bg-slate-50 px-4 py-3 flex justify-between items-center">
+                                        <div class="text-xs font-bold text-slate-500 uppercase tracking-[0.2em]">Total
+                                            Amount</div>
+                                        <div class="text-2xl font-black text-slate-900" id="purchase-total">₱0.00</div>
                                     </div>
                                 </div>
-                            </div>
-                            </div>
                             </div>
                         </div>
                     </div>
 
                     <div class="flex items-center justify-end gap-3 pt-2">
-                        <button type="button" id="cancel-add-item-modal"
-                            class="px-5 py-2.5 rounded-xl bg-white border border-slate-200 shadow-sm text-sm font-bold cursor-pointer text-slate-600 hover:bg-slate-50 transition-all">
-                            Cancel
-                        </button>
-                        <button type="button" id="add-step-back"
-                            class="hidden px-5 py-2.5 rounded-xl bg-white border border-slate-200 shadow-sm text-sm font-black cursor-pointer text-slate-700 hover:bg-slate-50 transition-all">
-                            Back
-                        </button>
                         <button type="button" id="add-step-next"
                             class="px-6 py-2.5 rounded-xl bg-indigo-600 text-sm font-black tracking-wide text-white shadow-md shadow-indigo-200 hover:bg-indigo-700 focus:outline-none cursor-pointer focus:ring-2 focus:ring-indigo-500/30 transition-all hover:-translate-y-0.5">
                             Next
@@ -958,21 +996,23 @@ try {
                     }
                 </style>
 
-                <div
-                    class="px-6 py-4 border-b border-slate-100 flex items-center justify-between relative overflow-hidden rounded-t-[2rem]">
-                    <div
-                        class="absolute top-0 right-0 w-32 h-32 bg-indigo-600/5 rounded-full blur-2xl -translate-y-1/2 translate-x-1/2 pointer-events-none">
-                    </div>
-
-                    <div class="relative z-10 flex items-center gap-3">
+                <div class="p-5 border-b border-slate-100 flex justify-between items-center shrink-0 rounded-t-[2rem]">
+                    <div class="flex items-center gap-3">
+                        <button id="edit-back-inline"
+                            class="hidden h-8 w-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 flex items-center justify-center transition-colors cursor-pointer"
+                            type="button" aria-label="Back">
+                            <i class="fa-solid fa-arrow-left"></i>
+                        </button>
                         <div>
-                            <h2 class="text-xl font-black text-slate-900 tracking-tight">Edit item</h2>
-                            <p class="text-xs font-medium text-slate-500 mt-0.5">Update item details and stock levels.
+                            <p class="text-[11px] font-black uppercase tracking-[0.2em] text-indigo-500">
+                                Step <span id="edit-step-number">1</span> of 2
                             </p>
+                            <h2 id="edit-step-title" class="text-xl font-black text-slate-900 tracking-tight mt-1">Item
+                                details</h2>
                         </div>
                     </div>
 
-                    <div class="relative z-10 flex items-center gap-2">
+                    <div class="flex items-center gap-2">
                         <button type="button" id="qr-item-btn"
                             class="h-8 w-8 inline-flex items-center justify-center rounded-full cursor-pointer bg-white shadow-sm border border-indigo-100 hover:bg-indigo-50 transition-all text-indigo-500 hover:text-indigo-700"
                             title="Show item QR code">
@@ -984,6 +1024,12 @@ try {
                             title="Delete Item">
                             <i class="fa-solid fa-trash-can text-sm"></i>
                         </button>
+
+                        <button type="button" id="close-edit-item-modal"
+                            class="h-8 w-8 inline-flex items-center justify-center rounded-full cursor-pointer bg-slate-100 hover:bg-slate-200 text-slate-500 transition-colors"
+                            aria-label="Close">
+                            <i class="fa-solid fa-xmark"></i>
+                        </button>
                     </div>
                 </div>
 
@@ -992,175 +1038,324 @@ try {
 
                     <input type="hidden" name="item_id" id="edit_item_id" value="">
 
-                    <div class="flex items-start gap-5">
-                        <div class="shrink-0 flex flex-col items-center space-y-1.5">
-                            <label for="edit_item_image" class="cursor-pointer group relative block">
-                                <div id="edit-image-preview-container"
-                                    class="w-32 h-28 md:w-36 md:h-32 rounded-[1.25rem] border-2 border-dashed border-slate-300 bg-slate-50/80 flex items-center justify-center overflow-hidden transition-all group-hover:bg-slate-100 group-hover:border-indigo-300 shadow-inner relative">
-                                    <i id="edit-image-preview-icon"
-                                        class="fa-solid fa-camera text-slate-300 text-4xl group-hover:text-indigo-400 transition-colors"></i>
-                                    <img id="edit-image-preview"
-                                        class="absolute inset-0 w-full h-full object-cover hidden z-10" alt="Preview">
-                                    <div
-                                        class="absolute inset-0 bg-slate-900/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity z-20">
-                                        <i class="fa-solid fa-pen text-white text-2xl"></i>
+                    <div id="edit-step-1" class="space-y-4">
+                        <div class="flex items-start gap-5">
+                            <div class="shrink-0 flex flex-col items-center space-y-1.5">
+                                <label for="edit_item_image" class="cursor-pointer group relative block">
+                                    <div id="edit-image-preview-container"
+                                        class="w-32 h-28 md:w-36 md:h-32 rounded-[1.25rem] border-2 border-dashed border-slate-300 bg-slate-50/80 flex items-center justify-center overflow-hidden transition-all group-hover:bg-slate-100 group-hover:border-indigo-300 shadow-inner relative">
+                                        <i id="edit-image-preview-icon"
+                                            class="fa-solid fa-camera text-slate-300 text-4xl group-hover:text-indigo-400 transition-colors"></i>
+                                        <img id="edit-image-preview"
+                                            class="absolute inset-0 w-full h-full object-cover hidden z-10"
+                                            alt="Preview">
+                                        <div
+                                            class="absolute inset-0 bg-slate-900/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity z-20">
+                                            <i class="fa-solid fa-pen text-white text-2xl"></i>
+                                        </div>
+                                    </div>
+                                </label>
+                                <input type="file" name="item_image" id="edit_item_image"
+                                    accept="image/jpeg, image/png, image/webp" class="hidden" />
+                                <p class="text-[10px] font-bold text-slate-400 mt-2">Max 5MB (JPEG/PNG)</p>
+                            </div>
+
+                            <div class="flex-1 flex flex-col space-y-2.5">
+                                <div class="space-y-0.5">
+                                    <label for="edit_item_name"
+                                        class="block text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Item
+                                        name</label>
+                                    <input type="text" name="item_name" id="edit_item_name" required
+                                        class="block w-full rounded-xl border-white bg-slate-50/80 shadow-inner px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:bg-white text-sm font-medium transition-all"
+                                        placeholder="e.g. Wireless Mouse">
+                                </div>
+
+                                <div class="space-y-0.5">
+                                    <label for="edit_category_id"
+                                        class="block text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Category</label>
+                                    <div id="edit-category-dd" class="relative">
+                                        <input type="hidden" name="category_id" id="edit_category_id" value="">
+
+                                        <button type="button" id="edit-category-dd-trigger"
+                                            class="w-full inline-flex items-center justify-between rounded-xl border border-white bg-slate-50/80 shadow-inner px-4 py-2.5 text-sm font-medium hover:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all cursor-pointer">
+                                            <span id="edit-category-dd-label"
+                                                class="truncate text-slate-500">Select</span>
+                                            <i
+                                                class="fa-solid fa-chevron-down text-[10px] text-slate-400 bg-transparent"></i>
+                                        </button>
+
+                                        <div id="edit-category-dd-menu"
+                                            class="hidden absolute left-0 mt-2 min-w-full sm:min-w-[16rem] max-w-[calc(100vw-4rem)] rounded-2xl border border-white bg-white/95 backdrop-blur-xl shadow-2xl z-[80] overflow-hidden">
+                                            <ul id="edit-category-dd-options" class="max-h-48 overflow-y-auto p-2 ">
+                                                <?php foreach ($categories as $cat): ?>
+                                                    <li class="edit-category-opt group flex items-center justify-between gap-2 rounded-lg  hover:bg-slate-50 cursor-pointer transition-colors"
+                                                        data-id="<?php echo (int) $cat['category_id']; ?>"
+                                                        data-name="<?php echo htmlspecialchars($cat['category_name'], ENT_QUOTES); ?>">
+                                                        <button type="button"
+                                                            class="edit-category-select flex-1 text-left text-xs font-bold px-3 py-2 text-slate-700 whitespace-normal break-words leading-snug">
+                                                            <?php echo htmlspecialchars($cat['category_name']); ?>
+                                                        </button>
+                                                    </li>
+                                                <?php endforeach; ?>
+                                            </ul>
+                                        </div>
                                     </div>
                                 </div>
-                            </label>
-                            <input type="file" name="item_image" id="edit_item_image"
-                                accept="image/jpeg, image/png, image/webp" class="hidden" />
-                            <p class="text-[10px] font-bold text-slate-400 mt-2">Max 5MB (JPEG/PNG)</p>
+                            </div>
                         </div>
 
-                        <div class="flex-1 flex flex-col space-y-2.5">
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-2.5 mt-2">
                             <div class="space-y-0.5">
-                                <label for="edit_item_name"
-                                    class="block text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Item
-                                    name</label>
-                                <input type="text" name="item_name" id="edit_item_name" required
+                                <label for="edit_value"
+                                    class="block text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Unit
+                                    Cost</label>
+                                <div class="relative rounded-xl shadow-inner bg-slate-50/80 border border-white">
+                                    <span
+                                        class="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-400 text-sm font-bold select-none z-10 pointer-events-none">₱</span>
+                                    <input type="number" step="0.01" min="0" name="value" id="edit_value"
+                                        class="block w-full rounded-xl border-transparent bg-transparent pl-7 pr-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:bg-white text-sm font-medium transition-all"
+                                        placeholder="0.00">
+                                </div>
+                            </div>
+
+                            <div class="space-y-0.5">
+                                <label for="edit_retail_price"
+                                    class="block text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Retail
+                                    price</label>
+                                <div class="relative rounded-xl shadow-inner bg-slate-50/80 border border-white">
+                                    <span
+                                        class="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-400 text-sm font-bold select-none z-10 pointer-events-none">₱</span>
+                                    <input type="number" step="0.01" min="0" name="retail_price" id="edit_retail_price"
+                                        class="block w-full rounded-xl border-transparent bg-transparent pl-7 pr-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:bg-white text-sm font-medium transition-all"
+                                        placeholder="0.00">
+                                </div>
+                            </div>
+
+                            <div class="space-y-0.5">
+                                <label for="edit_wholesale_price"
+                                    class="block text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Wholesale
+                                    price</label>
+                                <div class="relative rounded-xl shadow-inner bg-slate-50/80 border border-white">
+                                    <span
+                                        class="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-400 text-sm font-bold select-none z-10 pointer-events-none">₱</span>
+                                    <input type="number" step="0.01" min="0" name="wholesale_price"
+                                        id="edit_wholesale_price"
+                                        class="block w-full rounded-xl border-transparent bg-transparent pl-7 pr-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:bg-white text-sm font-medium transition-all"
+                                        placeholder="0.00">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-2.5 mt-1">
+                            <div class="space-y-0.5">
+                                <label for="edit_unit"
+                                    class="block text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Base
+                                    Unit</label>
+                                <input type="text" name="unit" id="edit_unit"
                                     class="block w-full rounded-xl border-white bg-slate-50/80 shadow-inner px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:bg-white text-sm font-medium transition-all"
-                                    placeholder="e.g. Wireless Mouse">
+                                    placeholder="e.g. pcs, box, kg">
                             </div>
 
                             <div class="space-y-0.5">
-                                <label for="edit_category_id"
-                                    class="block text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Category</label>
-                                <div id="edit-category-dd" class="relative">
-                                    <input type="hidden" name="category_id" id="edit_category_id" value="">
-
-                                    <button type="button" id="edit-category-dd-trigger"
-                                        class="w-full inline-flex items-center justify-between rounded-xl border border-white bg-slate-50/80 shadow-inner px-4 py-2.5 text-sm font-medium hover:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all cursor-pointer">
-                                        <span id="edit-category-dd-label" class="truncate text-slate-500">Select</span>
-                                        <i
-                                            class="fa-solid fa-chevron-down text-[10px] text-slate-400 bg-transparent"></i>
-                                    </button>
-
-                                    <div id="edit-category-dd-menu"
-                                        class="hidden absolute left-0 mt-2 min-w-full sm:min-w-[16rem] max-w-[calc(100vw-4rem)] rounded-2xl border border-white bg-white/95 backdrop-blur-xl shadow-2xl z-[80] overflow-hidden">
-                                        <ul id="edit-category-dd-options"
-                                            class="max-h-48 overflow-y-auto p-2 ">
-                                            <?php foreach ($categories as $cat): ?>
-                                                <li class="edit-category-opt group flex items-center justify-between gap-2 rounded-lg  hover:bg-slate-50 cursor-pointer transition-colors"
-                                                    data-id="<?php echo (int) $cat['category_id']; ?>"
-                                                    data-name="<?php echo htmlspecialchars($cat['category_name'], ENT_QUOTES); ?>">
-                                                    <button type="button"
-                                                        class="edit-category-select flex-1 text-left text-xs font-bold px-3 py-2 text-slate-700 whitespace-normal break-words leading-snug">
-                                                        <?php echo htmlspecialchars($cat['category_name']); ?>
-                                                    </button>
-                                                </li>
-                                            <?php endforeach; ?>
-                                        </ul>
-                                    </div>
-                                </div>
+                                <label for="edit_stock_threshold"
+                                    class="block text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Alert
+                                    Level</label>
+                                <input type="number" min="0" name="stock_threshold" id="edit_stock_threshold"
+                                    class="block w-full rounded-xl border-white bg-slate-50/80 shadow-inner px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:bg-white text-sm font-medium transition-all"
+                                    placeholder="e.g. 10">
                             </div>
                         </div>
-                    </div>
-
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-2.5 mt-2">
-                        <div class="space-y-0.5">
-                            <label for="edit_value"
-                                class="block text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Unit Cost</label>
-                            <div class="relative rounded-xl shadow-inner bg-slate-50/80 border border-white">
-                                <span
-                                    class="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-400 text-sm font-bold select-none z-10 pointer-events-none">₱</span>
-                                <input type="number" step="0.01" min="0" name="value" id="edit_value"
-                                    class="block w-full rounded-xl border-transparent bg-transparent pl-7 pr-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:bg-white text-sm font-medium transition-all"
-                                    placeholder="0.00">
-                            </div>
-                        </div>
-
-                        <div class="space-y-0.5">
-                            <label for="edit_retail_price"
-                                class="block text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Retail
-                                price</label>
-                            <div class="relative rounded-xl shadow-inner bg-slate-50/80 border border-white">
-                                <span
-                                    class="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-400 text-sm font-bold select-none z-10 pointer-events-none">₱</span>
-                                <input type="number" step="0.01" min="0" name="retail_price" id="edit_retail_price"
-                                    class="block w-full rounded-xl border-transparent bg-transparent pl-7 pr-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:bg-white text-sm font-medium transition-all"
-                                    placeholder="0.00">
-                            </div>
-                        </div>
-
-                        <div class="space-y-0.5">
-                            <label for="edit_wholesale_price"
-                                class="block text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Wholesale
-                                price</label>
-                            <div class="relative rounded-xl shadow-inner bg-slate-50/80 border border-white">
-                                <span
-                                    class="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-400 text-sm font-bold select-none z-10 pointer-events-none">₱</span>
-                                <input type="number" step="0.01" min="0" name="wholesale_price"
-                                    id="edit_wholesale_price"
-                                    class="block w-full rounded-xl border-transparent bg-transparent pl-7 pr-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:bg-white text-sm font-medium transition-all"
-                                    placeholder="0.00">
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-2.5 mt-1">
-                        <div class="space-y-0.5">
-                            <label for="edit_unit"
-                                class="block text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Base Unit</label>
-                            <input type="text" name="unit" id="edit_unit"
-                                class="block w-full rounded-xl border-white bg-slate-50/80 shadow-inner px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:bg-white text-sm font-medium transition-all"
-                                placeholder="e.g. pcs, box, kg">
-                        </div>
-
-                        <div class="space-y-0.5">
-                            <label for="edit_stock_threshold"
-                                class="block text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Alert Level</label>
-                            <input type="number" min="0" name="stock_threshold" id="edit_stock_threshold"
-                                class="block w-full rounded-xl border-white bg-slate-50/80 shadow-inner px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:bg-white text-sm font-medium transition-all"
-                                placeholder="e.g. 10">
-                        </div>
-                    </div>
-
-                    <div
-                        class="relative flex flex-col items-center justify-center bg-slate-50/80 pt-10 pb-4 rounded-2xl border border-white shadow-inner">
 
                         <div
-                            class="absolute top-3 left-3 inline-flex items-center gap-1.5 bg-teal-50 px-2 py-1 rounded-lg shadow-sm border border-teal-100/50">
-                            <i class="fa-solid fa-cubes text-teal-500 text-[11px]"></i>
-                            <span class="text-[9px] font-black uppercase tracking-widest text-teal-700">
-                                Current Stock: <span id="edit_original_count" class="text-teal-900 text-[11px]">0</span>
-                            </span>
-                        </div>
-
-                        <div id="edit_qty_delta_badge"
-                            class="absolute top-3 right-3 inline-flex items-center gap-1 px-2 py-1 rounded-lg shadow-sm opacity-0 transition-all duration-300 border border-transparent">
-                            <i id="edit_qty_delta_icon" class="fa-solid text-[10px]"></i>
-                            <span id="edit_qty_delta_text" class="text-[10px] font-black tracking-widest">0</span>
-                        </div>
-
-                        <label
-                            class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2.5">Quantity</label>
-                        <div class="flex items-center justify-center gap-6">
-                            <button type="button" id="edit-qty-btn-minus"
-                                class="text-indigo-400 hover:text-indigo-600 hover:bg-white w-10 h-10 rounded-full flex items-center justify-center transition-all outline-none shadow-sm border border-slate-100 bg-slate-50 cursor-pointer">
-                                <i class="fa-solid fa-minus"></i>
-                            </button>
+                            class="relative flex flex-col items-center justify-center bg-slate-50/80 pt-10 pb-4 rounded-2xl border border-white shadow-inner">
 
                             <div
-                                class="min-w-[4.5rem] min-h-[4.5rem] px-2 bg-indigo-500 rounded-[1.25rem] flex items-center justify-center shadow-lg shadow-indigo-200 transition-all duration-200 ease-out">
-                                <input type="number" min="0" name="item_count" id="edit_item_count" value="0"
-                                    class="bg-transparent border-none text-center text-4xl font-black text-white focus:outline-none focus:ring-0 p-0 m-0 transition-all duration-200"
-                                    style="-moz-appearance: textfield; appearance: none; width: 1ch;">
+                                class="absolute top-3 left-3 inline-flex items-center gap-1.5 bg-teal-50 px-2 py-1 rounded-lg shadow-sm border border-teal-100/50">
+                                <i class="fa-solid fa-cubes text-teal-500 text-[11px]"></i>
+                                <span class="text-[9px] font-black uppercase tracking-widest text-teal-700">
+                                    Current Stock: <span id="edit_original_count"
+                                        class="text-teal-900 text-[11px]">0</span>
+                                </span>
                             </div>
 
-                            <button type="button" id="edit-qty-btn-plus"
-                                class="text-indigo-400 hover:text-indigo-600 hover:bg-white w-10 h-10 rounded-full flex items-center justify-center transition-all outline-none shadow-sm border border-slate-100 bg-slate-50 cursor-pointer">
-                                <i class="fa-solid fa-plus"></i>
-                            </button>
+                            <div id="edit_qty_delta_badge"
+                                class="absolute top-3 right-3 inline-flex items-center gap-1 px-2 py-1 rounded-lg shadow-sm opacity-0 transition-all duration-300 border border-transparent">
+                                <i id="edit_qty_delta_icon" class="fa-solid text-[10px]"></i>
+                                <span id="edit_qty_delta_text" class="text-[10px] font-black tracking-widest">0</span>
+                            </div>
+
+                            <label
+                                class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2.5">Quantity</label>
+                            <div class="flex items-center justify-center gap-6">
+                                <button type="button" id="edit-qty-btn-minus"
+                                    class="text-indigo-400 hover:text-indigo-600 hover:bg-white w-10 h-10 rounded-full flex items-center justify-center transition-all outline-none shadow-sm border border-slate-100 bg-slate-50 cursor-pointer">
+                                    <i class="fa-solid fa-minus"></i>
+                                </button>
+
+                                <div
+                                    class="min-w-[4.5rem] min-h-[4.5rem] px-2 bg-indigo-500 rounded-[1.25rem] flex items-center justify-center shadow-lg shadow-indigo-200 transition-all duration-200 ease-out">
+                                    <input type="number" min="0" name="item_count" id="edit_item_count" value="0"
+                                        class="bg-transparent border-none text-center text-4xl font-black text-white focus:outline-none focus:ring-0 p-0 m-0 transition-all duration-200"
+                                        style="-moz-appearance: textfield; appearance: none; width: 1ch;">
+                                </div>
+
+                                <button type="button" id="edit-qty-btn-plus"
+                                    class="text-indigo-400 hover:text-indigo-600 hover:bg-white w-10 h-10 rounded-full flex items-center justify-center transition-all outline-none shadow-sm border border-slate-100 bg-slate-50 cursor-pointer">
+                                    <i class="fa-solid fa-plus"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="edit-step-2" class="space-y-4 hidden">
+                        <div class="rounded-2xl border border-white bg-slate-50/80 shadow-inner p-4">
+                            <div class="mt-4">
+                                <div class="relative flex p-1 bg-slate-100/80 rounded-full w-full shadow-inner">
+                                    <div id="edit-purchase-tab-slider"
+                                        class="absolute top-1 bottom-1 left-1 w-[calc(50%-4px)] bg-white rounded-full shadow-sm transition-transform duration-300 ease-out z-0 translate-x-0">
+                                    </div>
+
+                                    <button type="button" id="edit-purchase-pay-mode-now"
+                                        class="relative z-10 flex-1 px-4 py-2 text-sm font-black text-slate-800 cursor-pointer transition-colors duration-300">
+                                        Pay Now
+                                    </button>
+                                    <button type="button" id="edit-purchase-pay-mode-later"
+                                        class="relative z-10 flex-1 px-4 py-2 text-sm font-black text-slate-500 hover:text-slate-700 cursor-pointer transition-colors duration-300">
+                                        Pay Later
+                                    </button>
+                                </div>
+
+                                <div class="mt-3" id="edit-purchase-pay-sections">
+                                    <div id="edit-purchase-pay-now-wrapper" class="space-y-3">
+                                        <p
+                                            class="text-[11px] font-black uppercase tracking-[0.2em] text-slate-500 mb-2">
+                                            Payment Method</p>
+                                        <div class="space-y-3" id="edit-purchase-payment-options">
+                                            <label
+                                                class="edit-purchase-pay-option edit-purchase-pay-cash flex items-center justify-between gap-4 p-4 rounded-2xl border border-slate-200 bg-white cursor-pointer hover:border-slate-300 transition-colors">
+                                                <input type="radio" name="edit_purchase_payment" value="cash"
+                                                    class="hidden" checked>
+                                                <div class="flex items-center gap-3 min-w-0">
+                                                    <div
+                                                        class="h-12 w-12 rounded-2xl bg-slate-50 border border-emerald-200 text-emerald-700 flex items-center justify-center shrink-0">
+                                                        <i class="fa-solid fa-money-bill-1 text-lg"></i>
+                                                    </div>
+                                                    <div class="min-w-0">
+                                                        <div class="text-base font-black text-slate-900 truncate">Cash
+                                                        </div>
+                                                        <div class="text-sm font-semibold text-slate-500 truncate">Paid
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div
+                                                    class="edit-purchase-pay-radio h-9 w-9 rounded-full border-2 border-slate-300 flex items-center justify-center shrink-0">
+                                                    <div
+                                                        class="edit-purchase-pay-dot hidden h-5 w-5 rounded-full bg-emerald-500">
+                                                    </div>
+                                                </div>
+                                            </label>
+
+                                            <label
+                                                class="edit-purchase-pay-option edit-purchase-pay-gcash flex items-center justify-between gap-4 p-4 rounded-2xl border border-slate-200 bg-white cursor-pointer hover:border-slate-300 transition-colors">
+                                                <input type="radio" name="edit_purchase_payment" value="gcash"
+                                                    class="hidden">
+                                                <div class="flex items-center gap-3 min-w-0">
+                                                    <div
+                                                        class="h-12 w-12 rounded-2xl bg-slate-50 border border-slate-200 flex items-center justify-center shrink-0">
+                                                        <img src="assets/images/gcash.svg" alt="GCash"
+                                                            class="h-7 w-7" />
+                                                    </div>
+                                                    <div class="min-w-0">
+                                                        <div class="text-base font-black text-slate-900 truncate">GCash
+                                                        </div>
+                                                        <div class="text-sm font-semibold text-slate-500 truncate">Paid
+                                                            thru Gcash</div>
+                                                    </div>
+                                                </div>
+                                                <div
+                                                    class="edit-purchase-pay-radio h-9 w-9 rounded-full border-2 border-slate-300 flex items-center justify-center shrink-0">
+                                                    <div
+                                                        class="edit-purchase-pay-dot hidden h-5 w-5 rounded-full bg-sky-500">
+                                                    </div>
+                                                </div>
+                                            </label>
+
+                                            <label
+                                                class="edit-purchase-pay-option edit-purchase-pay-bank flex items-center justify-between gap-4 p-4 rounded-2xl border border-slate-200 bg-white cursor-pointer hover:border-slate-300 transition-colors">
+                                                <input type="radio" name="edit_purchase_payment" value="bank"
+                                                    class="hidden">
+                                                <div class="flex items-center gap-3 min-w-0">
+                                                    <div
+                                                        class="h-12 w-12 rounded-2xl bg-slate-50 border border-indigo-200 text-indigo-700 flex items-center justify-center shrink-0">
+                                                        <i class="fa-solid fa-building-columns text-lg"></i>
+                                                    </div>
+                                                    <div class="min-w-0">
+                                                        <div class="text-base font-black text-slate-900 truncate">Bank
+                                                        </div>
+                                                        <div class="text-sm font-semibold text-slate-500 truncate">Paid
+                                                            via Bank</div>
+                                                    </div>
+                                                </div>
+                                                <div
+                                                    class="edit-purchase-pay-radio h-9 w-9 rounded-full border-2 border-slate-300 flex items-center justify-center shrink-0">
+                                                    <div
+                                                        class="edit-purchase-pay-dot hidden h-5 w-5 rounded-full bg-indigo-500">
+                                                    </div>
+                                                </div>
+                                            </label>
+                                        </div>
+                                    </div>
+
+                                    <div id="edit-purchase-pay-later-wrapper" class="hidden space-y-3">
+                                        <input type="radio" name="edit_purchase_payment" value="unpaid" class="hidden"
+                                            id="edit-purchase-payment-unpaid-hidden">
+                                        <div class="rounded-2xl border border-slate-100 bg-slate-50 px-4 py-3">
+                                            <div
+                                                class="text-[11px] font-black uppercase tracking-[0.2em] text-orange-500">
+                                                Payable</div>
+                                            <div class="text-sm font-bold text-slate-600 mt-1">This purchase will be
+                                                saved as unpaid.</div>
+                                        </div>
+
+                                        <div id="edit-purchase-unpaid-fields"
+                                            class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                            <div class="space-y-0.5">
+                                                <label for="edit_purchase_supplier"
+                                                    class="block text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Supplier</label>
+                                                <input type="text" name="edit_purchase_supplier"
+                                                    id="edit_purchase_supplier"
+                                                    class="block w-full rounded-xl border-white bg-white/70 shadow-inner px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:bg-white text-sm font-medium transition-all"
+                                                    placeholder="Supplier name">
+                                            </div>
+                                            <div class="space-y-0.5">
+                                                <label for="edit_purchase_due_date"
+                                                    class="block text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Due
+                                                    date (optional)</label>
+                                                <input type="date" name="edit_purchase_due_date"
+                                                    id="edit_purchase_due_date"
+                                                    class="block w-full rounded-xl border-white bg-white/70 shadow-inner px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:bg-white text-sm font-medium transition-all">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div
+                                class="mt-4 rounded-2xl border border-slate-100 bg-slate-50 px-4 py-3 flex justify-between items-center">
+                                <div class="text-xs font-bold text-slate-500 uppercase tracking-[0.2em]">Total Amount
+                                </div>
+                                <div class="text-2xl font-black text-slate-900" id="edit-purchase-total">₱0.00</div>
+                            </div>
                         </div>
                     </div>
 
                     <div class="flex items-center justify-end gap-3 pt-2">
-                        <button type="button" id="cancel-edit-item-modal"
-                            class="px-5 py-2.5 rounded-xl bg-white border border-slate-200 shadow-sm text-sm font-bold cursor-pointer text-slate-600 hover:bg-slate-50 transition-all">
-                            Cancel
-                        </button>
-                        <button type="submit"
+                        <button type="button" id="edit-step-next"
                             class="px-6 py-2.5 rounded-xl bg-indigo-600 text-sm font-black tracking-wide text-white shadow-md shadow-indigo-200 hover:bg-indigo-700 focus:outline-none cursor-pointer focus:ring-2 focus:ring-indigo-500/30 transition-all hover:-translate-y-0.5">
+                            Next
+                        </button>
+                        <button type="submit" id="edit-step-save"
+                            class="hidden px-6 py-2.5 rounded-xl bg-indigo-600 text-sm font-black tracking-wide text-white shadow-md shadow-indigo-200 hover:bg-indigo-700 focus:outline-none cursor-pointer focus:ring-2 focus:ring-indigo-500/30 transition-all hover:-translate-y-0.5">
                             Update
                         </button>
                     </div>
@@ -1511,11 +1706,12 @@ try {
                 // Reset wizard
                 $('#add-step-1').removeClass('hidden');
                 $('#add-step-2').addClass('hidden');
-                $('#add-step-back').addClass('hidden');
                 $('#add-step-next').removeClass('hidden');
                 $('#add-step-save').addClass('hidden');
-                $('#add-step-label').text('Step 1 of 2: Item details');
+                $('#add-step-number').text('1');
+                $('#add-step-title').text('Item details');
                 $('#purchase-total').text('₱0.00');
+                $('#add-back-inline').addClass('hidden');
 
                 // Reset purchase UI
                 $('input[name="purchase_payment"][value="cash"]').prop('checked', true);
@@ -1532,7 +1728,7 @@ try {
             }
 
             $('#open-add-item-modal').on('click', () => $addItemModal.removeClass('hidden').addClass('flex'));
-            $('#close-add-item-modal, #cancel-add-item-modal').on('click', hideAddModal);
+            $('#close-add-item-modal').on('click', hideAddModal);
             $('#qty-btn-plus').on('click', () => handleQtyCounter($addQtyInput, 'plus'));
             $('#qty-btn-minus').on('click', () => handleQtyCounter($addQtyInput, 'minus'));
             $addQtyInput.on('input', () => handleQtyCounter($addQtyInput, 'input'));
@@ -1637,10 +1833,11 @@ try {
                 // Move to step 2 and prefill purchase fields
                 $('#add-step-1').addClass('hidden');
                 $('#add-step-2').removeClass('hidden');
-                $('#add-step-back').removeClass('hidden');
                 $('#add-step-next').addClass('hidden');
                 $('#add-step-save').removeClass('hidden');
-                $('#add-step-label').text('Step 2 of 2: Purchase details');
+                $('#add-step-number').text('2');
+                $('#add-step-title').text('Purchase details');
+                $('#add-back-inline').removeClass('hidden');
                 updatePurchaseTotal();
                 setPurchasePayMode('now');
 
@@ -1648,13 +1845,18 @@ try {
                 setTimeout(() => $('#purchase-payment-options .purchase-pay-option').first().trigger('focus'), 0);
             });
 
-            $('#add-step-back').on('click', function () {
+            function goAddStep1() {
                 $('#add-step-2').addClass('hidden');
                 $('#add-step-1').removeClass('hidden');
-                $('#add-step-back').addClass('hidden');
                 $('#add-step-next').removeClass('hidden');
                 $('#add-step-save').addClass('hidden');
-                $('#add-step-label').text('Step 1 of 2: Item details');
+                $('#add-step-number').text('1');
+                $('#add-step-title').text('Item details');
+                $('#add-back-inline').addClass('hidden');
+            }
+
+            $('#add-back-inline').on('click', function () {
+                goAddStep1();
             });
 
             // Payment option click (POS-like)
@@ -1685,10 +1887,6 @@ try {
                 if (method === 'unpaid') {
                     if (!String($('#purchase_supplier').val() || '').trim()) {
                         showToast('error', 'Supplier is required for unpaid purchases.');
-                        return;
-                    }
-                    if (!String($('#purchase_due_date').val() || '').trim()) {
-                        showToast('error', 'Due date is required for unpaid purchases.');
                         return;
                     }
                 }
@@ -1739,9 +1937,28 @@ try {
                 handleImagePreview(null, $('#edit-image-preview'), $('#edit-image-preview-icon'), $('#edit-image-preview-container'));
                 setEditSelectedCategory('', 'Select');
                 resetEditDeltaBadge();
+                // Reset edit purchase UI
+                $('input[name="edit_purchase_payment"][value="cash"]').prop('checked', true);
+                $('#edit-purchase-tab-slider').removeClass('translate-x-full').addClass('translate-x-0');
+                $('#edit-purchase-pay-now-wrapper').removeClass('hidden');
+                $('#edit-purchase-pay-later-wrapper').addClass('hidden');
+                $('#edit-purchase-pay-mode-now').addClass('text-slate-800').removeClass('text-slate-500');
+                $('#edit-purchase-pay-mode-later').addClass('text-slate-500').removeClass('text-slate-800');
+                $('#edit_purchase_supplier').val('');
+                $('#edit_purchase_due_date').val('');
+                $('#edit-purchase-total').text('₱0.00');
+
+                // Reset edit wizard
+                $('#edit-step-1').removeClass('hidden');
+                $('#edit-step-2').addClass('hidden');
+                $('#edit-step-next').removeClass('hidden');
+                $('#edit-step-save').addClass('hidden');
+                $('#edit-step-number').text('1');
+                $('#edit-step-title').text('Item details');
+                $('#edit-back-inline').addClass('hidden');
             }
 
-            $('#close-edit-item-modal, #cancel-edit-item-modal').on('click', hideEditModal);
+            $('#close-edit-item-modal').on('click', hideEditModal);
 
             // Delta Calculator Function
             function calculateDelta() {
@@ -1773,10 +1990,111 @@ try {
                 }
             }
 
+            function updateEditPurchaseTotal() {
+                const original = parseInt($('#edit_original_count').text()) || 0;
+                const current = parseInt($editQtyInput.val()) || 0;
+                const diff = Math.max(0, current - original);
+                const unitCost = parseFloat($('#edit_value').val());
+                const c = Number.isFinite(unitCost) ? Math.max(0, unitCost) : 0;
+                $('#edit-purchase-total').text(formatCurrencyPHP(diff * c));
+            }
+
+            function applyEditPurchaseHighlight($label) {
+                const $all = $('#edit-purchase-payment-options .edit-purchase-pay-option');
+                $all.removeClass('ring-2 ring-emerald-400/70 border-emerald-400/60 ring-2 ring-sky-400/70 border-sky-400/60 ring-2 ring-indigo-400/70 border-indigo-400/60')
+                    .addClass('border-slate-200 bg-white');
+                $all.find('.edit-purchase-pay-dot').addClass('hidden');
+                if (!$label || !$label.length) return;
+                if ($label.hasClass('edit-purchase-pay-cash')) {
+                    $label.removeClass('border-slate-200 bg-white').addClass('ring-2 ring-emerald-400/70 border-emerald-400/60');
+                } else if ($label.hasClass('edit-purchase-pay-gcash')) {
+                    $label.removeClass('border-slate-200 bg-white').addClass('ring-2 ring-sky-400/70 border-sky-400/60');
+                } else if ($label.hasClass('edit-purchase-pay-bank')) {
+                    $label.removeClass('border-slate-200 bg-white').addClass('ring-2 ring-indigo-400/70 border-indigo-400/60');
+                }
+                $label.find('.edit-purchase-pay-dot').removeClass('hidden');
+            }
+
+            function setEditPurchasePayMode(mode) {
+                const isLater = mode === 'later';
+                $('#edit-purchase-pay-now-wrapper').toggleClass('hidden', isLater);
+                $('#edit-purchase-pay-later-wrapper').toggleClass('hidden', !isLater);
+                $('#edit-purchase-tab-slider')
+                    .toggleClass('translate-x-0', !isLater)
+                    .toggleClass('translate-x-full', isLater);
+                $('#edit-purchase-pay-mode-now')
+                    .toggleClass('text-slate-800', !isLater)
+                    .toggleClass('text-slate-500', isLater);
+                $('#edit-purchase-pay-mode-later')
+                    .toggleClass('text-slate-800', isLater)
+                    .toggleClass('text-slate-500', !isLater);
+                if (isLater) {
+                    $('#edit-purchase-payment-unpaid-hidden').prop('checked', true);
+                } else {
+                    $('input[name="edit_purchase_payment"][value="cash"]').prop('checked', true);
+                }
+            }
+
             // Attach delta calculator to the buttons
-            $('#edit-qty-btn-plus').on('click', () => { handleQtyCounter($editQtyInput, 'plus'); calculateDelta(); });
-            $('#edit-qty-btn-minus').on('click', () => { handleQtyCounter($editQtyInput, 'minus'); calculateDelta(); });
-            $editQtyInput.on('input', () => { handleQtyCounter($editQtyInput, 'input'); calculateDelta(); });
+            $('#edit-qty-btn-plus').on('click', () => { handleQtyCounter($editQtyInput, 'plus'); calculateDelta(); updateEditPurchaseTotal(); });
+            $('#edit-qty-btn-minus').on('click', () => { handleQtyCounter($editQtyInput, 'minus'); calculateDelta(); updateEditPurchaseTotal(); });
+            $editQtyInput.on('input', () => { handleQtyCounter($editQtyInput, 'input'); calculateDelta(); updateEditPurchaseTotal(); });
+            $('#edit_value').on('input', updateEditPurchaseTotal);
+
+            $('#edit-purchase-payment-options').on('click', '.edit-purchase-pay-option', function () {
+                const $label = $(this);
+                const radio = $label.find('input[type="radio"]');
+                radio.prop('checked', true);
+                applyEditPurchaseHighlight($label);
+            });
+
+            $('#edit-purchase-pay-mode-now').on('click', function () {
+                setEditPurchasePayMode('now');
+                applyEditPurchaseHighlight($('#edit-purchase-payment-options .edit-purchase-pay-cash'));
+            });
+            $('#edit-purchase-pay-mode-later').on('click', function () {
+                setEditPurchasePayMode('later');
+            });
+
+            // --- EDIT ITEM WIZARD (2-step) ---
+            $('#edit-step-next').on('click', function () {
+                if (!String($('#edit_item_name').val() || '').trim()) {
+                    showToast('error', 'Please enter an item name.');
+                    return;
+                }
+                if (!String($('#edit_category_id').val() || '').trim()) {
+                    showToast('error', 'Please select a category.');
+                    $('#edit-category-dd-menu').removeClass('hidden');
+                    return;
+                }
+
+                $('#edit-step-1').addClass('hidden');
+                $('#edit-step-2').removeClass('hidden');
+                $('#edit-step-next').addClass('hidden');
+                $('#edit-step-save').removeClass('hidden');
+                $('#edit-step-number').text('2');
+                $('#edit-step-title').text('Purchase details');
+                $('#edit-back-inline').removeClass('hidden');
+
+                updateEditPurchaseTotal();
+                // default highlight and pay mode
+                setEditPurchasePayMode('now');
+                applyEditPurchaseHighlight($('#edit-purchase-payment-options .edit-purchase-pay-cash'));
+            });
+
+            function goEditStep1() {
+                $('#edit-step-2').addClass('hidden');
+                $('#edit-step-1').removeClass('hidden');
+                $('#edit-step-next').removeClass('hidden');
+                $('#edit-step-save').addClass('hidden');
+                $('#edit-step-number').text('1');
+                $('#edit-step-title').text('Item details');
+                $('#edit-back-inline').addClass('hidden');
+            }
+
+            $('#edit-back-inline').on('click', function () {
+                goEditStep1();
+            });
 
             const $itemQrModal = $('#item-qr-modal');
             const $downloadItemQr = $('#download-item-qr');
@@ -1902,6 +2220,20 @@ try {
                 $editQtyInput.val(itemData.count).css('width', Math.max(1, String(itemData.count).length) + 'ch');
                 setEditSelectedCategory(itemData.categoryId, itemData.categoryName);
                 resetEditDeltaBadge();
+                setEditPurchasePayMode('now');
+                applyEditPurchaseHighlight($('#edit-purchase-payment-options .edit-purchase-pay-cash'));
+                updateEditPurchaseTotal();
+                $('#edit_purchase_supplier').val('');
+                $('#edit_purchase_due_date').val('');
+
+                // Start edit wizard at step 1
+                $('#edit-step-1').removeClass('hidden');
+                $('#edit-step-2').addClass('hidden');
+                $('#edit-step-back').addClass('hidden');
+                $('#edit-step-next').removeClass('hidden');
+                $('#edit-step-save').addClass('hidden');
+                $('#edit-step-number').text('1');
+                $('#edit-step-title').text('Item details');
 
                 if (itemData.imageSrc) {
                     $('#edit-image-preview').attr('src', itemData.imageSrc).removeClass('hidden');
@@ -1916,11 +2248,29 @@ try {
 
             $('#edit-item-form').on('submit', function (e) {
                 e.preventDefault();
+                // Ensure we're on step 2 before saving
+                if (!$('#edit-step-2').is(':visible')) {
+                    $('#edit-step-next').trigger('click');
+                    return;
+                }
                 if (!String($('#edit_category_id').val() || '').trim()) {
                     showToast('error', 'Please select a category.');
                     $('#edit-category-dd-menu').removeClass('hidden');
                     return;
                 }
+
+                // If they increased stock AND selected Pay Later, require supplier (due date optional)
+                const orig = parseInt($('#edit_original_count').text()) || 0;
+                const cur = parseInt($('#edit_item_count').val()) || 0;
+                const delta = cur - orig;
+                const editMethod = String($('input[name="edit_purchase_payment"]:checked').val() || 'cash');
+                if (delta > 0 && editMethod === 'unpaid') {
+                    if (!String($('#edit_purchase_supplier').val() || '').trim()) {
+                        showToast('error', 'Supplier is required for unpaid purchases.');
+                        return;
+                    }
+                }
+
                 $editItemModal.addClass('hidden').removeClass('flex');
                 if ($loaderText.length) $loaderText.text('UPDATING...');
                 $loaderContainer.removeClass('hidden').addClass('flex');
