@@ -394,7 +394,7 @@ if (!isset($_SESSION['user_id'])) {
                 if (res.success) {
                     const m = res.metrics;
                     const b = res.breakdowns;
-                    const profitColor = m.net_profit >= 0 ? 'text-fuchsia-600' : 'text-rose-600';
+                    const profitColor = m.net_profit >= 0 ? 'text-emerald-600' : 'text-rose-600';
 
                     const buildItemRows = (items) => {
                         if (!items || items.length === 0) return '<li class="text-center text-slate-400 py-4 text-[11px] font-medium border-t border-slate-100 mt-2">No items in this category.</li>';
@@ -410,14 +410,30 @@ if (!isset($_SESSION['user_id'])) {
 
                     const buildTxnRows = (txns) => {
                         if (!txns || txns.length === 0) return '<li class="text-center text-slate-400 py-4 text-[11px] font-medium border-t border-slate-100 mt-2">No settled payments in this period.</li>';
-                        return txns.map((txn, index) => `
-                        <li class="flex justify-between items-center py-3 ${index === 0 ? 'border-t border-slate-100 mt-2 pt-4' : 'border-t border-slate-50'}">
-                            <div class="flex items-center gap-3">
-                                <span class="text-xs font-black text-slate-800">${txn.transaction_number}</span>
-                                <span class="text-[10px] text-slate-500 font-medium bg-slate-100 px-2 py-0.5 rounded-md">${txn.customer || 'Walk-in'}</span>
-                            </div>
-                            <span class="text-xs font-black text-emerald-600">+ ${formatMoney(txn.total_amount)}</span>
-                        </li>`).join('');
+
+                        return txns.map((txn, index) => {
+                            // Determine the Payment Method Badge
+                            let methodBadge = '';
+                            if (parseInt(txn.is_bank) === 1) {
+                                methodBadge = `<span class="bg-indigo-50 text-indigo-600 px-1.5 py-0.5 text-[8px] font-black rounded border border-indigo-100 uppercase tracking-widest shadow-sm">Bank</span>`;
+                            } else if (parseInt(txn.is_gcash) === 1) {
+                                methodBadge = `<span class="bg-blue-50 text-blue-600 px-1.5 py-0.5 text-[8px] font-black rounded border border-blue-100 uppercase tracking-widest shadow-sm">GCash</span>`;
+                            } else {
+                                methodBadge = `<span class="bg-emerald-50 text-emerald-600 px-1.5 py-0.5 text-[8px] font-black rounded border border-emerald-100 uppercase tracking-widest shadow-sm">Cash</span>`;
+                            }
+
+                            return `
+                            <li class="flex justify-between items-center py-3 ${index === 0 ? 'border-t border-slate-100 mt-2 pt-4' : 'border-t border-slate-50'}">
+                                <div class="flex items-center gap-3">
+                                    <span class="text-xs font-black text-slate-800">${txn.transaction_number}</span>
+                                    <div class="flex items-center gap-2">
+                                        <span class="text-[10px] text-slate-500 font-medium bg-slate-100 px-2 py-0.5 rounded-md">${txn.customer || 'Walk-in'}</span>
+                                        ${methodBadge}
+                                    </div>
+                                </div>
+                                <span class="text-xs font-black text-emerald-600">+ ${formatMoney(txn.total_amount)}</span>
+                            </li>`;
+                        }).join('');
                     };
 
                     let statementHtml = `
@@ -466,11 +482,12 @@ if (!isset($_SESSION['user_id'])) {
                         </div>
 
                         <div class="bg-white border border-slate-200 rounded-[1.5rem] shadow-sm overflow-hidden">
+                            
                             <div class="border-b border-slate-100 last:border-0">
                                 <button type="button" class="breakdown-trigger w-full px-5 sm:px-6 py-4 flex justify-between items-center hover:bg-slate-50 transition-colors cursor-pointer group">
                                     <span class="text-xs font-black text-slate-700 uppercase flex items-center gap-3">
-                                        <div class="h-8 w-8 rounded-full bg-slate-50 border border-slate-100 flex items-center justify-center text-slate-400 group-hover:bg-fuchsia-50 group-hover:text-fuchsia-600 transition-colors"><i class="fa-solid fa-box"></i></div>
-                                        Cash Sales Items
+                                        <div class="h-8 w-8 rounded-full bg-emerald-50 border border-emerald-100 flex items-center justify-center text-emerald-500 transition-colors"><i class="fa-solid fa-money-bill-wave"></i></div>
+                                        Items Paid via Cash
                                     </span>
                                     <i class="fa-solid fa-chevron-down transition-transform duration-200 toggle-icon text-slate-300 text-xs group-hover:text-slate-500"></i>
                                 </button>
@@ -480,7 +497,29 @@ if (!isset($_SESSION['user_id'])) {
                             <div class="border-b border-slate-100 last:border-0">
                                 <button type="button" class="breakdown-trigger w-full px-5 sm:px-6 py-4 flex justify-between items-center hover:bg-slate-50 transition-colors cursor-pointer group">
                                     <span class="text-xs font-black text-slate-700 uppercase flex items-center gap-3">
-                                        <div class="h-8 w-8 rounded-full bg-slate-50 border border-slate-100 flex items-center justify-center text-slate-400 group-hover:bg-rose-50 group-hover:text-rose-500 transition-colors"><i class="fa-solid fa-clock"></i></div>
+                                        <div class="h-8 w-8 rounded-full bg-blue-50 border border-blue-100 flex items-center justify-center text-blue-500 transition-colors"><i class="fa-solid fa-mobile-screen"></i></div>
+                                        Items Paid via GCash
+                                    </span>
+                                    <i class="fa-solid fa-chevron-down transition-transform duration-200 toggle-icon text-slate-300 text-xs group-hover:text-slate-500"></i>
+                                </button>
+                                <div class="breakdown-content hidden px-5 sm:px-6 pb-4 bg-white"><ul class="flex flex-col">${buildItemRows(b.gcash_items)}</ul></div>
+                            </div>
+
+                            <div class="border-b border-slate-100 last:border-0">
+                                <button type="button" class="breakdown-trigger w-full px-5 sm:px-6 py-4 flex justify-between items-center hover:bg-slate-50 transition-colors cursor-pointer group">
+                                    <span class="text-xs font-black text-slate-700 uppercase flex items-center gap-3">
+                                        <div class="h-8 w-8 rounded-full bg-indigo-50 border border-indigo-100 flex items-center justify-center text-indigo-500 transition-colors"><i class="fa-solid fa-building-columns"></i></div>
+                                        Items Paid via Bank
+                                    </span>
+                                    <i class="fa-solid fa-chevron-down transition-transform duration-200 toggle-icon text-slate-300 text-xs group-hover:text-slate-500"></i>
+                                </button>
+                                <div class="breakdown-content hidden px-5 sm:px-6 pb-4 bg-white"><ul class="flex flex-col">${buildItemRows(b.bank_items)}</ul></div>
+                            </div>
+
+                            <div class="border-b border-slate-100 last:border-0">
+                                <button type="button" class="breakdown-trigger w-full px-5 sm:px-6 py-4 flex justify-between items-center hover:bg-slate-50 transition-colors cursor-pointer group">
+                                    <span class="text-xs font-black text-slate-700 uppercase flex items-center gap-3">
+                                        <div class="h-8 w-8 rounded-full bg-rose-50 border border-rose-100 flex items-center justify-center text-rose-500 transition-colors"><i class="fa-solid fa-clock"></i></div>
                                         Unpaid Credit Items
                                     </span>
                                     <i class="fa-solid fa-chevron-down transition-transform duration-200 toggle-icon text-slate-300 text-xs group-hover:text-slate-500"></i>
@@ -491,13 +530,14 @@ if (!isset($_SESSION['user_id'])) {
                             <div class="border-b border-slate-100 last:border-0">
                                 <button type="button" class="breakdown-trigger w-full px-5 sm:px-6 py-4 flex justify-between items-center hover:bg-slate-50 transition-colors cursor-pointer group">
                                     <span class="text-xs font-black text-slate-700 uppercase flex items-center gap-3">
-                                        <div class="h-8 w-8 rounded-full bg-slate-50 border border-slate-100 flex items-center justify-center text-slate-400 group-hover:bg-emerald-50 group-hover:text-emerald-500 transition-colors"><i class="fa-solid fa-handshake"></i></div>
+                                        <div class="h-8 w-8 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center text-slate-500 transition-colors"><i class="fa-solid fa-handshake"></i></div>
                                         Settled Payments (Txn)
                                     </span>
                                     <i class="fa-solid fa-chevron-down transition-transform duration-200 toggle-icon text-slate-300 text-xs group-hover:text-slate-500"></i>
                                 </button>
                                 <div class="breakdown-content hidden px-5 sm:px-6 pb-4 bg-white"><ul class="flex flex-col">${buildTxnRows(b.settled_txns)}</ul></div>
                             </div>
+
                         </div>
                     </div>`;
 
@@ -910,22 +950,45 @@ if (!isset($_SESSION['user_id'])) {
                     </div>`);
 
                     // 3. Flat Rows
+                    // 3. Flat Rows with Advanced Segmented Badges
                     res.data.forEach(item => {
                         let statusHtml = '';
                         let borderLeft = 'border-l-slate-200';
 
+                        // A. Determine Method Badge (Inner Right Side)
+                        let methodBadge = '';
+                        if (parseInt(item.is_bank) === 1) {
+                            methodBadge = `<div class="bg-violet-50 text-violet-700 px-2 py-1 text-[10px] font-bold border-l border-emerald-100">Bank</div>`;
+                        } else if (parseInt(item.is_gcash) === 1) {
+                            methodBadge = `<div class="bg-blue-50 text-blue-600 px-2 py-1 text-[10px] font-bold border-l border-emerald-100">GCash</div>`;
+                        } else {
+                            methodBadge = `<div class="bg-emerald-50/40 text-emerald-600 px-2 py-1 text-[10px] font-bold border-l border-emerald-100">Cash</div>`;
+                        }
+
+                        // B. Build the Segmented Pill based on Status
                         if (parseInt(item.is_unpaid) === 1) {
                             borderLeft = 'border-l-rose-400';
-                            statusHtml = `<div class="bg-rose-50 text-rose-600 px-2.5 py-1 text-[10px] font-bold rounded shadow-sm border border-rose-100">Payable</div>`;
-                        } else if (parseInt(item.is_bank) === 1) {
-                            borderLeft = 'border-l-teal-400';
-                            statusHtml = `<div class="bg-teal-50 text-teal-600 px-2.5 py-1 text-[10px] font-bold rounded shadow-sm border border-teal-100">Paid (Bank)</div>`;
-                        } else if (parseInt(item.is_gcash) === 1) {
-                            borderLeft = 'border-l-blue-400';
-                            statusHtml = `<div class="bg-blue-50 text-blue-600 px-2.5 py-1 text-[10px] font-bold rounded shadow-sm border border-blue-100">Paid (GCash)</div>`;
+                            let dueText = item.due_date_formatted ? `Due: ${item.due_date_formatted}` : 'PENDING';
+                            statusHtml = `
+                            <div class="inline-flex items-center border border-rose-100 rounded-md overflow-hidden shadow-sm">
+                                <div class="bg-rose-50 text-rose-600 px-2 py-1 text-[10px] font-bold flex items-center gap-1.5"><i class="fa-solid fa-clock"></i> Unpaid</div>
+                                <div class="bg-white text-rose-400 px-2 py-1 text-[9px] font-bold border-l border-rose-100 uppercase tracking-wider">${dueText}</div>
+                            </div>`;
+                        } else if (item.settle_date_formatted) {
+                            borderLeft = 'border-l-emerald-400';
+                            statusHtml = `
+                            <div class="inline-flex items-center border border-emerald-100 rounded-md overflow-hidden shadow-sm">
+                                <div class="bg-emerald-50 text-emerald-600 px-2 py-1 text-[10px] font-bold flex items-center gap-1.5"><i class="fa-solid fa-check"></i> Settled</div>
+                                ${methodBadge}
+                                <div class="bg-slate-50 text-slate-500 px-2 py-1 text-[10px] font-semibold border-l border-emerald-100">${item.settle_date_formatted}</div>
+                            </div>`;
                         } else {
                             borderLeft = 'border-l-emerald-400';
-                            statusHtml = `<div class="bg-emerald-50 text-emerald-600 px-2.5 py-1 text-[10px] font-bold rounded shadow-sm border border-emerald-100">Paid (Cash)</div>`;
+                            statusHtml = `
+                            <div class="inline-flex items-center border border-emerald-100 rounded-md overflow-hidden shadow-sm">
+                                <div class="bg-emerald-50 text-emerald-600 px-2 py-1 text-[10px] font-bold flex items-center gap-1.5"><i class="fa-solid fa-check-double"></i> Paid</div>
+                                ${methodBadge}
+                            </div>`;
                         }
 
                         let supplierHtml = item.supplier ? `<span class="ml-2 text-slate-400 font-medium text-[10px] truncate max-w-[100px] inline-block align-bottom">- ${item.supplier}</span>` : '';
@@ -951,7 +1014,7 @@ if (!isset($_SESSION['user_id'])) {
                                     <span class="text-xs font-bold text-slate-500">${formatMoney(item.unit_cost)}</span>
                                 </div>
 
-                                <div class="w-full sm:w-1/6 flex items-center justify-between sm:justify-center">
+                                <div class="w-full sm:w-1/6 flex items-center justify-between sm:justify-start sm:pl-4">
                                     <span class="sm:hidden text-[10px] font-bold text-slate-400 uppercase tracking-widest">Status</span>
                                     ${statusHtml}
                                 </div>
@@ -963,6 +1026,7 @@ if (!isset($_SESSION['user_id'])) {
                                 
                             </div>
                         </div>`;
+
                         $container.append(rowHtml);
                     });
                 } else {
@@ -1011,43 +1075,42 @@ if (!isset($_SESSION['user_id'])) {
                         return;
                     }
 
-                    // 2. Table Headers
+                    // 2. Table Headers (Expanded the Status column width slightly to fit the dates)
                     $container.append(`
                     <div class="hidden sm:flex items-center px-4 pb-2 mb-2 text-[10px] font-black text-slate-400 uppercase tracking-widest border-b border-slate-100">
                         <div class="w-1/3">Item Details</div>
                         <div class="w-1/6 text-center">Qty / Unit</div>
                         <div class="w-1/6 text-center">Unit Cost</div>
-                        <div class="w-1/6 text-center">Overdue Status</div>
+                        <div class="w-1/4 text-center">Status & Due Date</div>
                         <div class="w-1/6 text-right pr-4">Total Payable</div>
                     </div>`);
 
                     // 3. Flat Rows
                     res.data.forEach(item => {
-                        let agingBadge = '';
-                        const days = parseInt(item.days_outstanding);
-
-                        if (days === 0) {
-                            agingBadge = `<span class="inline-flex items-center px-2.5 py-1 rounded shadow-sm text-[10px] font-bold bg-slate-50 text-slate-600 border border-slate-200">Today</span>`;
-                        } else if (days >= 1 && days <= 30) {
-                            agingBadge = `<span class="inline-flex items-center px-2.5 py-1 rounded shadow-sm text-[10px] font-bold bg-amber-50 text-amber-600 border border-amber-200">1–30 days</span>`;
-                        } else if (days >= 31 && days <= 60) {
-                            agingBadge = `<span class="inline-flex items-center px-2.5 py-1 rounded shadow-sm text-[10px] font-bold bg-orange-50 text-orange-600 border border-orange-200">31–60 days</span>`;
-                        } else if (days >= 61 && days <= 90) {
-                            agingBadge = `<span class="inline-flex items-center px-2.5 py-1 rounded shadow-sm text-[10px] font-black bg-rose-400 text-white border border-rose-500">61–90 days</span>`;
-                        } else {
-                            agingBadge = `<span class="inline-flex items-center px-2.5 py-1 rounded shadow-sm text-[10px] font-black bg-red-500 text-white border border-red-600">91+ days</span>`;
-                        }
-
                         let supplierHtml = item.supplier ? `<span class="ml-2 text-slate-400 font-medium text-[10px] truncate max-w-[100px] inline-block align-bottom">- ${item.supplier}</span>` : '';
 
+                        // Format the right side of the segmented pill
+                        let rightSideText = item.due_date_formatted ? `Due: ${item.due_date_formatted}` : 'No Due Date';
+
+                        // Sleek Segmented Pill matching your reference image
+                        let statusHtml = `
+                        <div class="inline-flex items-center border border-rose-100 rounded-md overflow-hidden shadow-sm">
+                            <div class="bg-rose-50 text-rose-600 px-2 py-1 text-[10px] font-bold flex items-center gap-1.5 shrink-0">
+                                <i class="fa-solid fa-clock"></i> Unpaid
+                            </div>
+                            <div class="bg-white text-rose-400 px-2 py-1 text-[9px] font-bold border-l border-rose-100 uppercase tracking-wider whitespace-nowrap">
+                                ${rightSideText}
+                            </div>
+                        </div>`;
+
                         let rowHtml = `
-                        <div class="bg-white border border-slate-200 rounded-[1rem] shadow-sm mb-3 transition-all duration-200 border-l-4 border-l-rose-400">
+                        <div class="bg-white border border-slate-200 rounded-[1rem] shadow-sm mb-3 transition-all duration-200 border-l-4 border-l-rose-400 hover:bg-slate-50">
                             <div class="flex flex-col sm:flex-row sm:items-center justify-between p-4 sm:p-3.5 gap-3 sm:gap-0">
                                 
                                 <div class="w-full sm:w-1/3 flex items-center justify-between sm:block">
                                     <div>
                                         <h4 class="text-sm font-black text-slate-800 tracking-wide">${item.item_name} ${supplierHtml}</h4>
-                                        <span class="text-[10px] font-bold text-slate-400">${item.created_at_formatted}</span>
+                                        <span class="text-[10px] font-bold text-slate-400">Purchased: ${item.created_at_formatted}</span>
                                     </div>
                                 </div>
                                 
@@ -1061,9 +1124,9 @@ if (!isset($_SESSION['user_id'])) {
                                     <span class="text-xs font-bold text-slate-500">${formatMoney(item.unit_cost)}</span>
                                 </div>
 
-                                <div class="w-full sm:w-1/6 flex items-center justify-between sm:justify-center">
-                                    <span class="sm:hidden text-[10px] font-bold text-slate-400 uppercase tracking-widest">Age</span>
-                                    ${agingBadge}
+                                <div class="w-full sm:w-1/4 flex items-center justify-between sm:justify-center">
+                                    <span class="sm:hidden text-[10px] font-bold text-slate-400 uppercase tracking-widest">Status</span>
+                                    ${statusHtml}
                                 </div>
 
                                 <div class="w-full sm:w-1/6 flex items-center justify-between sm:justify-end pr-0 sm:pr-4 pt-3 sm:pt-0 border-t border-slate-100 sm:border-t-0 mt-1 sm:mt-0">
@@ -1100,7 +1163,6 @@ if (!isset($_SESSION['user_id'])) {
             loadInventoryReport();
             loadPurchasesReport();
             loadPayablesReport()
-
         });
 
         $('#export-btn').on('click', function () {
@@ -1109,6 +1171,8 @@ if (!isset($_SESSION['user_id'])) {
             if (activeTabTarget === '#tab-receivables') reportType = 'receivables';
             if (activeTabTarget === '#tab-inventory') reportType = 'inventory';
             if (activeTabTarget === '#tab-income') reportType = 'income';
+            if (activeTabTarget === '#tab-purchases') reportType = 'purchases';
+            if (activeTabTarget === '#tab-payables') reportType = 'payables';
 
             const startDate = $('#filter_start').val();
             const endDate = $('#filter_end').val();
@@ -1124,7 +1188,6 @@ if (!isset($_SESSION['user_id'])) {
         $('.tab-btn').on('click', function () {
             const target = $(this).data('target');
 
-            // Notice we added '.hide-on-inventory' to this selector!
             const $dateFilter = $('#date-filter-section, .hide-on-inventory');
 
             $('.tab-btn').removeClass('border-fuchsia-600 text-fuchsia-600').addClass('border-transparent text-slate-500');
@@ -1138,6 +1201,8 @@ if (!isset($_SESSION['user_id'])) {
                 if (target === '#tab-sales') loadSalesReport();
                 if (target === '#tab-receivables') loadReceivablesReport();
                 if (target === '#tab-income') loadIncomeReport();
+                if (target === '#tab-purchases') loadPurchasesReport();
+                if (target === '#tab-payables') loadPayablesReport();
             }
 
             $('.tab-content').addClass('hidden');

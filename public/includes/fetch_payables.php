@@ -21,6 +21,7 @@ try {
             ip.total_amount,
             ip.created_at,
             ip.supplier,
+            ip.due_date,
             i.item_name,
             i.unit,
             DATEDIFF(:ed_diff, DATE(ip.created_at)) as days_outstanding
@@ -42,16 +43,18 @@ try {
     ]);
 
     $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
-    
-    // Calculate metrics
+
+    // Calculate metrics and format dates
     $totalAmount = 0;
     foreach ($results as &$row) {
-        $totalAmount += (float)$row['total_amount'];
+        $totalAmount += (float) $row['total_amount'];
         $row['created_at_formatted'] = date('M d, Y', strtotime($row['created_at']));
+        // Format due date if it exists
+        $row['due_date_formatted'] = !empty($row['due_date']) ? date('M d, Y', strtotime($row['due_date'])) : null;
     }
 
     echo json_encode([
-        'success' => true, 
+        'success' => true,
         'metrics' => [
             'total_items' => count($results),
             'total_amount' => $totalAmount

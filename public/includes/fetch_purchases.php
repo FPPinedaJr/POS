@@ -13,6 +13,7 @@ $startDate = $_POST['start_date'] ?? date('Y-m-d', strtotime('-30 days'));
 $endDate = $_POST['end_date'] ?? date('Y-m-d');
 
 try {
+    // ADDED: ip.due_date and ip.settle_date
     $sql = "
         SELECT 
             ip.purchase_id,
@@ -23,6 +24,8 @@ try {
             ip.is_gcash,
             ip.is_bank,
             ip.created_at,
+            ip.due_date, 
+            ip.settle_date,
             ip.supplier,
             i.item_name,
             i.unit
@@ -43,11 +46,13 @@ try {
 
     $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-    // Format data for JSON
+    // Format data for JSON (Added Date formatting)
     $purchases = array_map(function($row) {
         $row['total_amount'] = (float)$row['total_amount'];
         $row['unit_cost'] = (float)$row['unit_cost'];
         $row['created_at_formatted'] = date('M d, Y', strtotime($row['created_at']));
+        $row['due_date_formatted'] = !empty($row['due_date']) ? date('M d, Y', strtotime($row['due_date'])) : null;
+        $row['settle_date_formatted'] = !empty($row['settle_date']) ? date('M d, Y', strtotime($row['settle_date'])) : null;
         return $row;
     }, $results);
 
