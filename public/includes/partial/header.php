@@ -27,19 +27,17 @@ $iconClass = $theme === 'teal'
     <div class="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between gap-4">
 
         <div class="flex items-center gap-3 shrink-0">
-            <?php if ($currentPage === 'pos.php'): ?>
+            <?php if ($currentPage === 'portal.php'): ?>
+                <a href="#" onclick="window.location.reload(); return false;" class="flex items-center focus:outline-none" aria-label="Refresh portal">
+            <?php else: ?>
                 <a href="portal.php" class="flex items-center focus:outline-none" aria-label="Go to portal">
-                <?php else: ?>
-                    <a href="#" onclick="window.location.reload(); return false;"
-                        class="flex items-center focus:outline-none" aria-label="Refresh page">
-                    <?php endif; ?>
-                    <img src="assets/images/logo.png" alt="Venda Track"
-                        class="h-10 w-auto max-w-[200px] sm:max-w-[240px] object-contain">
-                </a>
+            <?php endif; ?>
+                <img src="assets/images/logo.png" alt="Venda Track"
+                    class="h-10 w-auto max-w-[200px] sm:max-w-[240px] object-contain">
+            </a>
         </div>
 
         <div class="flex items-center gap-2 sm:gap-4 shrink-0">
-
             <div class="flex items-center gap-1.5 sm:gap-3">
                 <?php
                 $notifCount = isset($lowStockCount) ? (int) $lowStockCount : 0;
@@ -79,7 +77,7 @@ $iconClass = $theme === 'teal'
                                             <button type="button"
                                                 class="stock-notif-item w-full text-left mb-2 last:mb-0 flex items-center gap-3 px-3 py-1.5">
                                                 <div
-                                                    class="h-9 w-9 rounded-full overflow-hidden flex-shrink-0 bg-slate-100 flex items-center justify-center">
+                                                    class="h-10 w-10 rounded-full overflow-hidden flex-shrink-0 border border-slate-300 bg-slate-100 flex items-center justify-center">
                                                     <?php if ($image): ?>
                                                         <img src="<?php echo htmlspecialchars($image); ?>"
                                                             alt="<?php echo htmlspecialchars($name); ?>"
@@ -96,7 +94,8 @@ $iconClass = $theme === 'teal'
                                                     </p>
                                                     <p class="text-xs text-slate-600 mt-0.5">
                                                         Remaining stock:
-                                                        <span class="font-semibold text-sky-600"><?php echo $current; ?></span>
+                                                        <span
+                                                            class="font-semibold text-sky-600"><?php echo $current; ?></span>
                                                     </p>
                                                     <p class="text-[11px] text-red-500 mt-0.5 font-semibold">
                                                         Stock is at or below its alert level.
@@ -139,20 +138,13 @@ $iconClass = $theme === 'teal'
                         <div id="googleMenu"
                             class="hidden absolute right-0 mt-3 w-80 bg-white/95 backdrop-blur-2xl rounded-3xl shadow-2xl border border-white z-50 overflow-hidden">
                             <div class="p-6 flex flex-col items-center text-center relative">
-                                <div class="absolute inset-0 linear-gradient-to-br from-indigo-500/5 to-purple-500/5">
-                                </div>
-
+                                <div class="absolute inset-0 linear-gradient-to-br from-indigo-500/5 to-purple-500/5"></div>
                                 <div class="relative mb-3 z-10">
                                     <img class="h-24 w-24 rounded-full object-cover border-4 border-white shadow-lg"
                                         src="<?php echo htmlspecialchars($_SESSION['user_picture']); ?>" alt="User">
                                 </div>
-
-                                <h2 class="text-xl text-slate-900 font-bold z-10">Hi,
-                                    <?php echo htmlspecialchars($_SESSION['user_name']); ?>!
-                                </h2>
-                                <p class="text-sm font-medium text-slate-500 mb-4 z-10">
-                                    <?php echo htmlspecialchars($_SESSION['user_email']); ?>
-                                </p>
+                                <h2 class="text-xl text-slate-900 font-bold z-10">Hi, <?php echo htmlspecialchars($_SESSION['user_name']); ?>!</h2>
+                                <p class="text-sm font-medium text-slate-500 mb-4 z-10"><?php echo htmlspecialchars($_SESSION['user_email']); ?></p>
 
                                 <?php if (empty($_SESSION['google_id'])): ?>
                                     <button id="openPassModal"
@@ -163,15 +155,6 @@ $iconClass = $theme === 'teal'
                             </div>
 
                             <div class="bg-slate-50/80 p-2 border-t border-slate-100">
-
-                                <?php if ($currentPage !== 'portal.php'): ?>
-                                    <a href="portal.php"
-                                        class="w-full flex items-center gap-3 px-4 py-3 text-sm font-bold text-slate-700 hover:bg-white <?php echo $hoverTextClass; ?> hover:shadow-sm rounded-2xl transition-all mb-1">
-                                        <i class="fa-solid fa-house <?php echo $iconClass; ?>"></i>
-                                        <span>Home</span>
-                                    </a>
-                                <?php endif; ?>
-
                                 <?php if ($currentPage === 'inventory.php'): ?>
                                     <button id="openHistorySidebar"
                                         class="w-full hover:cursor-pointer flex items-center gap-3 px-4 py-3 text-sm font-bold text-slate-700 hover:bg-white <?php echo $hoverTextClass; ?> hover:shadow-sm rounded-2xl transition-all">
@@ -199,112 +182,10 @@ $iconClass = $theme === 'teal'
                                     <span>Sign out</span>
                                 </a>
                             </div>
-
-                            <div class="p-3 text-center border-t border-slate-100 bg-white">
-                                <button type="button" id="open-legal-modal"
-                                    class="text-[10px] font-bold text-slate-400 uppercase tracking-widest transition-colors cursor-pointer <?php echo $hoverTextClass; ?>">
-                                    About Us
-                                </button>
                             </div>
-                        </div>
                     </div>
-                </div>
-            </div>
-        </div>
-</header>
-
-<div id="legal-modal"
-    class="fixed inset-0 z-[75] hidden items-center justify-center bg-slate-900/40 backdrop-blur-sm p-4 transition-all">
-    <div class="relative w-full max-w-lg mx-auto">
-        <div
-            class="bg-white/95 backdrop-blur-xl rounded-[2rem] shadow-2xl border border-white overflow-hidden animate-in fade-in zoom-in duration-200">
-
-            <div
-                class="px-6 pt-6 pb-3 border-b border-slate-100 flex items-center justify-between relative overflow-hidden rounded-t-[2rem]">
-
-                <div
-                    class="absolute top-0 right-0 w-32 h-32 bg-indigo-500/10 rounded-full blur-2xl -translate-y-1/2 translate-x-1/2 pointer-events-none">
-                </div>
-
-                <div class="relative z-10 flex items-center gap-3.5">
-                    <div
-                        class="h-10 w-10 rounded-full bg-indigo-50 border border-indigo-100 flex items-center justify-center shadow-inner">
-                        <i class="fa-solid fa-circle-info text-indigo-500 text-lg"></i>
-                    </div>
-                    <div>
-                        <h3 class="text-xl font-black text-slate-900 tracking-tight">About Us</h3>
-                        <p class="text-xs font-medium text-slate-500 mt-0.5">VendaTrack</p>
-                    </div>
-                </div>
-
-                <button type="button" id="close-legal-modal"
-                    class="relative z-10 h-8 w-8 inline-flex items-center justify-center rounded-full cursor-pointer bg-white shadow-sm border border-slate-100 hover:bg-slate-50 transition-all text-slate-400 hover:text-slate-600">
-                    <i class="fa-solid fa-xmark text-sm"></i>
-                </button>
-            </div>
-
-            <div class="px-6 py-3 space-y-2 max-h-[70vh] overflow-y-auto">
-
-                <div class="space-y-2 p-4 rounded-2xl bg-slate-50/80 border border-white shadow-inner">
-                    <h4 class="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-1.5">
-                        <i class="fa-solid fa-layer-group text-indigo-400"></i> Overview
-                    </h4>
-                    <p class="text-sm font-medium text-slate-700 leading-relaxed">
-                        This inventory system helps you organize items, categories, and stock history in one place
-                        with a seamless, modern interface.
-                    </p>
-                </div>
-
-                <div class="space-y-2 p-4 rounded-2xl bg-slate-50/80 border border-white shadow-inner">
-                    <h4 class="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-1.5">
-                        <i class="fa-solid fa-envelope text-teal-400"></i> Contact
-                    </h4>
-                    <p class="text-sm font-medium text-slate-700 leading-relaxed">
-                        For questions, bug reports, or support, please contact your system administrator.
-                    </p>
-                </div>
-
-                <div class="pt-2">
-                    <button type="button" id="legal-modal-ok"
-                        class="w-full px-5 py-3 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-black tracking-widest uppercase shadow-md shadow-indigo-200 cursor-pointer transition-all">
-                        OK
-                    </button>
                 </div>
             </div>
         </div>
     </div>
-</div>
-
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const openBtn = document.getElementById('open-legal-modal');
-        const modal = document.getElementById('legal-modal');
-        const closeBtn = document.getElementById('close-legal-modal');
-        const okBtn = document.getElementById('legal-modal-ok');
-
-        function openLegalModal() {
-            if (!modal) return;
-            modal.classList.remove('hidden');
-            modal.classList.add('flex');
-        }
-
-        function closeLegalModal() {
-            if (!modal) return;
-            modal.classList.add('hidden');
-            modal.classList.remove('flex');
-        }
-
-        if (openBtn) openBtn.addEventListener('click', function (e) { e.preventDefault(); openLegalModal(); });
-        if (closeBtn) closeBtn.addEventListener('click', function (e) { e.preventDefault(); closeLegalModal(); });
-        if (okBtn) okBtn.addEventListener('click', function (e) { e.preventDefault(); closeLegalModal(); });
-
-        document.addEventListener('click', function (e) {
-            if (!modal) return;
-            if (e.target === modal) closeLegalModal();
-        });
-
-        document.addEventListener('keydown', function (e) {
-            if (e.key === 'Escape') closeLegalModal();
-        });
-    });
-</script>
+</header>

@@ -145,7 +145,7 @@ try {
                                 <div id="category-filter-panel" class="mt-4 space-y-3">
                                     <div class="border-b border-slate-200/70 pb-3 mb-3">
                                         <button type="button" id="filter-category-add-toggle"
-                                            class="w-full inline-flex items-center justify-center gap-2 rounded-lg bg-white border border-slate-200 px-3 py-2 text-xs font-bold text-indigo-600 shadow-sm hover:shadow hover:-translate-y-0.5 transition-all">
+                                            class="w-full inline-flex items-center justify-center gap-2 rounded-lg bg-white border border-slate-200 px-3 py-2 text-xs font-bold text-indigo-600 shadow-sm hover:shadow cursor-pointer hover:-translate-y-0.5 transition-all">
                                             <i class="fa-solid fa-plus text-[10px]"></i> Add new category
                                         </button>
 
@@ -154,11 +154,11 @@ try {
                                                 class="flex-1 rounded-lg border-white bg-white shadow-inner px-3 py-1.5 text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500/20 font-medium" />
                                             <button type="button" id="filter-category-add-btn" aria-label="Add category"
                                                 class="relative inline-flex items-center justify-center px-3 py-1.5 rounded-lg bg-indigo-600 text-xs font-bold text-white hover:bg-indigo-700 shadow-md overflow-hidden">
-                                                <span class="filter-category-add-sizer invisible select-none">Add</span>
-                                                <span class="filter-category-add-label absolute inset-0 flex items-center justify-center transition-opacity duration-150">
+                                                <span class="filter-category-add-sizer cursor-pointer invisible select-none">Add</span>
+                                                <span class="filter-category-add-label cursor-pointer absolute inset-0 flex items-center justify-center transition-opacity duration-150">
                                                     Add
                                                 </span>
-                                                <span class="filter-category-add-spinner absolute inset-0 flex items-center justify-center opacity-0 invisible transition-opacity duration-150">
+                                                <span class="filter-category-add-spinner cursor-pointer absolute inset-0 flex items-center justify-center opacity-0 invisible transition-opacity duration-150">
                                                     <i class="fa-solid fa-spinner fa-spin text-[10px]"></i>
                                                 </span>
                                             </button>
@@ -191,12 +191,12 @@ try {
                                             <div
                                                 class="filter-category-actions flex items-center gap-1 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity">
                                                 <button type="button"
-                                                    class="filter-category-rename h-7 w-7 inline-flex items-center justify-center rounded-md bg-white border border-slate-100 shadow-sm text-slate-500 hover:bg-slate-50 hover:text-slate-700 transition-colors"
+                                                    class="filter-category-rename h-7 cursor-pointer w-7 inline-flex items-center justify-center rounded-md bg-white border border-slate-100 shadow-sm text-slate-500 hover:bg-slate-50 hover:text-slate-700 transition-colors"
                                                     title="Rename">
                                                     <i class="fa-solid fa-pen text-[10px]"></i>
                                                 </button>
                                                 <button type="button"
-                                                    class="filter-category-delete h-7 w-7 inline-flex items-center justify-center rounded-md bg-white border border-slate-100 shadow-sm text-red-500 hover:bg-red-50 hover:text-red-700 transition-colors"
+                                                    class="filter-category-delete h-7 cursor-pointer w-7 inline-flex items-center justify-center rounded-md bg-white border border-slate-100 shadow-sm text-red-500 hover:bg-red-50 hover:text-red-700 transition-colors"
                                                     title="Delete">
                                                     <i class="fa-solid fa-trash-can text-[10px]"></i>
                                                 </button>
@@ -701,7 +701,7 @@ try {
                                     <input type="hidden" name="category_id" id="category_id" value="">
 
                                     <button type="button" id="category-dd-trigger"
-                                        class="w-full inline-flex items-center justify-between rounded-xl border border-white bg-slate-50/80 shadow-inner px-4 py-2.5 text-sm font-medium hover:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all">
+                                        class="w-full inline-flex items-center cursor-pointer justify-between rounded-xl border border-white bg-slate-50/80 shadow-inner px-4 py-2.5 text-sm font-medium hover:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all">
                                         <span id="category-dd-label" class="truncate text-slate-500">Select</span>
                                         <i id="category-dd-chevron"
                                             class="fa-solid fa-chevron-down text-[10px] text-slate-400 bg-transparent transition-transform duration-300 ease-out"></i>
@@ -709,13 +709,13 @@ try {
 
                                     <div id="category-dd-menu"
                                         class="hidden absolute left-0 mt-2 min-w-full sm:min-w-[16rem] max-w-[calc(100vw-4rem)] rounded-2xl border border-white bg-white/95 backdrop-blur-xl shadow-2xl z-[80] overflow-hidden">
-                                        <ul id="category-dd-options" class="max-h-48 overflow-y-auto p-2 space-y-1">
+                                        <ul id="category-dd-options" class="max-h-48 overflow-y-auto p-2 ">
                                             <?php foreach ($categories as $cat): ?>
-                                                <li class="category-opt group flex items-center justify-between gap-2 rounded-lg px-3 py-2 hover:bg-slate-50 cursor-pointer transition-colors"
+                                                <li class="category-opt group flex items-center justify-between gap-2 rounded-lg  hover:bg-slate-50 cursor-pointer transition-colors"
                                                     data-id="<?php echo (int) $cat['category_id']; ?>"
                                                     data-name="<?php echo htmlspecialchars($cat['category_name'], ENT_QUOTES); ?>">
                                                     <button type="button"
-                                                        class="category-select flex-1 text-left text-xs font-bold text-slate-700 whitespace-normal break-words leading-snug">
+                                                        class="category-select cursor-pointer flex-1 text-left text-xs font-bold px-3 py-2 text-slate-700 whitespace-normal break-words leading-snug">
                                                         <?php echo htmlspecialchars($cat['category_name']); ?>
                                                     </button>
                                                 </li>
@@ -730,8 +730,7 @@ try {
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-2.5 mt-2">
                         <div class="space-y-0.5">
                             <label for="value"
-                                class="block text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Cost
-                                / Value</label>
+                                class="block text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Unit Cost</label>
                             <div class="relative rounded-xl shadow-inner bg-slate-50/80 border border-white">
                                 <span
                                     class="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-400 text-sm font-bold select-none z-10 pointer-events-none">₱</span>
@@ -771,7 +770,7 @@ try {
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-2.5 mt-1">
                         <div class="space-y-0.5">
                             <label for="unit"
-                                class="block text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Unit</label>
+                                class="block text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Base Unit</label>
                             <input type="text" name="unit" id="unit"
                                 class="block w-full rounded-xl border-white bg-slate-50/80 shadow-inner px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:bg-white text-sm font-medium transition-all"
                                 placeholder="e.g. pcs, box, kg">
@@ -779,8 +778,7 @@ try {
 
                         <div class="space-y-0.5">
                             <label for="stock_threshold"
-                                class="block text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Stock
-                                threshold</label>
+                                class="block text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Alert Level</label>
                             <input type="number" min="0" name="stock_threshold" id="stock_threshold"
                                 class="block w-full rounded-xl border-white bg-slate-50/80 shadow-inner px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:bg-white text-sm font-medium transition-all"
                                 placeholder="e.g. 10">
@@ -920,13 +918,13 @@ try {
                                     <div id="edit-category-dd-menu"
                                         class="hidden absolute left-0 mt-2 min-w-full sm:min-w-[16rem] max-w-[calc(100vw-4rem)] rounded-2xl border border-white bg-white/95 backdrop-blur-xl shadow-2xl z-[80] overflow-hidden">
                                         <ul id="edit-category-dd-options"
-                                            class="max-h-48 overflow-y-auto p-2 space-y-1">
+                                            class="max-h-48 overflow-y-auto p-2 ">
                                             <?php foreach ($categories as $cat): ?>
-                                                <li class="edit-category-opt group flex items-center justify-between gap-2 rounded-lg px-3 py-2 hover:bg-slate-50 cursor-pointer transition-colors"
+                                                <li class="edit-category-opt group flex items-center justify-between gap-2 rounded-lg  hover:bg-slate-50 cursor-pointer transition-colors"
                                                     data-id="<?php echo (int) $cat['category_id']; ?>"
                                                     data-name="<?php echo htmlspecialchars($cat['category_name'], ENT_QUOTES); ?>">
                                                     <button type="button"
-                                                        class="edit-category-select flex-1 text-left text-xs font-bold text-slate-700 whitespace-normal break-words leading-snug">
+                                                        class="edit-category-select flex-1 text-left text-xs font-bold px-3 py-2 text-slate-700 whitespace-normal break-words leading-snug">
                                                         <?php echo htmlspecialchars($cat['category_name']); ?>
                                                     </button>
                                                 </li>
@@ -941,8 +939,7 @@ try {
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-2.5 mt-2">
                         <div class="space-y-0.5">
                             <label for="edit_value"
-                                class="block text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Cost
-                                / Value</label>
+                                class="block text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Unit Cost</label>
                             <div class="relative rounded-xl shadow-inner bg-slate-50/80 border border-white">
                                 <span
                                     class="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-400 text-sm font-bold select-none z-10 pointer-events-none">₱</span>
@@ -983,7 +980,7 @@ try {
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-2.5 mt-1">
                         <div class="space-y-0.5">
                             <label for="edit_unit"
-                                class="block text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Unit</label>
+                                class="block text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Base Unit</label>
                             <input type="text" name="unit" id="edit_unit"
                                 class="block w-full rounded-xl border-white bg-slate-50/80 shadow-inner px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:bg-white text-sm font-medium transition-all"
                                 placeholder="e.g. pcs, box, kg">
@@ -991,8 +988,7 @@ try {
 
                         <div class="space-y-0.5">
                             <label for="edit_stock_threshold"
-                                class="block text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Stock
-                                threshold</label>
+                                class="block text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Alert Level</label>
                             <input type="number" min="0" name="stock_threshold" id="edit_stock_threshold"
                                 class="block w-full rounded-xl border-white bg-slate-50/80 shadow-inner px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:bg-white text-sm font-medium transition-all"
                                 placeholder="e.g. 10">
