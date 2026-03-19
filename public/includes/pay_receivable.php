@@ -11,6 +11,12 @@ if (!isset($_SESSION['user_id'])) {
 $data = json_decode(file_get_contents('php://input'), true);
 $uuid = $data['uuid'] ?? '';
 $isGcash = !empty($data['is_gcash']) ? 1 : 0;
+$isBank = !empty($data['is_bank']) ? 1 : 0;
+if ($isBank === 1) {
+    $isGcash = 0;
+} elseif ($isGcash === 1) {
+    $isBank = 0;
+}
 
 if (!$uuid) {
     echo json_encode(['success' => false, 'message' => 'Transaction ID missing.']);
@@ -22,10 +28,10 @@ try {
 
     $stmt = $pdo->prepare("
         UPDATE transaction_header 
-        SET is_unpaid = 0, is_gcash = :is_gcash, settle_date = CURDATE() 
+        SET is_unpaid = 0, is_gcash = :is_gcash, is_bank = :is_bank, settle_date = CURDATE() 
         WHERE transaction_uuid = :uuid AND is_unpaid = 1
     ");
-    $stmt->execute(['uuid' => $uuid, 'is_gcash' => $isGcash]);
+    $stmt->execute(['uuid' => $uuid, 'is_gcash' => $isGcash, 'is_bank' => $isBank]);
 
     if ($stmt->rowCount() === 0) {
         throw new Exception("Transaction not found or already paid.");

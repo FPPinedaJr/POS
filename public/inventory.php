@@ -657,13 +657,16 @@ try {
 
                     <div class="relative z-10">
                         <h2 class="text-xl font-black text-slate-900 tracking-tight">Add new item</h2>
-                        <p class="text-xs font-medium text-slate-500 mt-0.5">Upload an image and set basic details.</p>
+                        <p class="text-xs font-medium text-slate-500 mt-0.5">
+                            <span id="add-step-label">Step 1 of 2: Item details</span>
+                        </p>
                     </div>
                 </div>
 
                 <form id="add-item-form" action="includes/save_item.php" method="POST" enctype="multipart/form-data"
                     class="px-6 py-4 space-y-4">
 
+                    <div id="add-step-1" class="space-y-4">
                     <div class="flex items-start gap-5">
                         <div class="shrink-0 flex flex-col items-center space-y-1.5">
                             <label for="item_image" class="cursor-pointer group relative block">
@@ -788,7 +791,7 @@ try {
                     <div
                         class="flex flex-col items-center justify-center bg-slate-50/80 py-4 rounded-2xl border border-white shadow-inner">
                         <label
-                            class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2.5">Quantity</label>
+                            class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2.5">Starting quantity</label>
                         <div class="flex items-center justify-center gap-6">
                             <button type="button" id="qty-btn-minus"
                                 class="text-indigo-400 hover:text-indigo-600 hover:bg-white w-10 h-10 rounded-full flex items-center justify-center transition-all outline-none shadow-sm border border-slate-100 bg-slate-50">
@@ -808,14 +811,131 @@ try {
                             </button>
                         </div>
                     </div>
+                    </div>
+
+                    <div id="add-step-2" class="space-y-4 hidden">
+                        <div class="rounded-2xl border border-white bg-slate-50/80 shadow-inner p-4">
+                            <div class="flex items-start justify-between gap-4">
+                                <div>
+                                    <h3 class="text-sm font-black text-slate-800 tracking-tight">Purchase details</h3>
+                                    <p class="text-xs font-medium text-slate-500 mt-0.5">Record the item purchase for this new item.</p>
+                                </div>
+                                <div class="text-xs font-black text-slate-600 bg-white/70 border border-white rounded-xl px-3 py-2">
+                                    Total: <span id="purchase-total" class="text-slate-900">₱0.00</span>
+                                </div>
+                            </div>
+
+                            <div class="mt-4">
+                                <div class="relative flex p-1 bg-slate-100/80 rounded-full w-full shadow-inner">
+                                    <div id="purchase-tab-slider"
+                                        class="absolute top-1 bottom-1 left-1 w-[calc(50%-4px)] bg-white rounded-full shadow-sm transition-transform duration-300 ease-out z-0 translate-x-0">
+                                    </div>
+
+                                    <button type="button" id="purchase-pay-mode-now"
+                                        class="relative z-10 flex-1 px-4 py-2 text-sm font-black text-slate-800 cursor-pointer transition-colors duration-300">
+                                        Pay Now
+                                    </button>
+                                    <button type="button" id="purchase-pay-mode-later"
+                                        class="relative z-10 flex-1 px-4 py-2 text-sm font-black text-slate-500 hover:text-slate-700 cursor-pointer transition-colors duration-300">
+                                        Pay Later
+                                    </button>
+                                </div>
+
+                                <div class="mt-3" id="purchase-pay-sections">
+                                    <div id="purchase-pay-now-wrapper" class="space-y-3">
+                                        <p class="text-[11px] font-black uppercase tracking-[0.2em] text-slate-500 mb-2">Payment Method</p>
+                                        <div class="space-y-3" id="purchase-payment-options">
+                                    <label class="purchase-pay-option purchase-pay-cash flex items-center justify-between gap-4 p-4 rounded-2xl border border-slate-200 bg-white cursor-pointer hover:border-slate-300 transition-colors">
+                                        <input type="radio" name="purchase_payment" value="cash" class="hidden" checked>
+                                        <div class="flex items-center gap-3 min-w-0">
+                                            <div class="h-12 w-12 rounded-2xl bg-slate-50 border border-emerald-200 text-emerald-700 flex items-center justify-center shrink-0">
+                                                <i class="fa-solid fa-money-bill-1 text-lg"></i>
+                                            </div>
+                                            <div class="min-w-0">
+                                                <div class="text-base font-black text-slate-900 truncate">Cash</div>
+                                                <div class="text-sm font-semibold text-slate-500 truncate">Paid</div>
+                                            </div>
+                                        </div>
+                                        <div class="purchase-pay-radio h-9 w-9 rounded-full border-2 border-slate-300 flex items-center justify-center shrink-0">
+                                            <div class="purchase-pay-dot hidden h-5 w-5 rounded-full bg-emerald-500"></div>
+                                        </div>
+                                    </label>
+
+                                    <label class="purchase-pay-option purchase-pay-gcash flex items-center justify-between gap-4 p-4 rounded-2xl border border-slate-200 bg-white cursor-pointer hover:border-slate-300 transition-colors">
+                                        <input type="radio" name="purchase_payment" value="gcash" class="hidden">
+                                        <div class="flex items-center gap-3 min-w-0">
+                                            <div class="h-12 w-12 rounded-2xl bg-slate-50 border border-slate-200 flex items-center justify-center shrink-0">
+                                                <img src="assets/images/gcash.svg" alt="GCash" class="h-7 w-7" />
+                                            </div>
+                                            <div class="min-w-0">
+                                                <div class="text-base font-black text-slate-900 truncate">GCash</div>
+                                                <div class="text-sm font-semibold text-slate-500 truncate">Paid thru Gcash</div>
+                                            </div>
+                                        </div>
+                                        <div class="purchase-pay-radio h-9 w-9 rounded-full border-2 border-slate-300 flex items-center justify-center shrink-0">
+                                            <div class="purchase-pay-dot hidden h-5 w-5 rounded-full bg-sky-500"></div>
+                                        </div>
+                                    </label>
+
+                                    <label class="purchase-pay-option purchase-pay-bank flex items-center justify-between gap-4 p-4 rounded-2xl border border-slate-200 bg-white cursor-pointer hover:border-slate-300 transition-colors">
+                                        <input type="radio" name="purchase_payment" value="bank" class="hidden">
+                                        <div class="flex items-center gap-3 min-w-0">
+                                            <div class="h-12 w-12 rounded-2xl bg-slate-50 border border-indigo-200 text-indigo-700 flex items-center justify-center shrink-0">
+                                                <i class="fa-solid fa-building-columns text-lg"></i>
+                                            </div>
+                                            <div class="min-w-0">
+                                                <div class="text-base font-black text-slate-900 truncate">Bank</div>
+                                                <div class="text-sm font-semibold text-slate-500 truncate">Paid via Bank</div>
+                                            </div>
+                                        </div>
+                                        <div class="purchase-pay-radio h-9 w-9 rounded-full border-2 border-slate-300 flex items-center justify-center shrink-0">
+                                            <div class="purchase-pay-dot hidden h-5 w-5 rounded-full bg-indigo-500"></div>
+                                        </div>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div id="purchase-pay-later-wrapper" class="hidden space-y-3">
+                                <input type="radio" name="purchase_payment" value="unpaid" class="hidden" id="purchase-payment-unpaid-hidden">
+                                <div class="rounded-2xl border border-slate-100 bg-slate-50 px-4 py-3">
+                                    <div class="text-[11px] font-black uppercase tracking-[0.2em] text-orange-500">Payable</div>
+                                    <div class="text-sm font-bold text-slate-600 mt-1">This purchase will be saved as unpaid.</div>
+                                </div>
+
+                                <div id="purchase-unpaid-fields" class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                    <div class="space-y-0.5">
+                                        <label for="purchase_supplier" class="block text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Supplier</label>
+                                        <input type="text" name="purchase_supplier" id="purchase_supplier"
+                                            class="block w-full rounded-xl border-white bg-white/70 shadow-inner px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:bg-white text-sm font-medium transition-all"
+                                            placeholder="Supplier name">
+                                    </div>
+                                    <div class="space-y-0.5">
+                                        <label for="purchase_due_date" class="block text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Due date</label>
+                                        <input type="date" name="purchase_due_date" id="purchase_due_date"
+                                            class="block w-full rounded-xl border-white bg-white/70 shadow-inner px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:bg-white text-sm font-medium transition-all">
+                                    </div>
+                                </div>
+                            </div>
+                            </div>
+                            </div>
+                        </div>
+                    </div>
 
                     <div class="flex items-center justify-end gap-3 pt-2">
                         <button type="button" id="cancel-add-item-modal"
                             class="px-5 py-2.5 rounded-xl bg-white border border-slate-200 shadow-sm text-sm font-bold cursor-pointer text-slate-600 hover:bg-slate-50 transition-all">
                             Cancel
                         </button>
-                        <button type="submit"
+                        <button type="button" id="add-step-back"
+                            class="hidden px-5 py-2.5 rounded-xl bg-white border border-slate-200 shadow-sm text-sm font-black cursor-pointer text-slate-700 hover:bg-slate-50 transition-all">
+                            Back
+                        </button>
+                        <button type="button" id="add-step-next"
                             class="px-6 py-2.5 rounded-xl bg-indigo-600 text-sm font-black tracking-wide text-white shadow-md shadow-indigo-200 hover:bg-indigo-700 focus:outline-none cursor-pointer focus:ring-2 focus:ring-indigo-500/30 transition-all hover:-translate-y-0.5">
+                            Next
+                        </button>
+                        <button type="submit" id="add-step-save"
+                            class="hidden px-6 py-2.5 rounded-xl bg-indigo-600 text-sm font-black tracking-wide text-white shadow-md shadow-indigo-200 hover:bg-indigo-700 focus:outline-none cursor-pointer focus:ring-2 focus:ring-indigo-500/30 transition-all hover:-translate-y-0.5">
                             Save
                         </button>
                     </div>
@@ -1387,6 +1507,28 @@ try {
                 setSelectedCategory('', '');
                 $addQtyInput.val(0).css('width', '1ch');
                 closeDropdown();
+
+                // Reset wizard
+                $('#add-step-1').removeClass('hidden');
+                $('#add-step-2').addClass('hidden');
+                $('#add-step-back').addClass('hidden');
+                $('#add-step-next').removeClass('hidden');
+                $('#add-step-save').addClass('hidden');
+                $('#add-step-label').text('Step 1 of 2: Item details');
+                $('#purchase-total').text('₱0.00');
+
+                // Reset purchase UI
+                $('input[name="purchase_payment"][value="cash"]').prop('checked', true);
+                applyPurchasePaymentHighlight($('#purchase-payment-options .purchase-pay-cash'));
+                updateUnpaidFieldsVisibility();
+                // Reset pay mode toggle
+                if ($('#purchase-tab-slider').length) {
+                    $('#purchase-tab-slider').removeClass('translate-x-full').addClass('translate-x-0');
+                    $('#purchase-pay-now-wrapper').removeClass('hidden');
+                    $('#purchase-pay-later-wrapper').addClass('hidden');
+                    $('#purchase-pay-mode-now').addClass('text-slate-800').removeClass('text-slate-500');
+                    $('#purchase-pay-mode-later').addClass('text-slate-500').removeClass('text-slate-800');
+                }
             }
 
             $('#open-add-item-modal').on('click', () => $addItemModal.removeClass('hidden').addClass('flex'));
@@ -1408,13 +1550,149 @@ try {
                 }
             });
 
-            $('#add-item-form').on('submit', function (e) {
-                e.preventDefault();
+            function formatCurrencyPHP(n) {
+                const v = Number.isFinite(n) ? n : 0;
+                return '₱' + v.toFixed(2);
+            }
+
+            function updatePurchaseTotal() {
+                const qty = parseInt($('#item_count').val(), 10);
+                const unitCost = parseFloat($('#value').val());
+                const q = Number.isFinite(qty) ? Math.max(0, qty) : 0;
+                const c = Number.isFinite(unitCost) ? Math.max(0, unitCost) : 0;
+                $('#purchase-total').text(formatCurrencyPHP(q * c));
+            }
+
+            $('#item_count, #value').on('input', updatePurchaseTotal);
+
+            function applyPurchasePaymentHighlight($label) {
+                const $all = $('#purchase-payment-options .purchase-pay-option');
+                $all.removeClass('ring-2 ring-emerald-400/70 border-emerald-400/60 ring-2 ring-sky-400/70 border-sky-400/60 ring-2 ring-indigo-400/70 border-indigo-400/60 ring-2 ring-orange-400/70 border-orange-400/60')
+                    .addClass('border-slate-200 bg-white');
+                $all.find('.purchase-pay-dot').addClass('hidden');
+
+                if ($label.hasClass('purchase-pay-cash')) {
+                    $label.removeClass('border-slate-200 bg-white').addClass('ring-2 ring-emerald-400/70 border-emerald-400/60');
+                    $label.find('.purchase-pay-dot').removeClass('hidden');
+                } else if ($label.hasClass('purchase-pay-gcash')) {
+                    $label.removeClass('border-slate-200 bg-white').addClass('ring-2 ring-sky-400/70 border-sky-400/60');
+                    $label.find('.purchase-pay-dot').removeClass('hidden');
+                } else if ($label.hasClass('purchase-pay-bank')) {
+                    $label.removeClass('border-slate-200 bg-white').addClass('ring-2 ring-indigo-400/70 border-indigo-400/60');
+                    $label.find('.purchase-pay-dot').removeClass('hidden');
+                } else if ($label.hasClass('purchase-pay-unpaid')) {
+                    $label.removeClass('border-slate-200 bg-white').addClass('ring-2 ring-orange-400/70 border-orange-400/60');
+                    $label.find('.purchase-pay-dot').removeClass('hidden');
+                }
+            }
+
+            function updateUnpaidFieldsVisibility() {
+                const method = String($('input[name="purchase_payment"]:checked').val() || 'cash');
+                const isUnpaid = method === 'unpaid';
+                $('#purchase-unpaid-fields').toggleClass('hidden', !isUnpaid);
+                if (!isUnpaid) {
+                    $('#purchase_supplier').val('');
+                    $('#purchase_due_date').val('');
+                }
+            }
+
+            function setPurchasePayMode(mode) {
+                const isLater = mode === 'later';
+                $('#purchase-pay-now-wrapper').toggleClass('hidden', isLater);
+                $('#purchase-pay-later-wrapper').toggleClass('hidden', !isLater);
+
+                // Slider + button styles (POS-like)
+                $('#purchase-tab-slider')
+                    .toggleClass('translate-x-0', !isLater)
+                    .toggleClass('translate-x-full', isLater);
+                $('#purchase-pay-mode-now')
+                    .toggleClass('text-slate-800', !isLater)
+                    .toggleClass('text-slate-500', isLater);
+                $('#purchase-pay-mode-later')
+                    .toggleClass('text-slate-800', isLater)
+                    .toggleClass('text-slate-500', !isLater);
+
+                if (isLater) {
+                    $('#purchase-payment-unpaid-hidden').prop('checked', true);
+                } else {
+                    $('input[name="purchase_payment"][value="cash"]').prop('checked', true);
+                }
+
+                applyPurchasePaymentHighlight($('#purchase-payment-options .purchase-pay-option:has(input:checked)'));
+                updateUnpaidFieldsVisibility();
+            }
+
+            $('#add-step-next').on('click', function () {
+                // Basic validation for step 1 before moving on
+                if (!String($('#item_name').val() || '').trim()) {
+                    showToast('error', 'Please enter an item name.');
+                    return;
+                }
                 if (!String($('#category_id').val() || '').trim()) {
                     showToast('error', 'Please select a category.');
                     $('#category-dd-menu').removeClass('hidden');
                     return;
                 }
+
+                // Move to step 2 and prefill purchase fields
+                $('#add-step-1').addClass('hidden');
+                $('#add-step-2').removeClass('hidden');
+                $('#add-step-back').removeClass('hidden');
+                $('#add-step-next').addClass('hidden');
+                $('#add-step-save').removeClass('hidden');
+                $('#add-step-label').text('Step 2 of 2: Purchase details');
+                updatePurchaseTotal();
+                setPurchasePayMode('now');
+
+                // Focus the payment options
+                setTimeout(() => $('#purchase-payment-options .purchase-pay-option').first().trigger('focus'), 0);
+            });
+
+            $('#add-step-back').on('click', function () {
+                $('#add-step-2').addClass('hidden');
+                $('#add-step-1').removeClass('hidden');
+                $('#add-step-back').addClass('hidden');
+                $('#add-step-next').removeClass('hidden');
+                $('#add-step-save').addClass('hidden');
+                $('#add-step-label').text('Step 1 of 2: Item details');
+            });
+
+            // Payment option click (POS-like)
+            $('#purchase-payment-options').on('click', '.purchase-pay-option', function () {
+                const $label = $(this);
+                const radio = $label.find('input[type="radio"]');
+                radio.prop('checked', true);
+                applyPurchasePaymentHighlight($label);
+                updateUnpaidFieldsVisibility();
+            });
+
+            $('#purchase-pay-mode-now').on('click', function () {
+                setPurchasePayMode('now');
+            });
+            $('#purchase-pay-mode-later').on('click', function () {
+                setPurchasePayMode('later');
+            });
+
+            $('#add-item-form').on('submit', function (e) {
+                e.preventDefault();
+                // Ensure we're on step 2 (purchase) before saving
+                if (!$('#add-step-2').is(':visible')) {
+                    $('#add-step-next').trigger('click');
+                    return;
+                }
+
+                const method = String($('input[name="purchase_payment"]:checked').val() || 'cash');
+                if (method === 'unpaid') {
+                    if (!String($('#purchase_supplier').val() || '').trim()) {
+                        showToast('error', 'Supplier is required for unpaid purchases.');
+                        return;
+                    }
+                    if (!String($('#purchase_due_date').val() || '').trim()) {
+                        showToast('error', 'Due date is required for unpaid purchases.');
+                        return;
+                    }
+                }
+
                 // Capture the form payload BEFORE resetting the form.
                 const formData = new FormData(this);
                 if (typeof uuidv7 === 'function') {

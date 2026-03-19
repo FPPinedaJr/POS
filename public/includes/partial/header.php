@@ -32,7 +32,7 @@ $iconClass = $theme === 'teal'
             <?php else: ?>
                 <a href="portal.php" class="flex items-center focus:outline-none" aria-label="Go to portal">
             <?php endif; ?>
-                <img src="assets/images/logo.png" alt="Venda Track"
+                <img src="assets/images/header.png" alt="Venda Track"
                     class="h-10 w-auto max-w-[200px] sm:max-w-[240px] object-contain">
             </a>
         </div>

@@ -42,6 +42,11 @@ $wholesalePrice = isset($_POST['wholesale_price']) ? (float) $_POST['wholesale_p
 $stockThreshold = isset($_POST['stock_threshold']) ? (int) $_POST['stock_threshold'] : 0;
 $itemCount = isset($_POST['item_count']) ? (int) $_POST['item_count'] : 0;
 
+// Purchase step
+$purchasePayment = trim($_POST['purchase_payment'] ?? 'cash'); // cash | gcash | bank | unpaid
+$purchaseSupplier = trim($_POST['purchase_supplier'] ?? '');
+$purchaseDueDate = trim($_POST['purchase_due_date'] ?? '');
+
 if ($itemName === '' || !$categoryId) {
     echo json_encode(['success' => false, 'message' => 'Item name and category are required.']);
     exit;
@@ -50,6 +55,18 @@ if ($itemName === '' || !$categoryId) {
 if ($itemCount < 0) {
     echo json_encode(['success' => false, 'message' => 'Item count cannot be negative.']);
     exit;
+}
+
+if (!in_array($purchasePayment, ['cash', 'gcash', 'bank', 'unpaid'], true)) {
+    echo json_encode(['success' => false, 'message' => 'Invalid purchase payment method.']);
+    exit;
+}
+
+if ($purchasePayment === 'unpaid') {
+    if ($purchaseSupplier === '' || $purchaseDueDate === '') {
+        echo json_encode(['success' => false, 'message' => 'Supplier and due date are required for unpaid purchases.']);
+        exit;
+    }
 }
 
 $imageMeta = null;
@@ -113,6 +130,65 @@ try {
     ]);
 
     $itemId = (int) $pdo->lastInsertId();
+
+    // Store a purchase record for the new item (qty & unit cost are derived from item fields).
+    if ($itemId > 0) {
+        $qty = max(0, (int) $itemCount);
+        $unitCost = (float) $value;
+        $totalAmount = round($qty * $unitCost, 2);
+
+        $isUnpaid = ($purchasePayment === 'unpaid') ? 1 : 0;
+        $isGcash = ($purchasePayment === 'gcash') ? 1 : 0;
+        $isBank = ($purchasePayment === 'bank') ? 1 : 0;
+
+        $dueDateSql = ($isUnpaid && $purchaseDueDate !== '') ? $purchaseDueDate : null;
+        $supplierSql = ($isUnpaid && $purchaseSupplier !== '') ? $purchaseSupplier : '';
+        $settleDateSql = null;
+
+        $purchaseStmt = $pdo->prepare(
+            "INSERT INTO item_purchase (
+                user_id,
+                item_id,
+                qty,
+                value,
+                total_amount,
+                is_unpaid,
+                is_gcash,
+                is_bank,
+                supplier,
+                due_date,
+                settle_date,
+                created_at
+            ) VALUES (
+                :user_id,
+                :item_id,
+                :qty,
+                :value,
+                :total_amount,
+                :is_unpaid,
+                :is_gcash,
+                :is_bank,
+                :supplier,
+                :due_date,
+                :settle_date,
+                NOW()
+            )"
+        );
+
+        $purchaseStmt->execute([
+            'user_id' => (int) $_SESSION['user_id'],
+            'item_id' => $itemId,
+            'qty' => $qty,
+            'value' => $unitCost,
+            'total_amount' => $totalAmount,
+            'is_unpaid' => $isUnpaid,
+            'is_gcash' => $isGcash,
+            'is_bank' => $isBank,
+            'supplier' => $supplierSql,
+            'due_date' => $dueDateSql,
+            'settle_date' => $settleDateSql,
+        ]);
+    }
 
     if ($itemId > 0 && $itemCount !== 0) {
         $historyUuid = $_POST['history_uuid'] ?? null;
