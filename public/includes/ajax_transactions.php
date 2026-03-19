@@ -71,6 +71,7 @@ try {
                     th.total_amount,
                     th.is_unpaid,
                     th.is_gcash,
+                    th.is_bank,
                     th.void_date,
                     th.settle_date,
                     th.created_at,
@@ -81,7 +82,7 @@ try {
                 WHERE th.user_id = :user_id
                   AND th.is_unpaid = 1
                   AND th.void_date IS NULL
-                GROUP BY th.transaction_uuid, th.transaction_number, th.customer, th.total_amount, th.is_unpaid, th.is_gcash, th.void_date, th.settle_date, th.created_at
+                GROUP BY th.transaction_uuid, th.transaction_number, th.customer, th.total_amount, th.is_unpaid, th.is_gcash, th.is_bank, th.void_date, th.settle_date, th.created_at
                 ORDER BY th.created_at DESC
             ");
             $stmt->execute(['user_id' => $userId]);
@@ -100,6 +101,7 @@ try {
                     th.total_amount,
                     th.is_unpaid,
                     th.is_gcash,
+                    th.is_bank,
                     th.void_date,
                     th.settle_date,
                     th.created_at,
@@ -112,7 +114,7 @@ try {
                         DATE(th.created_at) = CURDATE()
                         OR th.settle_date = CURDATE()
                       )
-                GROUP BY th.transaction_uuid, th.transaction_number, th.customer, th.total_amount, th.is_unpaid, th.is_gcash, th.void_date, th.settle_date, th.created_at
+                GROUP BY th.transaction_uuid, th.transaction_number, th.customer, th.total_amount, th.is_unpaid, th.is_gcash, th.is_bank, th.void_date, th.settle_date, th.created_at
                 ORDER BY th.created_at DESC
             ");
             $stmt->execute(['user_id' => $userId]);
